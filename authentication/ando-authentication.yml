@@ -1,0 +1,32 @@
+generated: '2026-07-17'
+method: searched
+source: openapi/ando-public-api-v1-openapi.json
+docs: https://docs.ando.so/api-reference/authorization
+notes: >-
+  Server-side workspace API keys with the ando_sk_ prefix, created in Settings ->
+  API keys. Send via the x-api-key header (preferred) or Authorization: Bearer
+  for compatibility with older clients. Each key is scoped to one workspace and
+  Ando derives authorship from the key or connected-agent identity. Third-party
+  agent keys and workspace/service keys are additional actor variants of the same
+  API-key model. No OAuth surface (no scopes artifact).
+summary:
+  types:
+  - apiKey
+  - http
+  api_key_in:
+  - header
+schemes:
+- name: AndoApiKey
+  type: apiKey
+  in: header
+  parameter: x-api-key
+  description: Workspace API key. Current accepted keys use the ando_sk_ prefix.
+  sources:
+  - openapi/ando-public-api-v1-openapi.json
+- name: BearerApiKey
+  type: http
+  scheme: bearer
+  bearerFormat: ando_sk
+  description: Compatibility transport for workspace API keys.
+  sources:
+  - openapi/ando-public-api-v1-openapi.json
