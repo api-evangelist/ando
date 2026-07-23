@@ -1,0 +1,399 @@
+openapi: 3.0.3
+info:
+  description: Generated from Ando's accepted public API v1 contract metadata. Current routes preserve legacy /api/v1 response envelopes while converging on the public https://api.ando.so/v1 shape.
+  title: Ando Public Calls Realtime API
+  version: v1
+servers:
+- description: Canonical public API host.
+  url: https://api.ando.so/v1
+tags:
+- name: Realtime
+paths:
+  /realtime/connections:
+    post:
+      description: Opens a temporary pre-authorized public realtime websocket connection URL for RFC 085 ProductEvent delivery. API keys are validated only on this HTTP route; the websocket uses the returned temporary ticket URL and the ando.realtime.v1 subprotocol.
+      operationId: openRealtimeConnection
+      requestBody:
+        content:
+          application/json:
+            examples:
+              messageCreatedEvents:
+                summary: Subscribe to message.created events readable by the authenticated principal.
+                value:
+                  subscriptions:
+                  - target: self
+                    delivery: messages
+                    events:
+                    - message.created
+            schema:
+              $ref: '#/components/schemas/OpenRealtimeConnectionRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                connection:
+                  summary: Temporary realtime connection URL.
+                  value:
+                    url: wss://realtime.ando.so/link?ticket=rtconn_opaque_temporary_ticket
+                    expires_at: '2026-05-29T01:00:00.000Z'
+                    expires_in_seconds: 60
+                    connection_id: rtconn_01jzn7e61x3a7v9h2r7t2m3q4p
+                    protocol: ando.realtime.v1
+                    heartbeat_interval_seconds: 30
+                    approximate_connection_time_seconds: null
+                    resume_supported: true
+                    subscriptions:
+                    - id: rtsub_01jzn7e61x3a7v9h2r7t2m3q4p
+                      target:
+                        type: workspace_membership
+                        id: mem_01jzn7e61x3a7v9h2r7t2m3q4p
+                      delivery: messages
+                      events:
+                      - message.created
+              schema:
+                $ref: '#/components/schemas/OpenRealtimeConnectionResponse'
+          description: Opened temporary realtime connection.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+        '503':
+          content:
+            application/json:
+              examples:
+                realtimeUnavailable:
+                  summary: Realtime unavailable.
+                  value:
+                    error:
+                      code: realtime_unavailable
+                      message: Public realtime connection opening is not available yet.
+              schema:
+                $ref: '#/components/schemas/PublicApiErrorResponse'
+          description: Public realtime connection opening is not available in this deployment.
+      security:
+      - AndoApiKey: []
+      - BearerApiKey: []
+      summary: Open a realtime connection
+      tags:
+      - Realtime
+      x-ando-compatibility-mode: standard_public
+      x-ando-migration-target: standard_public
+      x-ando-rate-limit-policy: declared
+      x-ando-route-id: api.api_v1_realtime_connections.post
+      x-ando-required: true
+      x-ando-canonical-host: api.ando.so
+      x-ando-documentation-owner: api_platform
+      x-ando-principal-kind: workspace_api_key
+      x-ando-public-api-route-class: runtime_boundary
+      x-ando-public-path: /v1/realtime/connections
+      x-ando-runtime-owner: backend_runtime
+      x-ando-status-probe-owner: none
+      x-ando-rollback-runtime: express
+      x-ando-selected-runtime: express
+      x-ando-target-runtime: express
+components:
+  responses:
+    Forbidden:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Forbidden.
+    RateLimited:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/PublicApiErrorResponse'
+      description: Rate limit or quota exceeded.
+    NotFound:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Not found.
+    InternalError:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Internal server error.
+    Conflict:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Conflict.
+    Unauthorized:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Missing or invalid API key.
+    BadRequest:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Bad request.
+  schemas:
+    OpenRealtimeConnectionRequest:
+      additionalProperties: false
+      description: Public realtime connection-opening request.
+      properties:
+        resume_from:
+          $ref: '#/components/schemas/RealtimeResumeRequest'
+        subscriptions:
+          description: Realtime subscriptions to authorize for this connection.
+          items:
+            $ref: '#/components/schemas/RealtimeConnectionSubscriptionRequest'
+          type: array
+          minItems: 1
+      required:
+      - subscriptions
+      type: object
+    RealtimeDelivery:
+      description: Realtime delivery filter. Use "messages" for readable message.created delivery; use "mentions" for explicit mention-only delivery capped at 100 explicit targets per message.
+      enum:
+      - messages
+      - mentions
+      type: string
+    RealtimeResumeRequest:
+      additionalProperties: false
+      description: Bounded realtime resume request.
+      properties:
+        cursor:
+          description: Last acknowledged realtime cursor.
+          type: string
+      required:
+      - cursor
+      type: object
+    RealtimeConnectionWarning:
+      additionalProperties: false
+      description: Non-fatal realtime connection-opening warning.
+      properties:
+        code:
+          description: Realtime connection warning code.
+          enum:
+          - resume_failed
+          - resume_unavailable
+          type: string
+        message:
+          description: Human-readable warning message.
+          type: string
+      required:
+      - code
+      - message
+      type: object
+    LegacyErrorResponse:
+      additionalProperties: false
+      description: Current compatibility error envelope used by legacy /api/v1 routes.
+      properties:
+        error:
+          description: Error message.
+          type: string
+        error_code:
+          description: Optional machine-readable error code.
+          type: string
+          nullable: true
+        missing_scopes:
+          description: Missing scopes.
+          items:
+            description: Scope.
+            type: string
+          type: array
+      required:
+      - error
+      type: object
+    OpenRealtimeConnectionResponse:
+      additionalProperties: false
+      description: Temporary public realtime websocket connection details.
+      properties:
+        approximate_connection_time_seconds:
+          description: Approximate expected connection lifetime in seconds when the server advertises one.
+          type: number
+          nullable: true
+        connection_id:
+          description: Realtime connection identifier.
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+        expires_at:
+          description: Timestamp when the returned connection URL expires if it has not been used.
+          type: string
+          example: '2026-05-14T08:00:00.000Z'
+          format: date-time
+        expires_in_seconds:
+          description: Seconds until the returned connection URL expires if it has not been used.
+          type: integer
+          minimum: 1
+        heartbeat_interval_seconds:
+          description: Recommended heartbeat interval for the socket.
+          type: integer
+          minimum: 1
+        protocol:
+          description: Required websocket subprotocol.
+          enum:
+          - ando.realtime.v1
+          type: string
+        resume_supported:
+          description: Whether bounded resume is supported for this connection.
+          type: boolean
+        subscriptions:
+          description: Canonical subscriptions authorized for the socket.
+          items:
+            $ref: '#/components/schemas/RealtimeConnectionSubscription'
+          type: array
+        url:
+          description: Temporary pre-authorized websocket URL. Treat the ticket query parameter as secret.
+          type: string
+        warnings:
+          description: Non-fatal connection-opening warnings.
+          items:
+            $ref: '#/components/schemas/RealtimeConnectionWarning'
+          type: array
+      required:
+      - url
+      - expires_at
+      - expires_in_seconds
+      - connection_id
+      - protocol
+      - heartbeat_interval_seconds
+      - approximate_connection_time_seconds
+      - resume_supported
+      - subscriptions
+      type: object
+    RealtimeConnectionSubscription:
+      additionalProperties: false
+      description: Canonical realtime subscription authorized by the API.
+      properties:
+        delivery:
+          $ref: '#/components/schemas/RealtimeDelivery'
+        events:
+          description: ProductEvent types delivered on this subscription.
+          items:
+            $ref: '#/components/schemas/RealtimeEventType'
+          type: array
+          minItems: 1
+        id:
+          description: Realtime subscription identifier.
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+        target:
+          $ref: '#/components/schemas/RealtimeObjectTarget'
+      required:
+      - id
+      - target
+      - delivery
+      - events
+      type: object
+    PublicApiErrorResponse:
+      additionalProperties: false
+      description: Target public API error envelope.
+      properties:
+        error:
+          additionalProperties: false
+          description: Error details.
+          properties:
+            code:
+              description: Machine-readable error code.
+              type: string
+            message:
+              description: Human-readable error message.
+              type: string
+            request_id:
+              description: Request identifier.
+              type: string
+              nullable: true
+          required:
+          - code
+          - message
+          type: object
+      required:
+      - error
+      type: object
+    RealtimeObjectTarget:
+      additionalProperties: false
+      description: Canonical realtime target resolved by the API. The initial release returns workspace membership targets only.
+      properties:
+        id:
+          description: Target identifier.
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+        type:
+          description: Target type.
+          enum:
+          - workspace_membership
+          type: string
+      required:
+      - type
+      - id
+      type: object
+    RealtimeEventType:
+      description: ProductEvent type available on public realtime sockets.
+      enum:
+      - message.created
+      type: string
+    RealtimeTarget:
+      description: Realtime target requested while opening a connection. The initial release supports self or an explicit workspace membership target.
+      oneOf:
+      - description: Authenticated principal shorthand.
+        enum:
+        - self
+        type: string
+      - additionalProperties: false
+        description: Workspace membership realtime target.
+        properties:
+          id:
+            description: Workspace membership identifier.
+            type: string
+            example: 01jzn7e61x3a7v9h2r7t2m3q4p
+          type:
+            description: Target type.
+            enum:
+            - workspace_membership
+            type: string
+        required:
+        - type
+        - id
+        type: object
+    RealtimeConnectionSubscriptionRequest:
+      additionalProperties: false
+      description: Realtime subscription requested while opening a connection.
+      properties:
+        delivery:
+          $ref: '#/components/schemas/RealtimeDelivery'
+        events:
+          description: ProductEvent types requested for this subscription.
+          items:
+            $ref: '#/components/schemas/RealtimeEventType'
+          type: array
+          minItems: 1
+        target:
+          $ref: '#/components/schemas/RealtimeTarget'
+      required:
+      - target
+      - delivery
+      - events
+      type: object
+  securitySchemes:
+    AndoApiKey:
+      description: Workspace API key. Current accepted keys use the ando_sk_ prefix.
+      in: header
+      name: x-api-key
+      type: apiKey
+    BearerApiKey:
+      bearerFormat: ando_sk
+      description: Compatibility transport for workspace API keys.
+      scheme: bearer
+      type: http

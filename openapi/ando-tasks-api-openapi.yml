@@ -1,0 +1,708 @@
+openapi: 3.0.3
+info:
+  description: Generated from Ando's accepted public API v1 contract metadata. Current routes preserve legacy /api/v1 response envelopes while converging on the public https://api.ando.so/v1 shape.
+  title: Ando Public Calls Tasks API
+  version: v1
+servers:
+- description: Canonical public API host.
+  url: https://api.ando.so/v1
+tags:
+- description: Task routes.
+  name: Tasks
+paths:
+  /search/tasks:
+    get:
+      description: Searches tasks visible to the authenticated API key.
+      operationId: searchTasks
+      parameters:
+      - description: Search query text. When omitted, returns the default task list ordering.
+        in: query
+        name: q
+        schema:
+          description: Search query text. When omitted, returns the default task list ordering.
+          type: string
+      - description: Maximum number of records to return.
+        in: query
+        name: limit
+        schema:
+          description: Maximum number of records to return.
+          type: integer
+          minimum: 1
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchTasksResponse'
+          description: Task search results.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      security:
+      - AndoApiKey: []
+      - BearerApiKey: []
+      summary: Search tasks
+      tags:
+      - Tasks
+      x-ando-compatibility-mode: standard_public
+      x-ando-migration-target: standard_public
+      x-ando-rate-limit-policy: implicit_legacy
+      x-ando-route-id: api.api_v1_search_tasks.get
+      x-ando-canonical-host: api.ando.so
+      x-ando-documentation-owner: api_platform
+      x-ando-principal-kind: workspace_api_key
+      x-ando-public-api-route-class: public_data
+      x-ando-public-path: /v1/search/tasks
+      x-ando-runtime-owner: api_platform
+      x-ando-status-probe-owner: public_api_search_read_shadow
+      x-ando-rollback-runtime: express
+      x-ando-selected-runtime: express
+      x-ando-target-runtime: convex_http
+  /tasks/{taskId}:
+    get:
+      description: Returns task context, including task entries and resources.
+      operationId: getTask
+      parameters:
+      - description: Task identifier.
+        in: path
+        name: taskId
+        required: true
+        schema:
+          description: Task identifier.
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskContextResponse'
+          description: Task context.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      security:
+      - AndoApiKey: []
+      - BearerApiKey: []
+      summary: Get a task
+      tags:
+      - Tasks
+      x-ando-compatibility-mode: legacy_api_v1_compatibility
+      x-ando-migration-target: standard_public
+      x-ando-rate-limit-policy: implicit_legacy
+      x-ando-route-id: api.api_v1_tasks_by_taskid.get
+      x-ando-canonical-host: api.ando.so
+      x-ando-documentation-owner: api_platform
+      x-ando-principal-kind: workspace_api_key
+      x-ando-public-api-route-class: public_data
+      x-ando-public-path: /v1/tasks/:taskId
+      x-ando-runtime-owner: api_platform
+      x-ando-status-probe-owner: none
+      x-ando-rollback-runtime: express
+      x-ando-selected-runtime: express
+      x-ando-target-runtime: convex_http
+  /tasks/{taskId}/updates:
+    post:
+      description: Records a task update and optional task/resource changes.
+      operationId: recordTaskUpdate
+      parameters:
+      - description: Task identifier.
+        in: path
+        name: taskId
+        required: true
+        schema:
+          description: Task identifier.
+          type: string
+      - description: Idempotency key for safely retrying this write.
+        in: header
+        name: Idempotency-Key
+        required: false
+        schema:
+          description: Idempotency key.
+          type: string
+          maxLength: 255
+      requestBody:
+        content:
+          application/json:
+            examples:
+              worklog:
+                summary: Record a worklog and move a task to review.
+                value:
+                  entry:
+                    kind: worklog
+                    author_kind: local_agent
+                    author_label: Local agent
+                    body_markdown: Validated the route migration.
+                  task_patch:
+                    phase: review
+                    summary: Ready for validation.
+                  resource_ops:
+                  - op: add
+                    label: Pull request
+                    url: https://github.com/Ando-Corporation/ando/pull/3628
+            schema:
+              $ref: '#/components/schemas/RecordTaskUpdateBody'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecordTaskUpdateResponse'
+          description: Recorded task update.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      security:
+      - AndoApiKey: []
+      - BearerApiKey: []
+      summary: Record a task update
+      tags:
+      - Tasks
+      x-ando-compatibility-mode: legacy_api_v1_compatibility
+      x-ando-migration-target: standard_public
+      x-ando-rate-limit-policy: implicit_legacy
+      x-ando-route-id: api.api_v1_tasks_by_taskid_updates.post
+      x-ando-canonical-host: api.ando.so
+      x-ando-documentation-owner: api_platform
+      x-ando-principal-kind: workspace_api_key
+      x-ando-public-api-route-class: durable_ingress
+      x-ando-public-path: /v1/tasks/:taskId/updates
+      x-ando-runtime-owner: api_platform
+      x-ando-status-probe-owner: none
+      x-ando-rollback-runtime: express
+      x-ando-selected-runtime: express
+      x-ando-target-runtime: convex_http
+components:
+  schemas:
+    TaskResourceOperation:
+      description: Task resource operation.
+      oneOf:
+      - additionalProperties: false
+        description: Add a task resource.
+        properties:
+          label:
+            description: Resource label.
+            type: string
+          op:
+            description: Operation.
+            enum:
+            - add
+            type: string
+          url:
+            description: Resource URL.
+            type: string
+            format: uri
+        required:
+        - op
+        - label
+        - url
+        type: object
+      - additionalProperties: false
+        description: Update a task resource.
+        properties:
+          label:
+            description: Resource label.
+            type: string
+          op:
+            description: Operation.
+            enum:
+            - update
+            type: string
+          resource_id:
+            description: Resource identifier.
+            type: string
+            example: 01jzn7e61x3a7v9h2r7t2m3q4p
+          url:
+            description: Resource URL.
+            type: string
+            format: uri
+        required:
+        - op
+        - resource_id
+        type: object
+      - additionalProperties: false
+        description: Archive a task resource.
+        properties:
+          op:
+            description: Operation.
+            enum:
+            - archive
+            type: string
+          resource_id:
+            description: Resource identifier.
+            type: string
+            example: 01jzn7e61x3a7v9h2r7t2m3q4p
+        required:
+        - op
+        - resource_id
+        type: object
+    TaskEntryKind:
+      description: Task entry kind.
+      enum:
+      - memory
+      - note
+      - worklog
+      - checkpoint
+      - handoff
+      type: string
+    TaskPhase:
+      description: Task phase.
+      enum:
+      - idea
+      - building
+      - review
+      - done
+      type: string
+    LegacyErrorResponse:
+      additionalProperties: false
+      description: Current compatibility error envelope used by legacy /api/v1 routes.
+      properties:
+        error:
+          description: Error message.
+          type: string
+        error_code:
+          description: Optional machine-readable error code.
+          type: string
+          nullable: true
+        missing_scopes:
+          description: Missing scopes.
+          items:
+            description: Scope.
+            type: string
+          type: array
+      required:
+      - error
+      type: object
+    TaskResult:
+      additionalProperties: false
+      description: Task result.
+      properties:
+        conversation_id:
+          description: Conversation identifier.
+          type: string
+          nullable: true
+        conversation_name:
+          description: Conversation name.
+          type: string
+          nullable: true
+        created_at:
+          description: Task creation timestamp.
+          type: string
+          example: '2026-05-14T08:00:00.000Z'
+          format: date-time
+        creatorWorkspaceMembershipId:
+          description: Canonical creator workspace membership identifier. Matches legacy creator_member_id during the compatibility window.
+          type: string
+          nullable: true
+        creator_member_id:
+          description: 'Creator workspace member identifier. Deprecated: read creatorWorkspaceMembershipId instead.'
+          type: string
+          nullable: true
+          deprecated: true
+        id:
+          description: Task identifier.
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+        last_activity_at:
+          description: Last activity timestamp.
+          type: string
+          example: '2026-05-14T08:00:00.000Z'
+          format: date-time
+        name:
+          description: Task name.
+          type: string
+        objective:
+          description: Task objective.
+          type: string
+        phase:
+          $ref: '#/components/schemas/TaskPhase'
+        state_version:
+          description: Optimistic task state version.
+          type: integer
+        summary:
+          description: Task summary.
+          type: string
+          nullable: true
+        updated_at:
+          description: Task update timestamp.
+          type: string
+          example: '2026-05-14T08:00:00.000Z'
+          format: date-time
+      required:
+      - id
+      - name
+      - objective
+      - phase
+      - summary
+      - conversation_id
+      - conversation_name
+      - creatorWorkspaceMembershipId
+      - creator_member_id
+      - state_version
+      - last_activity_at
+      - created_at
+      - updated_at
+      type: object
+    TaskResourceResult:
+      additionalProperties: false
+      description: Task resource.
+      properties:
+        archived_at:
+          description: Archive timestamp.
+          type: string
+          format: date-time
+          nullable: true
+        created_at:
+          description: Resource creation timestamp.
+          type: string
+          example: '2026-05-14T08:00:00.000Z'
+          format: date-time
+        created_by_entry_id:
+          description: Creating entry identifier.
+          type: string
+          nullable: true
+        id:
+          description: Resource identifier.
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+        label:
+          description: Resource label.
+          type: string
+        task_id:
+          description: Task identifier.
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+        updated_at:
+          description: Resource update timestamp.
+          type: string
+          example: '2026-05-14T08:00:00.000Z'
+          format: date-time
+        url:
+          description: Resource URL.
+          type: string
+          format: uri
+        workspace_id:
+          description: Workspace identifier.
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+      required:
+      - id
+      - task_id
+      - workspace_id
+      - label
+      - url
+      - created_by_entry_id
+      - archived_at
+      - created_at
+      - updated_at
+      type: object
+    RecordTaskUpdateBody:
+      additionalProperties: false
+      description: Record a task worklog/checkpoint update and optional task/resource changes.
+      properties:
+        entry:
+          additionalProperties: false
+          description: Task update entry.
+          properties:
+            author_kind:
+              $ref: '#/components/schemas/TaskEntryAuthorKind'
+            author_label:
+              description: Author display label.
+              type: string
+            body_markdown:
+              description: Entry markdown body.
+              type: string
+              nullable: true
+            kind:
+              $ref: '#/components/schemas/TaskEntryKind'
+            run_id:
+              description: Agent or local run identifier.
+              type: string
+              nullable: true
+            source_message_id:
+              description: Source message identifier.
+              type: string
+              nullable: true
+          required:
+          - kind
+          - author_kind
+          - author_label
+          type: object
+        expected_state_version:
+          description: Optimistic task state version expected by the caller.
+          type: integer
+          minimum: 0
+        resource_ops:
+          description: Resource changes.
+          items:
+            $ref: '#/components/schemas/TaskResourceOperation'
+          type: array
+        task_patch:
+          additionalProperties: false
+          description: Task fields to update.
+          properties:
+            phase:
+              $ref: '#/components/schemas/TaskPhase'
+            summary:
+              description: Task summary.
+              type: string
+              nullable: true
+          type: object
+      required:
+      - entry
+      type: object
+    RecordTaskUpdateResponse:
+      additionalProperties: false
+      description: Recorded task update response.
+      properties:
+        changed_resources:
+          description: Resources changed by this update.
+          items:
+            $ref: '#/components/schemas/TaskResourceResult'
+          type: array
+        entry:
+          $ref: '#/components/schemas/TaskEntryResult'
+        task:
+          $ref: '#/components/schemas/TaskResult'
+      required:
+      - task
+      - entry
+      - changed_resources
+      type: object
+    PublicApiErrorResponse:
+      additionalProperties: false
+      description: Target public API error envelope.
+      properties:
+        error:
+          additionalProperties: false
+          description: Error details.
+          properties:
+            code:
+              description: Machine-readable error code.
+              type: string
+            message:
+              description: Human-readable error message.
+              type: string
+            request_id:
+              description: Request identifier.
+              type: string
+              nullable: true
+          required:
+          - code
+          - message
+          type: object
+      required:
+      - error
+      type: object
+    TaskEntryResult:
+      additionalProperties: false
+      description: Task entry.
+      properties:
+        author_kind:
+          $ref: '#/components/schemas/TaskEntryAuthorKind'
+        author_label:
+          description: Author display label.
+          type: string
+        authorWorkspaceMembershipId:
+          description: Canonical author workspace membership identifier. Matches legacy author_member_id during the compatibility window.
+          type: string
+          nullable: true
+        author_member_id:
+          description: 'Author workspace member identifier. Deprecated: read authorWorkspaceMembershipId instead.'
+          type: string
+          nullable: true
+          deprecated: true
+        body_markdown:
+          description: Entry markdown body.
+          type: string
+          nullable: true
+        created_at:
+          description: Entry creation timestamp.
+          type: string
+          example: '2026-05-14T08:00:00.000Z'
+          format: date-time
+        id:
+          description: Entry identifier.
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+        kind:
+          $ref: '#/components/schemas/TaskEntryKind'
+        run_id:
+          description: Run identifier.
+          type: string
+          nullable: true
+        source_message_id:
+          description: Source message identifier.
+          type: string
+          nullable: true
+        task_id:
+          description: Task identifier.
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+        updated_at:
+          description: Entry update timestamp.
+          type: string
+          example: '2026-05-14T08:00:00.000Z'
+          format: date-time
+        workspace_id:
+          description: Workspace identifier.
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+      required:
+      - id
+      - task_id
+      - workspace_id
+      - kind
+      - author_kind
+      - authorWorkspaceMembershipId
+      - author_member_id
+      - author_label
+      - run_id
+      - source_message_id
+      - body_markdown
+      - created_at
+      - updated_at
+      type: object
+    TaskEntryAuthorKind:
+      description: Task entry author kind. The member value is a v1 compatibility spelling for a human workspace member author.
+      enum:
+      - member
+      - managed_agent
+      - connected_agent
+      - local_agent
+      - system
+      type: string
+    TaskContextResponse:
+      additionalProperties: false
+      description: Task context response.
+      properties:
+        entries:
+          description: Task entries.
+          items:
+            $ref: '#/components/schemas/TaskEntryResult'
+          type: array
+        resources:
+          description: Task resources.
+          items:
+            $ref: '#/components/schemas/TaskResourceResult'
+          type: array
+        task:
+          $ref: '#/components/schemas/TaskResult'
+      required:
+      - task
+      - entries
+      - resources
+      type: object
+    SearchTasksResponse:
+      additionalProperties: false
+      description: Search tasks response. Results are returned in data.items; top-level items is a compatibility alias.
+      properties:
+        data:
+          additionalProperties: false
+          description: Standard public response data. New clients should read data.items.
+          properties:
+            items:
+              description: Task results.
+              items:
+                $ref: '#/components/schemas/TaskResult'
+              type: array
+          required:
+          - items
+          type: object
+        items:
+          description: Compatibility alias for data.items. New clients should read data.items.
+          items:
+            $ref: '#/components/schemas/TaskResult'
+          type: array
+          deprecated: true
+      required:
+      - data
+      - items
+      type: object
+  responses:
+    Forbidden:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Forbidden.
+    RateLimited:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/PublicApiErrorResponse'
+      description: Rate limit or quota exceeded.
+    NotFound:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Not found.
+    InternalError:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Internal server error.
+    Conflict:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Conflict.
+    Unauthorized:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Missing or invalid API key.
+    BadRequest:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Bad request.
+  securitySchemes:
+    AndoApiKey:
+      description: Workspace API key. Current accepted keys use the ando_sk_ prefix.
+      in: header
+      name: x-api-key
+      type: apiKey
+    BearerApiKey:
+      bearerFormat: ando_sk
+      description: Compatibility transport for workspace API keys.
+      scheme: bearer
+      type: http

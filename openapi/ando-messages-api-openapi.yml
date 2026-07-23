@@ -1,0 +1,914 @@
+openapi: 3.0.3
+info:
+  description: Generated from Ando's accepted public API v1 contract metadata. Current routes preserve legacy /api/v1 response envelopes while converging on the public https://api.ando.so/v1 shape.
+  title: Ando Public Calls Messages API
+  version: v1
+servers:
+- description: Canonical public API host.
+  url: https://api.ando.so/v1
+tags:
+- description: Message and conversation message routes.
+  name: Messages
+paths:
+  /conversation-messages/{messageId}:
+    get:
+      description: Returns a single conversation message by identifier.
+      operationId: getConversationMessage
+      parameters:
+      - description: Message identifier.
+        in: path
+        name: messageId
+        required: true
+        schema:
+          description: Message identifier.
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                message:
+                  summary: Message details.
+                  value:
+                    id: msg_01jzn7e61x3a7v9h2r7t2m3q4p
+                    conversation_id: conv_01jzn7e61x3a7v9h2r7t2m3q4p
+                    conversation_name: Launch planning
+                    authorWorkspaceMembershipId: mem_01jzn7e61x3a7v9h2r7t2m3q4p
+                    author_id: mem_01jzn7e61x3a7v9h2r7t2m3q4p
+                    author_name: Alex Kim
+                    content: Validated the route migration.
+                    image_urls: []
+                    reactions:
+                    - emoji_text: ':thumbsup:'
+                      count: 2
+                    replies_count: 1
+                    created_at: '2026-05-14T08:00:00.000Z'
+                    data:
+                      id: msg_01jzn7e61x3a7v9h2r7t2m3q4p
+                      conversation_id: conv_01jzn7e61x3a7v9h2r7t2m3q4p
+                      conversation_name: Launch planning
+                      authorWorkspaceMembershipId: mem_01jzn7e61x3a7v9h2r7t2m3q4p
+                      author_id: mem_01jzn7e61x3a7v9h2r7t2m3q4p
+                      author_name: Alex Kim
+                      content: Validated the route migration.
+                      image_urls: []
+                      reactions:
+                      - emoji_text: ':thumbsup:'
+                        count: 2
+                      replies_count: 1
+                      created_at: '2026-05-14T08:00:00.000Z'
+              schema:
+                $ref: '#/components/schemas/MessageResultResponse'
+          description: Message details.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      security:
+      - AndoApiKey: []
+      - BearerApiKey: []
+      summary: Get a message
+      tags:
+      - Messages
+      x-ando-compatibility-mode: standard_public
+      x-ando-migration-target: standard_public
+      x-ando-rate-limit-policy: declared
+      x-ando-route-id: api.api_v1_conversation_messages_by_messageid.get
+      x-ando-canonical-host: api.ando.so
+      x-ando-documentation-owner: api_platform
+      x-ando-principal-kind: workspace_api_key
+      x-ando-public-api-route-class: public_data
+      x-ando-public-path: /v1/conversation-messages/:messageId
+      x-ando-runtime-owner: api_platform
+      x-ando-status-probe-owner: public_api_messaging
+      x-ando-rollback-runtime: express
+      x-ando-selected-runtime: convex_http
+      x-ando-target-runtime: convex_http
+  /conversation-messages/{messageId}/replies:
+    get:
+      description: Returns replies for a thread root message.
+      operationId: listThreadReplies
+      parameters:
+      - description: Thread root message identifier.
+        in: path
+        name: messageId
+        required: true
+        schema:
+          description: Thread root message identifier.
+          type: string
+      - description: Maximum number of records to return.
+        in: query
+        name: limit
+        schema:
+          description: Maximum number of records to return.
+          type: integer
+          minimum: 1
+      - description: Cursor or ISO timestamp after which results should be returned.
+        in: query
+        name: after
+        schema:
+          description: Cursor or ISO timestamp after which results should be returned.
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                replies:
+                  summary: Thread replies.
+                  value:
+                    data:
+                      thread_root_id: msg_01jzn7e61x3a7v9h2r7t2m3q4p
+                      conversation_id: conv_01jzn7e61x3a7v9h2r7t2m3q4p
+                      conversation_name: Launch planning
+                      items:
+                      - id: msg_01jzn7e61x3a7v9h2r7t2m3q4r
+                        conversation_id: conv_01jzn7e61x3a7v9h2r7t2m3q4p
+                        conversation_name: Launch planning
+                        authorWorkspaceMembershipId: mem_01jzn7e61x3a7v9h2r7t2m3q4p
+                        author_id: mem_01jzn7e61x3a7v9h2r7t2m3q4p
+                        author_name: Alex Kim
+                        content: Follow-up looks good.
+                        image_urls: []
+                        reactions:
+                        - emoji_text: ':thumbsup:'
+                          count: 2
+                        replies_count: 0
+                        created_at: '2026-05-14T08:05:00.000Z'
+                      page_info:
+                        end_cursor: '2026-05-14T08:05:00.000Z'
+                        has_next_page: false
+                        has_previous_page: false
+                        next_cursor: '2026-05-14T08:05:00.000Z'
+                        start_cursor: '2026-05-14T08:05:00.000Z'
+                    thread_root_id: msg_01jzn7e61x3a7v9h2r7t2m3q4p
+                    conversation_id: conv_01jzn7e61x3a7v9h2r7t2m3q4p
+                    conversation_name: Launch planning
+                    items:
+                    - id: msg_01jzn7e61x3a7v9h2r7t2m3q4r
+                      conversation_id: conv_01jzn7e61x3a7v9h2r7t2m3q4p
+                      conversation_name: Launch planning
+                      authorWorkspaceMembershipId: mem_01jzn7e61x3a7v9h2r7t2m3q4p
+                      author_id: mem_01jzn7e61x3a7v9h2r7t2m3q4p
+                      author_name: Alex Kim
+                      content: Follow-up looks good.
+                      image_urls: []
+                      reactions:
+                      - emoji_text: ':thumbsup:'
+                        count: 2
+                      replies_count: 0
+                      created_at: '2026-05-14T08:05:00.000Z'
+                    pageInfo:
+                      hasNextPage: false
+                      hasPreviousPage: false
+                      startCursor: '2026-05-14T08:05:00.000Z'
+                      endCursor: '2026-05-14T08:05:00.000Z'
+              schema:
+                $ref: '#/components/schemas/ThreadRepliesResponse'
+          description: Thread replies.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      security:
+      - AndoApiKey: []
+      - BearerApiKey: []
+      summary: List thread replies
+      tags:
+      - Messages
+      x-ando-compatibility-mode: standard_public
+      x-ando-migration-target: standard_public
+      x-ando-rate-limit-policy: declared
+      x-ando-route-id: api.api_v1_conversation_messages_by_messageid_replies.get
+      x-ando-canonical-host: api.ando.so
+      x-ando-documentation-owner: api_platform
+      x-ando-principal-kind: workspace_api_key
+      x-ando-public-api-route-class: public_data
+      x-ando-public-path: /v1/conversation-messages/:messageId/replies
+      x-ando-runtime-owner: api_platform
+      x-ando-status-probe-owner: public_api_messaging
+      x-ando-rollback-runtime: express
+      x-ando-selected-runtime: convex_http
+      x-ando-target-runtime: convex_http
+  /conversations/{conversationId}/messages:
+    get:
+      description: Returns messages in a conversation.
+      operationId: listConversationMessages
+      parameters:
+      - description: Conversation identifier.
+        in: path
+        name: conversationId
+        required: true
+        schema:
+          description: Conversation identifier.
+          type: string
+      - description: Maximum number of records to return.
+        in: query
+        name: limit
+        schema:
+          description: Maximum number of records to return.
+          type: integer
+          minimum: 1
+      - description: Cursor or ISO timestamp before which results should be returned.
+        in: query
+        name: before
+        schema:
+          description: Cursor or ISO timestamp before which results should be returned.
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                messages:
+                  summary: Conversation messages.
+                  value:
+                    data:
+                      conversation_id: conv_01jzn7e61x3a7v9h2r7t2m3q4p
+                      conversation_name: Launch planning
+                      items:
+                      - id: msg_01jzn7e61x3a7v9h2r7t2m3q4p
+                        conversation_id: conv_01jzn7e61x3a7v9h2r7t2m3q4p
+                        conversation_name: Launch planning
+                        authorWorkspaceMembershipId: mem_01jzn7e61x3a7v9h2r7t2m3q4p
+                        author_id: mem_01jzn7e61x3a7v9h2r7t2m3q4p
+                        author_name: Alex Kim
+                        content: Validated the route migration.
+                        image_urls: []
+                        reactions:
+                        - emoji_text: ':thumbsup:'
+                          count: 2
+                        replies_count: 1
+                        created_at: '2026-05-14T08:00:00.000Z'
+                      page_info:
+                        end_cursor: '2026-05-14T07:45:00.000Z'
+                        has_next_page: true
+                        has_previous_page: false
+                        next_cursor: '2026-05-14T08:00:00.000Z'
+                        start_cursor: '2026-05-14T08:00:00.000Z'
+                    conversation_id: conv_01jzn7e61x3a7v9h2r7t2m3q4p
+                    conversation_name: Launch planning
+                    items:
+                    - id: msg_01jzn7e61x3a7v9h2r7t2m3q4p
+                      conversation_id: conv_01jzn7e61x3a7v9h2r7t2m3q4p
+                      conversation_name: Launch planning
+                      authorWorkspaceMembershipId: mem_01jzn7e61x3a7v9h2r7t2m3q4p
+                      author_id: mem_01jzn7e61x3a7v9h2r7t2m3q4p
+                      author_name: Alex Kim
+                      content: Validated the route migration.
+                      image_urls: []
+                      reactions:
+                      - emoji_text: ':thumbsup:'
+                        count: 2
+                      replies_count: 1
+                      created_at: '2026-05-14T08:00:00.000Z'
+                    pageInfo:
+                      hasNextPage: true
+                      hasPreviousPage: false
+                      startCursor: '2026-05-14T08:00:00.000Z'
+                      endCursor: '2026-05-14T07:45:00.000Z'
+              schema:
+                $ref: '#/components/schemas/ConversationMessagesResponse'
+          description: Conversation messages.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      security:
+      - AndoApiKey: []
+      - BearerApiKey: []
+      summary: List conversation messages
+      tags:
+      - Messages
+      x-ando-compatibility-mode: standard_public
+      x-ando-migration-target: standard_public
+      x-ando-rate-limit-policy: declared
+      x-ando-route-id: api.api_v1_conversations_by_conversationid_messages.get
+      x-ando-canonical-host: api.ando.so
+      x-ando-documentation-owner: api_platform
+      x-ando-principal-kind: workspace_api_key
+      x-ando-public-api-route-class: public_data
+      x-ando-public-path: /v1/conversations/:conversationId/messages
+      x-ando-runtime-owner: api_platform
+      x-ando-status-probe-owner: public_api_messaging
+      x-ando-rollback-runtime: express
+      x-ando-selected-runtime: convex_http
+      x-ando-target-runtime: convex_http
+    post:
+      description: Creates a message in a conversation using the authenticated API-key workspace membership as the author.
+      operationId: createConversationMessage
+      parameters:
+      - description: Conversation identifier.
+        in: path
+        name: conversationId
+        required: true
+        schema:
+          description: Conversation identifier.
+          type: string
+      - description: Required idempotency key for safely retrying this write.
+        in: header
+        name: Idempotency-Key
+        required: true
+        schema:
+          description: Idempotency key.
+          type: string
+          maxLength: 255
+      requestBody:
+        content:
+          application/json:
+            examples:
+              message:
+                summary: Create a top-level message.
+                value:
+                  markdown_content: Can you review this?
+                  explicit_context_message_ids: []
+                  image_urls: []
+                  suppressed_link_preview_urls: []
+                  thread_root_id: null
+            schema:
+              $ref: '#/components/schemas/CreateConversationMessageBody'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                created:
+                  summary: Created message.
+                  value:
+                    success: true
+                    data:
+                      id: msg_01jzn7e61x3a7v9h2r7t2m3q4p
+                      conversation_id: conv_01jzn7e61x3a7v9h2r7t2m3q4p
+                      conversation_name: Launch planning
+                      authorWorkspaceMembershipId: mem_01jzn7e61x3a7v9h2r7t2m3q4p
+                      author_id: mem_01jzn7e61x3a7v9h2r7t2m3q4p
+                      author_name: Alex Kim
+                      content: Validated the route migration.
+                      image_urls: []
+                      reactions:
+                      - emoji_text: ':thumbsup:'
+                        count: 2
+                      replies_count: 1
+                      created_at: '2026-05-14T08:00:00.000Z'
+                    legacy_data: null
+              schema:
+                $ref: '#/components/schemas/CreateConversationMessageResponse'
+          description: Created message.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      security:
+      - AndoApiKey: []
+      - BearerApiKey: []
+      summary: Create a conversation message
+      tags:
+      - Messages
+      x-ando-compatibility-mode: standard_public
+      x-ando-migration-target: standard_public
+      x-ando-rate-limit-policy: declared
+      x-ando-route-id: api.api_v1_conversations_by_conversationid_messages.post
+      x-ando-canonical-host: api.ando.so
+      x-ando-documentation-owner: api_platform
+      x-ando-principal-kind: workspace_api_key
+      x-ando-public-api-route-class: durable_ingress
+      x-ando-public-path: /v1/conversations/:conversationId/messages
+      x-ando-runtime-owner: api_platform
+      x-ando-status-probe-owner: public_api_messaging
+      x-ando-rollback-runtime: express
+      x-ando-selected-runtime: convex_http
+      x-ando-target-runtime: convex_http
+components:
+  responses:
+    Forbidden:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Forbidden.
+    RateLimited:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/PublicApiErrorResponse'
+      description: Rate limit or quota exceeded.
+    NotFound:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Not found.
+    InternalError:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Internal server error.
+    Conflict:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Conflict.
+    Unauthorized:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Missing or invalid API key.
+    BadRequest:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Bad request.
+  schemas:
+    MessageReactionSummary:
+      additionalProperties: false
+      description: Emoji reaction count for a message.
+      properties:
+        count:
+          description: Number of reactions for this emoji.
+          type: integer
+        emoji_text:
+          description: Emoji text.
+          type: string
+      required:
+      - emoji_text
+      - count
+      type: object
+    PublicApiPageInfo:
+      additionalProperties: false
+      description: Target public API pagination metadata with snake_case field names.
+      properties:
+        end_cursor:
+          description: Cursor for the last item.
+          type: string
+          nullable: true
+        has_next_page:
+          description: Whether another page exists after this page.
+          type: boolean
+        has_previous_page:
+          description: Whether another page exists before this page.
+          type: boolean
+        next_cursor:
+          description: Cursor for the next page.
+          type: string
+          nullable: true
+        previous_cursor:
+          description: Cursor for the previous page.
+          type: string
+          nullable: true
+        start_cursor:
+          description: Cursor for the first item.
+          type: string
+          nullable: true
+      required:
+      - has_next_page
+      type: object
+    LegacyErrorResponse:
+      additionalProperties: false
+      description: Current compatibility error envelope used by legacy /api/v1 routes.
+      properties:
+        error:
+          description: Error message.
+          type: string
+        error_code:
+          description: Optional machine-readable error code.
+          type: string
+          nullable: true
+        missing_scopes:
+          description: Missing scopes.
+          items:
+            description: Scope.
+            type: string
+          type: array
+      required:
+      - error
+      type: object
+    MessageResult:
+      additionalProperties: false
+      description: Public message result. This intentionally omits reply lineage fields such as thread_root_id and replied_to_message_id; use the thread replies route and its thread_root_id payload field to validate thread grouping.
+      properties:
+        authorWorkspaceMembershipId:
+          description: Canonical author workspace membership identifier. Matches legacy author_id during the compatibility window.
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+        author_id:
+          description: 'Author workspace member identifier. Deprecated: read authorWorkspaceMembershipId instead.'
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+          deprecated: true
+        author_name:
+          description: Author workspace member display name.
+          type: string
+          nullable: true
+        content:
+          description: Message markdown content.
+          type: string
+          nullable: true
+        conversation_id:
+          description: Conversation identifier.
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+        conversation_name:
+          description: Conversation name.
+          type: string
+          nullable: true
+        created_at:
+          description: Message creation timestamp.
+          type: string
+          example: '2026-05-14T08:00:00.000Z'
+          format: date-time
+        id:
+          description: Message identifier.
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+        image_urls:
+          description: Image URLs extracted from the message.
+          items:
+            description: Image URL.
+            type: string
+            format: uri
+          type: array
+        reactions:
+          description: Emoji reaction counts on the message.
+          items:
+            $ref: '#/components/schemas/MessageReactionSummary'
+          type: array
+        replies_count:
+          description: Number of thread replies.
+          type: integer
+      required:
+      - id
+      - conversation_id
+      - conversation_name
+      - authorWorkspaceMembershipId
+      - author_id
+      - author_name
+      - content
+      - image_urls
+      - reactions
+      - replies_count
+      - created_at
+      type: object
+    ConversationMessagesResponse:
+      additionalProperties: false
+      description: Conversation messages response with the standard public data envelope plus legacy top-level aliases.
+      properties:
+        conversation_id:
+          description: Conversation identifier.
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+        conversation_name:
+          description: Conversation name.
+          type: string
+          nullable: true
+        data:
+          $ref: '#/components/schemas/ConversationMessagesData'
+        items:
+          description: Messages.
+          items:
+            $ref: '#/components/schemas/MessageResult'
+          type: array
+        pageInfo:
+          $ref: '#/components/schemas/LegacyPageInfo'
+      required:
+      - data
+      - conversation_id
+      - conversation_name
+      - items
+      - pageInfo
+      type: object
+    CreateConversationMessageResponse:
+      additionalProperties: false
+      description: Create-message response with the standard public data envelope plus legacy compatibility aliases.
+      properties:
+        data:
+          $ref: '#/components/schemas/MessageResult'
+        legacy_data:
+          additionalProperties: true
+          description: Legacy extended conversation message. New clients should read the standard data message result.
+          nullable: true
+          type: object
+        success:
+          description: Compatibility command flag.
+          type: boolean
+      required:
+      - success
+      - data
+      type: object
+    ThreadRepliesResponse:
+      additionalProperties: false
+      description: Thread replies response with the standard public data envelope plus legacy top-level aliases. The response-level thread_root_id identifies the requested root; individual MessageResult items do not expose reply lineage metadata.
+      properties:
+        conversation_id:
+          description: Conversation identifier.
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+        conversation_name:
+          description: Conversation name.
+          type: string
+          nullable: true
+        data:
+          $ref: '#/components/schemas/ThreadRepliesData'
+        items:
+          description: Thread reply messages.
+          items:
+            $ref: '#/components/schemas/MessageResult'
+          type: array
+        pageInfo:
+          $ref: '#/components/schemas/LegacyPageInfo'
+        thread_root_id:
+          description: Thread root message identifier.
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+      required:
+      - data
+      - thread_root_id
+      - conversation_id
+      - conversation_name
+      - items
+      - pageInfo
+      type: object
+    PublicApiErrorResponse:
+      additionalProperties: false
+      description: Target public API error envelope.
+      properties:
+        error:
+          additionalProperties: false
+          description: Error details.
+          properties:
+            code:
+              description: Machine-readable error code.
+              type: string
+            message:
+              description: Human-readable error message.
+              type: string
+            request_id:
+              description: Request identifier.
+              type: string
+              nullable: true
+          required:
+          - code
+          - message
+          type: object
+      required:
+      - error
+      type: object
+    ConversationMessagesData:
+      additionalProperties: false
+      description: Standard conversation messages payload.
+      properties:
+        conversation_id:
+          description: Conversation identifier.
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+        conversation_name:
+          description: Conversation name.
+          type: string
+          nullable: true
+        items:
+          description: Messages.
+          items:
+            $ref: '#/components/schemas/MessageResult'
+          type: array
+        page_info:
+          $ref: '#/components/schemas/PublicApiPageInfo'
+      required:
+      - conversation_id
+      - conversation_name
+      - items
+      - page_info
+      type: object
+    MessageResultResponse:
+      additionalProperties: false
+      description: Message detail response with the standard public data envelope plus legacy top-level aliases.
+      properties:
+        authorWorkspaceMembershipId:
+          description: Canonical author workspace membership identifier. Matches legacy author_id during the compatibility window.
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+        author_id:
+          description: 'Author workspace member identifier. Deprecated: read authorWorkspaceMembershipId instead.'
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+          deprecated: true
+        author_name:
+          description: Author workspace member display name.
+          type: string
+          nullable: true
+        content:
+          description: Message markdown content.
+          type: string
+          nullable: true
+        conversation_id:
+          description: Conversation identifier.
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+        conversation_name:
+          description: Conversation name.
+          type: string
+          nullable: true
+        created_at:
+          description: Message creation timestamp.
+          type: string
+          example: '2026-05-14T08:00:00.000Z'
+          format: date-time
+        data:
+          $ref: '#/components/schemas/MessageResult'
+        id:
+          description: Message identifier.
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+        image_urls:
+          description: Image URLs extracted from the message.
+          items:
+            description: Image URL.
+            type: string
+            format: uri
+          type: array
+        reactions:
+          description: Emoji reaction counts on the message.
+          items:
+            $ref: '#/components/schemas/MessageReactionSummary'
+          type: array
+        replies_count:
+          description: Number of thread replies.
+          type: integer
+      required:
+      - data
+      - id
+      - conversation_id
+      - conversation_name
+      - authorWorkspaceMembershipId
+      - author_id
+      - author_name
+      - content
+      - image_urls
+      - reactions
+      - replies_count
+      - created_at
+      type: object
+    LegacyPageInfo:
+      additionalProperties: false
+      description: Current compatibility pagination metadata with camelCase field names.
+      properties:
+        endCursor:
+          description: Cursor for the last item.
+          type: string
+          nullable: true
+        hasNextPage:
+          description: Whether another page exists after this page.
+          type: boolean
+        hasPreviousPage:
+          description: Whether another page exists before this page.
+          type: boolean
+        startCursor:
+          description: Cursor for the first item.
+          type: string
+          nullable: true
+      required:
+      - hasNextPage
+      - hasPreviousPage
+      type: object
+    CreateConversationMessageBody:
+      additionalProperties: false
+      description: Create a conversation message. The authenticated API-key workspace member is the author; author_id is accepted only for legacy body compatibility and is ignored.
+      properties:
+        markdown_content:
+          description: Message markdown content.
+          type: string
+          nullable: true
+        explicit_context_message_ids:
+          description: Message identifiers to include as explicit context.
+          items:
+            description: Message identifier.
+            type: string
+          type: array
+        image_urls:
+          description: Image URLs to attach to the message.
+          items:
+            description: Image URL.
+            type: string
+            format: uri
+          type: array
+        suppressed_link_preview_urls:
+          description: URLs whose link previews should be suppressed.
+          items:
+            description: URL.
+            type: string
+            format: uri
+          type: array
+        initiator_id:
+          description: Initiating workspace member identifier.
+          type: string
+          nullable: true
+        thread_root_id:
+          description: Thread root message identifier.
+          type: string
+          nullable: true
+        replied_to_message_id:
+          description: Immediate parent message identifier inside an existing thread. For the first reply to a root message, send thread_root_id only; if replied_to_message_id equals thread_root_id, the server normalizes it as the first reply.
+          type: string
+          nullable: true
+        call_root_id:
+          description: Call root identifier.
+          type: string
+          nullable: true
+        optimistic_id:
+          description: Client optimistic identifier.
+          type: string
+        client_request_id:
+          description: Legacy body idempotency value. Public v1 clients should use the Idempotency-Key header.
+          type: string
+          nullable: true
+        author_id:
+          description: 'Ignored legacy body author workspace member identifier. Deprecated: the authenticated API-key workspace member is always the author.'
+          type: string
+          deprecated: true
+      required:
+      - markdown_content
+      type: object
+    ThreadRepliesData:
+      additionalProperties: false
+      description: Standard thread replies payload. Use thread_root_id here to validate thread grouping; individual MessageResult items intentionally omit thread_root_id and replied_to_message_id.
+      properties:
+        conversation_id:
+          description: Conversation identifier.
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+        conversation_name:
+          description: Conversation name.
+          type: string
+          nullable: true
+        items:
+          description: Thread reply messages.
+          items:
+            $ref: '#/components/schemas/MessageResult'
+          type: array
+        page_info:
+          $ref: '#/components/schemas/PublicApiPageInfo'
+        thread_root_id:
+          description: Thread root message identifier.
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+      required:
+      - thread_root_id
+      - conversation_id
+      - conversation_name
+      - items
+      - page_info
+      type: object
+  securitySchemes:
+    AndoApiKey:
+      description: Workspace API key. Current accepted keys use the ando_sk_ prefix.
+      in: header
+      name: x-api-key
+      type: apiKey
+    BearerApiKey:
+      bearerFormat: ando_sk
+      description: Compatibility transport for workspace API keys.
+      scheme: bearer
+      type: http

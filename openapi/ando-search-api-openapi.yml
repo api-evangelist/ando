@@ -1,0 +1,869 @@
+openapi: 3.0.3
+info:
+  description: Generated from Ando's accepted public API v1 contract metadata. Current routes preserve legacy /api/v1 response envelopes while converging on the public https://api.ando.so/v1 shape.
+  title: Ando Public Calls Search API
+  version: v1
+servers:
+- description: Canonical public API host.
+  url: https://api.ando.so/v1
+tags:
+- description: Search routes.
+  name: Search
+paths:
+  /search/calls:
+    get:
+      description: Searches calls accessible to the authenticated API key.
+      operationId: searchCalls
+      parameters:
+      - description: Search query text.
+        in: query
+        name: q
+        required: true
+        schema:
+          description: Search query text.
+          type: string
+      - description: Comma-separated conversation identifiers to filter to.
+        in: query
+        name: conversation
+        schema:
+          description: Comma-separated conversation identifiers to filter to.
+          type: string
+      - description: Cursor or ISO timestamp after which results should be returned.
+        in: query
+        name: after
+        schema:
+          description: Cursor or ISO timestamp after which results should be returned.
+          type: string
+      - description: Cursor or ISO timestamp before which results should be returned.
+        in: query
+        name: before
+        schema:
+          description: Cursor or ISO timestamp before which results should be returned.
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                calls:
+                  summary: Call search results.
+                  value:
+                    data:
+                      items:
+                      - id: call_01jzn7e61x3a7v9h2r7t2m3q4p
+                        conversation_id: conv_01jzn7e61x3a7v9h2r7t2m3q4p
+                        conversation_name: Launch planning
+                        status: ended
+                        duration_seconds: 1800
+                        participant_names:
+                        - Alex Kim
+                        participant_count: 1
+                        summary: Reviewed launch blockers.
+                        started_at: '2026-05-14T08:00:00.000Z'
+                        ended_at: '2026-05-14T08:30:00.000Z'
+                    items:
+                    - id: call_01jzn7e61x3a7v9h2r7t2m3q4p
+                      conversation_id: conv_01jzn7e61x3a7v9h2r7t2m3q4p
+                      conversation_name: Launch planning
+                      status: ended
+                      duration_seconds: 1800
+                      participant_names:
+                      - Alex Kim
+                      participant_count: 1
+                      summary: Reviewed launch blockers.
+                      started_at: '2026-05-14T08:00:00.000Z'
+                      ended_at: '2026-05-14T08:30:00.000Z'
+              schema:
+                $ref: '#/components/schemas/SearchCallsResponse'
+          description: Call search results.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      security:
+      - AndoApiKey: []
+      - BearerApiKey: []
+      summary: Search calls
+      tags:
+      - Search
+      x-ando-compatibility-mode: standard_public
+      x-ando-migration-target: standard_public
+      x-ando-rate-limit-policy: declared
+      x-ando-route-id: api.api_v1_search_calls.get
+      x-ando-canonical-host: api.ando.so
+      x-ando-documentation-owner: api_platform
+      x-ando-principal-kind: workspace_api_key
+      x-ando-public-api-route-class: public_data
+      x-ando-public-path: /v1/search/calls
+      x-ando-runtime-owner: api_platform
+      x-ando-status-probe-owner: public_api_search_read
+      x-ando-rollback-runtime: express
+      x-ando-selected-runtime: convex_http
+      x-ando-target-runtime: convex_http
+  /search/clipboard:
+    get:
+      description: Searches clipboards accessible to the authenticated API key. This is a legacy compatibility route kept for older clients; do not use it for new public API integrations.
+      operationId: searchClipboards
+      parameters:
+      - description: Search query text.
+        in: query
+        name: q
+        required: true
+        schema:
+          description: Search query text.
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchClipboardResponse'
+          description: Clipboard search results.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      security:
+      - AndoApiKey: []
+      - BearerApiKey: []
+      summary: Search clipboards
+      tags:
+      - Search
+      x-ando-compatibility-mode: legacy_api_v1_compatibility
+      x-ando-migration-target: legacy_frozen
+      x-ando-rate-limit-policy: implicit_legacy
+      x-ando-route-id: api.api_v1_search_clipboard.get
+      x-ando-canonical-host: api.ando.so
+      x-ando-documentation-owner: api_platform
+      x-ando-principal-kind: workspace_api_key
+      x-ando-public-api-route-class: public_data
+      x-ando-public-path: /v1/search/clipboard
+      x-ando-runtime-owner: api_platform
+      x-ando-status-probe-owner: none
+      x-ando-rollback-runtime: express
+      x-ando-selected-runtime: express
+      x-ando-target-runtime: convex_http
+  /search/conversations:
+    get:
+      description: Searches conversations accessible to the authenticated API key.
+      operationId: searchConversations
+      parameters:
+      - description: Search query text.
+        in: query
+        name: q
+        required: true
+        schema:
+          description: Search query text.
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                conversations:
+                  summary: Conversation search results.
+                  value:
+                    data:
+                      items:
+                      - id: conv_01jzn7e61x3a7v9h2r7t2m3q4p
+                        name: Launch planning
+                        type: channel
+                        description: Launch coordination.
+                        human_members_count: 8
+                        agent_members_count: 2
+                    items:
+                    - id: conv_01jzn7e61x3a7v9h2r7t2m3q4p
+                      name: Launch planning
+                      type: channel
+                      description: Launch coordination.
+                      human_members_count: 8
+                      agent_members_count: 2
+              schema:
+                $ref: '#/components/schemas/SearchConversationsResponse'
+          description: Conversation search results.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      security:
+      - AndoApiKey: []
+      - BearerApiKey: []
+      summary: Search conversations
+      tags:
+      - Search
+      x-ando-compatibility-mode: standard_public
+      x-ando-migration-target: standard_public
+      x-ando-rate-limit-policy: declared
+      x-ando-route-id: api.api_v1_search_conversations.get
+      x-ando-canonical-host: api.ando.so
+      x-ando-documentation-owner: api_platform
+      x-ando-principal-kind: workspace_api_key
+      x-ando-public-api-route-class: public_data
+      x-ando-public-path: /v1/search/conversations
+      x-ando-runtime-owner: api_platform
+      x-ando-status-probe-owner: public_api_search_read
+      x-ando-rollback-runtime: express
+      x-ando-selected-runtime: convex_http
+      x-ando-target-runtime: convex_http
+  /search/members:
+    get:
+      description: Searches workspace members in the authenticated API key workspace. The v1 path keeps the /search/members compatibility spelling.
+      operationId: searchMembers
+      parameters:
+      - description: Search query text.
+        in: query
+        name: q
+        required: true
+        schema:
+          description: Search query text.
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                members:
+                  summary: Workspace member search results.
+                  value:
+                    data:
+                      items:
+                      - id: mem_01jzn7e61x3a7v9h2r7t2m3q4p
+                        workspaceMembershipId: mem_01jzn7e61x3a7v9h2r7t2m3q4p
+                        display_name: Alex Kim
+                        email: alex@example.com
+                        title: Engineering
+                        profile_image_url: null
+                    items:
+                    - id: mem_01jzn7e61x3a7v9h2r7t2m3q4p
+                      workspaceMembershipId: mem_01jzn7e61x3a7v9h2r7t2m3q4p
+                      display_name: Alex Kim
+                      email: alex@example.com
+                      title: Engineering
+                      profile_image_url: null
+              schema:
+                $ref: '#/components/schemas/SearchMembersResponse'
+          description: Workspace member search results.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      security:
+      - AndoApiKey: []
+      - BearerApiKey: []
+      summary: Search workspace members
+      tags:
+      - Search
+      x-ando-compatibility-mode: standard_public
+      x-ando-migration-target: standard_public
+      x-ando-rate-limit-policy: declared
+      x-ando-route-id: api.api_v1_search_members.get
+      x-ando-canonical-host: api.ando.so
+      x-ando-documentation-owner: api_platform
+      x-ando-principal-kind: workspace_api_key
+      x-ando-public-api-route-class: public_data
+      x-ando-public-path: /v1/search/members
+      x-ando-runtime-owner: api_platform
+      x-ando-status-probe-owner: public_api_search_read
+      x-ando-rollback-runtime: express
+      x-ando-selected-runtime: convex_http
+      x-ando-target-runtime: convex_http
+  /search/messages:
+    get:
+      description: Searches messages in conversations accessible to the authenticated API key.
+      operationId: searchMessages
+      parameters:
+      - description: Search query text.
+        in: query
+        name: q
+        required: true
+        schema:
+          description: Search query text.
+          type: string
+      - description: Comma-separated author workspace member identifiers.
+        in: query
+        name: author
+        schema:
+          description: Comma-separated author workspace member identifiers.
+          type: string
+      - description: Comma-separated conversation identifiers.
+        in: query
+        name: conversation
+        schema:
+          description: Comma-separated conversation identifiers.
+          type: string
+      - description: Thread root message identifier.
+        in: query
+        name: thread
+        schema:
+          description: Thread root message identifier.
+          type: string
+      - description: Cursor or ISO timestamp after which results should be returned.
+        in: query
+        name: after
+        schema:
+          description: Cursor or ISO timestamp after which results should be returned.
+          type: string
+      - description: Cursor or ISO timestamp before which results should be returned.
+        in: query
+        name: before
+        schema:
+          description: Cursor or ISO timestamp before which results should be returned.
+          type: string
+      - description: Search mode.
+        in: query
+        name: mode
+        schema:
+          description: Search mode.
+          enum:
+          - full-text
+          - semantic
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                messages:
+                  summary: Message search results.
+                  value:
+                    data:
+                      items:
+                      - id: msg_01jzn7e61x3a7v9h2r7t2m3q4p
+                        conversation_id: conv_01jzn7e61x3a7v9h2r7t2m3q4p
+                        conversation_name: Launch planning
+                        author_id: mem_01jzn7e61x3a7v9h2r7t2m3q4p
+                        author_name: Alex Kim
+                        content: Validated the route migration.
+                        image_urls: []
+                        replies_count: 1
+                        created_at: '2026-05-14T08:00:00.000Z'
+                        authorWorkspaceMembershipId: mem_01jzn7e61x3a7v9h2r7t2m3q4p
+                    items:
+                    - id: msg_01jzn7e61x3a7v9h2r7t2m3q4p
+                      conversation_id: conv_01jzn7e61x3a7v9h2r7t2m3q4p
+                      conversation_name: Launch planning
+                      author_id: mem_01jzn7e61x3a7v9h2r7t2m3q4p
+                      author_name: Alex Kim
+                      content: Validated the route migration.
+                      image_urls: []
+                      replies_count: 1
+                      created_at: '2026-05-14T08:00:00.000Z'
+                      authorWorkspaceMembershipId: mem_01jzn7e61x3a7v9h2r7t2m3q4p
+              schema:
+                $ref: '#/components/schemas/SearchMessagesResponse'
+          description: Message search results.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      security:
+      - AndoApiKey: []
+      - BearerApiKey: []
+      summary: Search messages
+      tags:
+      - Search
+      x-ando-compatibility-mode: standard_public
+      x-ando-migration-target: standard_public
+      x-ando-rate-limit-policy: declared
+      x-ando-route-id: api.api_v1_search_messages.get
+      x-ando-canonical-host: api.ando.so
+      x-ando-documentation-owner: api_platform
+      x-ando-principal-kind: workspace_api_key
+      x-ando-public-api-route-class: public_data
+      x-ando-public-path: /v1/search/messages
+      x-ando-runtime-owner: api_platform
+      x-ando-status-probe-owner: public_api_search_read
+      x-ando-rollback-runtime: express
+      x-ando-selected-runtime: convex_http
+      x-ando-target-runtime: convex_http
+components:
+  responses:
+    Forbidden:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Forbidden.
+    RateLimited:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/PublicApiErrorResponse'
+      description: Rate limit or quota exceeded.
+    NotFound:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Not found.
+    InternalError:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Internal server error.
+    Conflict:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Conflict.
+    Unauthorized:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Missing or invalid API key.
+    BadRequest:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Bad request.
+  schemas:
+    SearchConversationsResponse:
+      additionalProperties: false
+      description: Search conversations response. Results are returned in data.items; top-level items is a compatibility alias.
+      properties:
+        data:
+          additionalProperties: false
+          description: Standard public response data. New clients should read data.items.
+          properties:
+            items:
+              description: Conversation results.
+              items:
+                $ref: '#/components/schemas/ConversationResult'
+              type: array
+          required:
+          - items
+          type: object
+        items:
+          description: Compatibility alias for data.items. New clients should read data.items.
+          items:
+            $ref: '#/components/schemas/ConversationResult'
+          type: array
+          deprecated: true
+      required:
+      - data
+      - items
+      type: object
+    PublicApiSearchMessageResult:
+      additionalProperties: false
+      description: Search result for a message.
+      properties:
+        authorWorkspaceMembershipId:
+          description: Canonical author workspace membership identifier. Matches legacy author_id during the compatibility window.
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+        author_id:
+          description: 'Author workspace member identifier. Deprecated: read authorWorkspaceMembershipId instead.'
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+          deprecated: true
+        author_name:
+          description: Author workspace member display name.
+          type: string
+          nullable: true
+        content:
+          description: Message markdown content.
+          type: string
+          nullable: true
+        conversation_id:
+          description: Conversation identifier.
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+        conversation_name:
+          description: Conversation name.
+          type: string
+          nullable: true
+        created_at:
+          description: Message creation timestamp.
+          type: string
+          example: '2026-05-14T08:00:00.000Z'
+          format: date-time
+        id:
+          description: Message identifier.
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+        image_urls:
+          description: Image URLs extracted from the message.
+          items:
+            description: Image URL.
+            type: string
+            format: uri
+          type: array
+        replies_count:
+          description: Number of thread replies.
+          type: integer
+      required:
+      - id
+      - conversation_id
+      - conversation_name
+      - authorWorkspaceMembershipId
+      - author_id
+      - author_name
+      - content
+      - image_urls
+      - replies_count
+      - created_at
+      type: object
+    ClipboardResult:
+      additionalProperties: false
+      description: Search result for a clipboard.
+      properties:
+        created_at:
+          description: Clipboard creation timestamp.
+          type: string
+          example: '2026-05-14T08:00:00.000Z'
+          format: date-time
+        description:
+          description: Clipboard description.
+          type: string
+          nullable: true
+        id:
+          description: Clipboard identifier.
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+        item_count:
+          description: Number of items in the clipboard.
+          type: integer
+        title:
+          description: Clipboard title.
+          type: string
+          nullable: true
+      required:
+      - id
+      - title
+      - description
+      - item_count
+      - created_at
+      type: object
+    MemberResult:
+      additionalProperties: false
+      description: Workspace member result visible to the authenticated API key. The v1 schema name is a compatibility spelling for this resource.
+      properties:
+        display_name:
+          description: Display name.
+          type: string
+          nullable: true
+        email:
+          description: Email address.
+          type: string
+          format: email
+          nullable: true
+        id:
+          description: Workspace member identifier.
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+        profile_image_url:
+          description: Profile image URL.
+          type: string
+          format: uri
+          nullable: true
+        title:
+          description: Workspace member title.
+          type: string
+          nullable: true
+        workspaceMembershipId:
+          description: Canonical workspace membership identifier. Matches legacy id during the compatibility window.
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+      required:
+      - id
+      - workspaceMembershipId
+      - display_name
+      - email
+      - title
+      - profile_image_url
+      type: object
+    ConversationResult:
+      additionalProperties: false
+      description: Search result for a conversation.
+      properties:
+        agent_members_count:
+          description: Number of agent workspace members.
+          type: integer
+        description:
+          description: Conversation description.
+          type: string
+          nullable: true
+        human_members_count:
+          description: Number of human workspace members.
+          type: integer
+        id:
+          description: Conversation identifier.
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+        name:
+          description: Conversation name.
+          type: string
+          nullable: true
+        type:
+          description: Stable public conversation type. Legacy /api/v1 compatibility routes may still emit the internal integer value until migrated.
+          enum:
+          - channel
+          - direct_message
+          - task_channel
+          type: string
+      required:
+      - id
+      - name
+      - type
+      - description
+      - human_members_count
+      - agent_members_count
+      type: object
+    LegacyErrorResponse:
+      additionalProperties: false
+      description: Current compatibility error envelope used by legacy /api/v1 routes.
+      properties:
+        error:
+          description: Error message.
+          type: string
+        error_code:
+          description: Optional machine-readable error code.
+          type: string
+          nullable: true
+        missing_scopes:
+          description: Missing scopes.
+          items:
+            description: Scope.
+            type: string
+          type: array
+      required:
+      - error
+      type: object
+    SearchMessagesResponse:
+      additionalProperties: false
+      description: Search messages response. Results are returned in data.items; top-level items is a compatibility alias.
+      properties:
+        data:
+          additionalProperties: false
+          description: Standard public response data. New clients should read data.items.
+          properties:
+            items:
+              description: Message results.
+              items:
+                $ref: '#/components/schemas/PublicApiSearchMessageResult'
+              type: array
+          required:
+          - items
+          type: object
+        items:
+          description: Compatibility alias for data.items. New clients should read data.items.
+          items:
+            $ref: '#/components/schemas/PublicApiSearchMessageResult'
+          type: array
+          deprecated: true
+      required:
+      - data
+      - items
+      type: object
+    SearchClipboardResponse:
+      additionalProperties: false
+      description: Search clipboards response.
+      properties:
+        items:
+          description: Clipboard results.
+          items:
+            $ref: '#/components/schemas/ClipboardResult'
+          type: array
+      required:
+      - items
+      type: object
+    CallResult:
+      additionalProperties: false
+      description: Search result for a call.
+      properties:
+        conversation_id:
+          description: Conversation identifier.
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+        conversation_name:
+          description: Conversation name.
+          type: string
+          nullable: true
+        duration_seconds:
+          description: Call duration in seconds.
+          type: number
+          nullable: true
+        ended_at:
+          description: Call end timestamp.
+          type: string
+          format: date-time
+          nullable: true
+        id:
+          description: Call identifier.
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+        participant_count:
+          description: Number of call participants.
+          type: integer
+        participant_names:
+          description: Participant display names.
+          items:
+            description: Name.
+            type: string
+          type: array
+        started_at:
+          description: Call start timestamp.
+          type: string
+          format: date-time
+          nullable: true
+        status:
+          description: Call status.
+          type: string
+        summary:
+          description: Call summary markdown.
+          type: string
+          nullable: true
+      required:
+      - id
+      - conversation_id
+      - conversation_name
+      - status
+      - duration_seconds
+      - participant_names
+      - participant_count
+      - summary
+      - started_at
+      - ended_at
+      type: object
+    SearchCallsResponse:
+      additionalProperties: false
+      description: Search calls response. Results are returned in data.items; top-level items is a compatibility alias.
+      properties:
+        data:
+          additionalProperties: false
+          description: Standard public response data. New clients should read data.items.
+          properties:
+            items:
+              description: Call results.
+              items:
+                $ref: '#/components/schemas/CallResult'
+              type: array
+          required:
+          - items
+          type: object
+        items:
+          description: Compatibility alias for data.items. New clients should read data.items.
+          items:
+            $ref: '#/components/schemas/CallResult'
+          type: array
+          deprecated: true
+      required:
+      - data
+      - items
+      type: object
+    PublicApiErrorResponse:
+      additionalProperties: false
+      description: Target public API error envelope.
+      properties:
+        error:
+          additionalProperties: false
+          description: Error details.
+          properties:
+            code:
+              description: Machine-readable error code.
+              type: string
+            message:
+              description: Human-readable error message.
+              type: string
+            request_id:
+              description: Request identifier.
+              type: string
+              nullable: true
+          required:
+          - code
+          - message
+          type: object
+      required:
+      - error
+      type: object
+    SearchMembersResponse:
+      additionalProperties: false
+      description: Search workspace members response. Results are returned in data.items; top-level items is a compatibility alias.
+      properties:
+        data:
+          additionalProperties: false
+          description: Standard public response data. New clients should read data.items.
+          properties:
+            items:
+              description: Workspace member results.
+              items:
+                $ref: '#/components/schemas/MemberResult'
+              type: array
+          required:
+          - items
+          type: object
+        items:
+          description: Compatibility alias for data.items. New clients should read data.items.
+          items:
+            $ref: '#/components/schemas/MemberResult'
+          type: array
+          deprecated: true
+      required:
+      - data
+      - items
+      type: object
+  securitySchemes:
+    AndoApiKey:
+      description: Workspace API key. Current accepted keys use the ando_sk_ prefix.
+      in: header
+      name: x-api-key
+      type: apiKey
+    BearerApiKey:
+      bearerFormat: ando_sk
+      description: Compatibility transport for workspace API keys.
+      scheme: bearer
+      type: http

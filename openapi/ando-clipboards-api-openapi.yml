@@ -1,0 +1,252 @@
+openapi: 3.0.3
+info:
+  description: Generated from Ando's accepted public API v1 contract metadata. Current routes preserve legacy /api/v1 response envelopes while converging on the public https://api.ando.so/v1 shape.
+  title: Ando Public Calls Clipboards API
+  version: v1
+servers:
+- description: Canonical public API host.
+  url: https://api.ando.so/v1
+tags:
+- description: Clipboard detail routes.
+  name: Clipboards
+paths:
+  /clipboards/{clipboardId}:
+    get:
+      description: Returns a clipboard and its included context items. This is a legacy compatibility route kept for older clients; do not use it for new public API integrations.
+      operationId: getClipboard
+      parameters:
+      - description: Clipboard identifier.
+        in: path
+        name: clipboardId
+        required: true
+        schema:
+          description: Clipboard identifier.
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClipboardResponse'
+          description: Clipboard details.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      security:
+      - AndoApiKey: []
+      - BearerApiKey: []
+      summary: Get a clipboard
+      tags:
+      - Clipboards
+      x-ando-compatibility-mode: legacy_api_v1_compatibility
+      x-ando-migration-target: legacy_frozen
+      x-ando-rate-limit-policy: implicit_legacy
+      x-ando-route-id: api.api_v1_clipboards_by_clipboardid.get
+      x-ando-canonical-host: api.ando.so
+      x-ando-documentation-owner: api_platform
+      x-ando-principal-kind: workspace_api_key
+      x-ando-public-api-route-class: public_data
+      x-ando-public-path: /v1/clipboards/:clipboardId
+      x-ando-runtime-owner: api_platform
+      x-ando-status-probe-owner: none
+      x-ando-rollback-runtime: express
+      x-ando-selected-runtime: express
+      x-ando-target-runtime: convex_http
+components:
+  responses:
+    Forbidden:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Forbidden.
+    Unauthorized:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Missing or invalid API key.
+    RateLimited:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/PublicApiErrorResponse'
+      description: Rate limit or quota exceeded.
+    BadRequest:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Bad request.
+    NotFound:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Not found.
+    InternalError:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Internal server error.
+    Conflict:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Conflict.
+  schemas:
+    LegacyErrorResponse:
+      additionalProperties: false
+      description: Current compatibility error envelope used by legacy /api/v1 routes.
+      properties:
+        error:
+          description: Error message.
+          type: string
+        error_code:
+          description: Optional machine-readable error code.
+          type: string
+          nullable: true
+        missing_scopes:
+          description: Missing scopes.
+          items:
+            description: Scope.
+            type: string
+          type: array
+      required:
+      - error
+      type: object
+    ClipboardResponse:
+      additionalProperties: false
+      description: Clipboard detail response.
+      properties:
+        created_at:
+          description: Clipboard creation timestamp.
+          type: string
+          example: '2026-05-14T08:00:00.000Z'
+          format: date-time
+        description:
+          description: Clipboard description.
+          type: string
+          nullable: true
+        id:
+          description: Clipboard identifier.
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+        items:
+          description: Clipboard items.
+          items:
+            $ref: '#/components/schemas/ClipboardItem'
+          type: array
+        title:
+          description: Clipboard title.
+          type: string
+          nullable: true
+      required:
+      - id
+      - title
+      - description
+      - created_at
+      - items
+      type: object
+    PublicApiErrorResponse:
+      additionalProperties: false
+      description: Target public API error envelope.
+      properties:
+        error:
+          additionalProperties: false
+          description: Error details.
+          properties:
+            code:
+              description: Machine-readable error code.
+              type: string
+            message:
+              description: Human-readable error message.
+              type: string
+            request_id:
+              description: Request identifier.
+              type: string
+              nullable: true
+          required:
+          - code
+          - message
+          type: object
+      required:
+      - error
+      type: object
+    ClipboardItem:
+      additionalProperties: false
+      description: An item inside a clipboard.
+      properties:
+        author_name:
+          description: Message author name.
+          type: string
+          nullable: true
+        content:
+          description: Message or file text content.
+          type: string
+          nullable: true
+        created_at:
+          description: Creation timestamp.
+          type: string
+          format: date-time
+          nullable: true
+        display_name:
+          description: Workspace member display name.
+          type: string
+          nullable: true
+        id:
+          description: Item identifier.
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+        mime_type:
+          description: File MIME type.
+          type: string
+          nullable: true
+        name:
+          description: Conversation or file name.
+          type: string
+          nullable: true
+        title:
+          description: Clipboard item title.
+          type: string
+          nullable: true
+        type:
+          description: Clipboard item type. The member value is a v1 compatibility spelling for a workspace member item.
+          enum:
+          - message
+          - member
+          - conversation
+          - file
+          type: string
+        url:
+          description: File URL.
+          type: string
+          nullable: true
+      required:
+      - type
+      - id
+      type: object
+  securitySchemes:
+    AndoApiKey:
+      description: Workspace API key. Current accepted keys use the ando_sk_ prefix.
+      in: header
+      name: x-api-key
+      type: apiKey
+    BearerApiKey:
+      bearerFormat: ando_sk
+      description: Compatibility transport for workspace API keys.
+      scheme: bearer
+      type: http

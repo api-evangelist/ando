@@ -1,0 +1,404 @@
+openapi: 3.0.3
+info:
+  description: Generated from Ando's accepted public API v1 contract metadata. Current routes preserve legacy /api/v1 response envelopes while converging on the public https://api.ando.so/v1 shape.
+  title: Ando Public Calls API
+  version: v1
+servers:
+- description: Canonical public API host.
+  url: https://api.ando.so/v1
+tags:
+- description: Call detail and transcript routes.
+  name: Calls
+paths:
+  /calls/{callId}:
+    get:
+      description: Returns call metadata, participants, summary, and timing.
+      operationId: getCall
+      parameters:
+      - description: Call identifier.
+        in: path
+        name: callId
+        required: true
+        schema:
+          description: Call identifier.
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CallResponse'
+          description: Call details.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      security:
+      - AndoApiKey: []
+      - BearerApiKey: []
+      summary: Get a call
+      tags:
+      - Calls
+      x-ando-compatibility-mode: legacy_api_v1_compatibility
+      x-ando-migration-target: standard_public
+      x-ando-rate-limit-policy: implicit_legacy
+      x-ando-route-id: api.api_v1_calls_by_callid.get
+      x-ando-canonical-host: api.ando.so
+      x-ando-documentation-owner: api_platform
+      x-ando-principal-kind: workspace_api_key
+      x-ando-public-api-route-class: public_data
+      x-ando-public-path: /v1/calls/:callId
+      x-ando-runtime-owner: api_platform
+      x-ando-status-probe-owner: none
+      x-ando-rollback-runtime: express
+      x-ando-selected-runtime: express
+      x-ando-target-runtime: convex_http
+  /calls/{callId}/transcript:
+    get:
+      description: Returns transcript segments for a call.
+      operationId: getCallTranscript
+      parameters:
+      - description: Call identifier.
+        in: path
+        name: callId
+        required: true
+        schema:
+          description: Call identifier.
+          type: string
+      - description: Maximum number of records to return.
+        in: query
+        name: limit
+        schema:
+          description: Maximum number of records to return.
+          type: integer
+          minimum: 1
+      - description: Pagination cursor.
+        in: query
+        name: cursor
+        schema:
+          description: Pagination cursor.
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CallTranscriptResponse'
+          description: Call transcript.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      security:
+      - AndoApiKey: []
+      - BearerApiKey: []
+      summary: Get a call transcript
+      tags:
+      - Calls
+      x-ando-compatibility-mode: legacy_api_v1_compatibility
+      x-ando-migration-target: standard_public
+      x-ando-rate-limit-policy: implicit_legacy
+      x-ando-route-id: api.api_v1_calls_by_callid_transcript.get
+      x-ando-canonical-host: api.ando.so
+      x-ando-documentation-owner: api_platform
+      x-ando-principal-kind: workspace_api_key
+      x-ando-public-api-route-class: public_data
+      x-ando-public-path: /v1/calls/:callId/transcript
+      x-ando-runtime-owner: api_platform
+      x-ando-status-probe-owner: none
+      x-ando-rollback-runtime: express
+      x-ando-selected-runtime: express
+      x-ando-target-runtime: convex_http
+components:
+  schemas:
+    CallParticipant:
+      additionalProperties: false
+      description: A participant in a call.
+      properties:
+        id:
+          description: Participant workspace member identifier.
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+        name:
+          description: Display name.
+          type: string
+          nullable: true
+      required:
+      - id
+      - name
+      type: object
+    LegacyErrorResponse:
+      additionalProperties: false
+      description: Current compatibility error envelope used by legacy /api/v1 routes.
+      properties:
+        error:
+          description: Error message.
+          type: string
+        error_code:
+          description: Optional machine-readable error code.
+          type: string
+          nullable: true
+        missing_scopes:
+          description: Missing scopes.
+          items:
+            description: Scope.
+            type: string
+          type: array
+      required:
+      - error
+      type: object
+    PublicApiErrorResponse:
+      additionalProperties: false
+      description: Target public API error envelope.
+      properties:
+        error:
+          additionalProperties: false
+          description: Error details.
+          properties:
+            code:
+              description: Machine-readable error code.
+              type: string
+            message:
+              description: Human-readable error message.
+              type: string
+            request_id:
+              description: Request identifier.
+              type: string
+              nullable: true
+          required:
+          - code
+          - message
+          type: object
+      required:
+      - error
+      type: object
+    CallTranscriptChapter:
+      additionalProperties: false
+      description: A summary chapter for a call transcript.
+      properties:
+        content:
+          description: Chapter content.
+          type: string
+        end_ms:
+          description: Chapter end offset in milliseconds.
+          type: integer
+        start_ms:
+          description: Chapter start offset in milliseconds.
+          type: integer
+        title:
+          description: Chapter title.
+          type: string
+      required:
+      - title
+      - content
+      - start_ms
+      - end_ms
+      type: object
+    CallTranscriptResponse:
+      additionalProperties: false
+      description: Current call transcript compatibility response.
+      properties:
+        call_id:
+          description: Call identifier.
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+        conversation_name:
+          description: Conversation name.
+          type: string
+          nullable: true
+        duration_seconds:
+          description: Call duration in seconds.
+          type: number
+          nullable: true
+        pageInfo:
+          $ref: '#/components/schemas/LegacyPageInfo'
+        segments:
+          description: Transcript segments.
+          items:
+            $ref: '#/components/schemas/CallTranscriptSegment'
+          type: array
+      required:
+      - call_id
+      - conversation_name
+      - duration_seconds
+      - segments
+      - pageInfo
+      type: object
+    CallResponse:
+      additionalProperties: false
+      description: Call detail response.
+      properties:
+        chapters:
+          description: Call summary chapters.
+          items:
+            $ref: '#/components/schemas/CallTranscriptChapter'
+          type: array
+        conversation_id:
+          description: Conversation identifier.
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+        conversation_name:
+          description: Conversation name.
+          type: string
+          nullable: true
+        duration_seconds:
+          description: Call duration in seconds.
+          type: number
+          nullable: true
+        ended_at:
+          description: Call end timestamp.
+          type: string
+          format: date-time
+          nullable: true
+        id:
+          description: Call identifier.
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+        participants:
+          description: Call participants.
+          items:
+            $ref: '#/components/schemas/CallParticipant'
+          type: array
+        started_at:
+          description: Call start timestamp.
+          type: string
+          format: date-time
+          nullable: true
+        status:
+          description: Call status.
+          type: string
+        summary:
+          description: Call summary markdown.
+          type: string
+          nullable: true
+      required:
+      - id
+      - conversation_id
+      - conversation_name
+      - status
+      - duration_seconds
+      - participants
+      - summary
+      - chapters
+      - started_at
+      - ended_at
+      type: object
+    CallTranscriptSegment:
+      additionalProperties: false
+      description: A transcript segment.
+      properties:
+        content:
+          description: Transcript text.
+          type: string
+        end_ms:
+          description: Segment end offset in milliseconds.
+          type: integer
+        speaker_name:
+          description: Speaker display name.
+          type: string
+          nullable: true
+        start_ms:
+          description: Segment start offset in milliseconds.
+          type: integer
+      required:
+      - speaker_name
+      - content
+      - start_ms
+      - end_ms
+      type: object
+    LegacyPageInfo:
+      additionalProperties: false
+      description: Current compatibility pagination metadata with camelCase field names.
+      properties:
+        endCursor:
+          description: Cursor for the last item.
+          type: string
+          nullable: true
+        hasNextPage:
+          description: Whether another page exists after this page.
+          type: boolean
+        hasPreviousPage:
+          description: Whether another page exists before this page.
+          type: boolean
+        startCursor:
+          description: Cursor for the first item.
+          type: string
+          nullable: true
+      required:
+      - hasNextPage
+      - hasPreviousPage
+      type: object
+  responses:
+    Forbidden:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Forbidden.
+    Unauthorized:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Missing or invalid API key.
+    RateLimited:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/PublicApiErrorResponse'
+      description: Rate limit or quota exceeded.
+    BadRequest:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Bad request.
+    NotFound:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Not found.
+    InternalError:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Internal server error.
+    Conflict:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Conflict.
+  securitySchemes:
+    AndoApiKey:
+      description: Workspace API key. Current accepted keys use the ando_sk_ prefix.
+      in: header
+      name: x-api-key
+      type: apiKey
+    BearerApiKey:
+      bearerFormat: ando_sk
+      description: Compatibility transport for workspace API keys.
+      scheme: bearer
+      type: http
