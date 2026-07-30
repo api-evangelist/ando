@@ -1,25 +1,319 @@
 aid: ando
 name: Ando
-description: 'Ando is a company surfaced as a portfolio company of index-ventures and added to the API
-  Evangelist network as a stub for enrichment. Sector: business-applications. This profile is a lead awaiting
-  the enrichment pipeline.'
+description: >-
+  Ando is a messaging platform built from the ground up for teams that work
+  alongside AI agents, positioned as a rearchitected alternative to Slack for
+  human-agent collaboration. Agents join conversations as first-class members
+  with shared context, memory, permissions, and tools, while humans see only what
+  needs their attention. Ando ships a public REST API v1 (api.ando.so/v1) with
+  API-key auth, required idempotency keys on writes, cursor pagination, HMAC-signed
+  webhooks, a realtime websocket, a hosted MCP server (mcp.ando.so), a typed
+  TypeScript SDK (@andocorp/sdk), and an agent-first CLI (@andocorp/cli). The legal
+  entity is Asari Inc.; the company is backed by Index Ventures, Accel, and
+  Emergence.
 url: https://raw.githubusercontent.com/api-evangelist/ando/refs/heads/main/apis.yml
 x-type: company
 x-source: index-ventures-portfolio
-x-tier: stub
+x-tier: enriched
 x-tier-reason: portfolio-lead
+accessModel:
+  pricing: unknown
+  onboarding: self-serve
+  trial: false
+  try_now: false
+  public: false
+  label: Self-serve signup
+  confidence: medium
+  source:
+  - authentication
+  generated: '2026-07-22'
+  method: derived
 specificationVersion: '0.20'
 created: '2026-07-17'
 modified: '2026-07-17'
+image: https://www.ando.so/opengraph-image.png
 tags:
 - Company
 - Business Applications
-apis: []
+- Messaging
+- Team Collaboration
+- AI Agents
+- Agents
+- Developer Tools
+- MCP
+- Webhooks
+- Productivity
 maintainers:
 - FN: Kin Lane
   email: kin@apievangelist.com
 - FN: APIs.json
   email: info@apis.io
+apis:
+- aid: ando:ando-calls-api
+  name: Ando Calls API
+  description: Call detail and transcript routes.
+  humanURL: https://docs.ando.so/api-reference/overview
+  baseURL: https://api.ando.so/v1
+  tags:
+  - Calls
+  properties:
+  - type: OpenAPI
+    url: openapi/ando-calls-api-openapi.yml
+  - type: Authentication
+    url: authentication/ando-authentication.yml
+  - type: Conventions
+    url: conventions/ando-conventions.yml
+  - type: Idempotency
+    url: conventions/ando-conventions.yml
+  - type: ErrorCatalog
+    url: errors/ando-problem-types.yml
+  - type: DataModel
+    url: data-model/ando-data-model.yml
+  - type: Webhooks
+    url: asyncapi/ando-webhooks.yml
+  - type: Conformance
+    url: conformance/ando-conformance.yml
+- aid: ando:ando-clipboards-api
+  name: Ando Clipboards API
+  description: Clipboard detail routes.
+  humanURL: https://docs.ando.so/api-reference/overview
+  baseURL: https://api.ando.so/v1
+  tags:
+  - Clipboards
+  properties:
+  - type: OpenAPI
+    url: openapi/ando-clipboards-api-openapi.yml
+  - type: Authentication
+    url: authentication/ando-authentication.yml
+  - type: Conventions
+    url: conventions/ando-conventions.yml
+  - type: Idempotency
+    url: conventions/ando-conventions.yml
+  - type: ErrorCatalog
+    url: errors/ando-problem-types.yml
+  - type: DataModel
+    url: data-model/ando-data-model.yml
+  - type: Webhooks
+    url: asyncapi/ando-webhooks.yml
+  - type: Conformance
+    url: conformance/ando-conformance.yml
+- aid: ando:ando-members-api
+  name: Ando Members API
+  description: Workspace member detail routes. Existing v1 paths keep member compatibility spellings.
+  humanURL: https://docs.ando.so/api-reference/overview
+  baseURL: https://api.ando.so/v1
+  tags:
+  - Members
+  properties:
+  - type: OpenAPI
+    url: openapi/ando-members-api-openapi.yml
+  - type: Authentication
+    url: authentication/ando-authentication.yml
+  - type: Conventions
+    url: conventions/ando-conventions.yml
+  - type: Idempotency
+    url: conventions/ando-conventions.yml
+  - type: ErrorCatalog
+    url: errors/ando-problem-types.yml
+  - type: DataModel
+    url: data-model/ando-data-model.yml
+  - type: Webhooks
+    url: asyncapi/ando-webhooks.yml
+  - type: Conformance
+    url: conformance/ando-conformance.yml
+- aid: ando:ando-messages-api
+  name: Ando Messages API
+  description: Message and conversation message routes.
+  humanURL: https://docs.ando.so/api-reference/overview
+  baseURL: https://api.ando.so/v1
+  tags:
+  - Messages
+  properties:
+  - type: OpenAPI
+    url: openapi/ando-messages-api-openapi.yml
+  - type: Authentication
+    url: authentication/ando-authentication.yml
+  - type: Conventions
+    url: conventions/ando-conventions.yml
+  - type: Idempotency
+    url: conventions/ando-conventions.yml
+  - type: ErrorCatalog
+    url: errors/ando-problem-types.yml
+  - type: DataModel
+    url: data-model/ando-data-model.yml
+  - type: Webhooks
+    url: asyncapi/ando-webhooks.yml
+  - type: Conformance
+    url: conformance/ando-conformance.yml
+- aid: ando:ando-realtime-api
+  name: Ando Realtime API
+  description: The Realtime API from Ando — 1 operation(s) for realtime.
+  humanURL: https://docs.ando.so/api-reference/overview
+  baseURL: https://api.ando.so/v1
+  tags:
+  - Realtime
+  properties:
+  - type: OpenAPI
+    url: openapi/ando-realtime-api-openapi.yml
+  - type: Authentication
+    url: authentication/ando-authentication.yml
+  - type: Conventions
+    url: conventions/ando-conventions.yml
+  - type: Idempotency
+    url: conventions/ando-conventions.yml
+  - type: ErrorCatalog
+    url: errors/ando-problem-types.yml
+  - type: DataModel
+    url: data-model/ando-data-model.yml
+  - type: Webhooks
+    url: asyncapi/ando-webhooks.yml
+  - type: Conformance
+    url: conformance/ando-conformance.yml
+- aid: ando:ando-search-api
+  name: Ando Search API
+  description: Search routes.
+  humanURL: https://docs.ando.so/api-reference/overview
+  baseURL: https://api.ando.so/v1
+  tags:
+  - Search
+  properties:
+  - type: OpenAPI
+    url: openapi/ando-search-api-openapi.yml
+  - type: Authentication
+    url: authentication/ando-authentication.yml
+  - type: Conventions
+    url: conventions/ando-conventions.yml
+  - type: Idempotency
+    url: conventions/ando-conventions.yml
+  - type: ErrorCatalog
+    url: errors/ando-problem-types.yml
+  - type: DataModel
+    url: data-model/ando-data-model.yml
+  - type: Webhooks
+    url: asyncapi/ando-webhooks.yml
+  - type: Conformance
+    url: conformance/ando-conformance.yml
+- aid: ando:ando-tasks-api
+  name: Ando Tasks API
+  description: Task routes.
+  humanURL: https://docs.ando.so/api-reference/overview
+  baseURL: https://api.ando.so/v1
+  tags:
+  - Tasks
+  properties:
+  - type: OpenAPI
+    url: openapi/ando-tasks-api-openapi.yml
+  - type: Authentication
+    url: authentication/ando-authentication.yml
+  - type: Conventions
+    url: conventions/ando-conventions.yml
+  - type: Idempotency
+    url: conventions/ando-conventions.yml
+  - type: ErrorCatalog
+    url: errors/ando-problem-types.yml
+  - type: DataModel
+    url: data-model/ando-data-model.yml
+  - type: Webhooks
+    url: asyncapi/ando-webhooks.yml
+  - type: Conformance
+    url: conformance/ando-conformance.yml
+- aid: ando:ando-webhooks-api
+  name: Ando Webhooks API
+  description: Outbound webhook endpoint and delivery routes.
+  humanURL: https://docs.ando.so/api-reference/overview
+  baseURL: https://api.ando.so/v1
+  tags:
+  - Webhooks
+  properties:
+  - type: OpenAPI
+    url: openapi/ando-webhooks-api-openapi.yml
+  - type: Authentication
+    url: authentication/ando-authentication.yml
+  - type: Conventions
+    url: conventions/ando-conventions.yml
+  - type: Idempotency
+    url: conventions/ando-conventions.yml
+  - type: ErrorCatalog
+    url: errors/ando-problem-types.yml
+  - type: DataModel
+    url: data-model/ando-data-model.yml
+  - type: Webhooks
+    url: asyncapi/ando-webhooks.yml
+  - type: Conformance
+    url: conformance/ando-conformance.yml
 common:
+- type: DeveloperPortal
+  url: https://docs.ando.so
+- type: Documentation
+  url: https://docs.ando.so
+- type: APIReference
+  url: https://docs.ando.so/api-reference/overview
+- type: GettingStarted
+  url: https://docs.ando.so/developers/quickstart
+- type: Authentication
+  url: authentication/ando-authentication.yml
+- type: OpenAPI
+  url: openapi/ando-public-api-v1-openapi.json
+- type: Overlay
+  url: overlays/ando-public-api-v1-overlay.yaml
+- type: Conventions
+  url: conventions/ando-conventions.yml
+- type: Idempotency
+  url: conventions/ando-conventions.yml
+- type: ErrorCatalog
+  url: errors/ando-problem-types.yml
+- type: DataModel
+  url: data-model/ando-data-model.yml
+- type: Conformance
+  url: conformance/ando-conformance.yml
+- type: Webhooks
+  url: asyncapi/ando-webhooks.yml
+- type: MCPServer
+  url: mcp/ando-mcp.yml
+- type: AgentSkill
+  url: skills/_index.yml
+- type: AgenticAccess
+  url: agentic-access/ando-agentic-access.yml
+- type: Packages
+  url: packages/ando-packages.yml
+- type: SDKs
+  url: packages/ando-packages.yml
+- type: CLI
+  url: cli/ando-cli.yml
+- type: LLMsTxt
+  url: llms/ando-llms.txt
+- type: WellKnown
+  url: well-known/ando-well-known.yml
+- type: Lifecycle
+  url: lifecycle/ando-lifecycle.yml
+- type: StatusPage
+  url: https://status.ando.so
+- type: ChangeLog
+  url: changelog/ando-changelog.yml
+- type: DomainSecurity
+  url: security/ando-domain-security.yml
+- type: Blog
+  url: https://docs.ando.so/changelog
+- type: Support
+  url: https://docs.ando.so/docs/start-guide
+- type: SignUp
+  url: https://app.ando.so
+- type: Login
+  url: https://app.ando.so
+- type: TermsOfService
+  url: https://ando.so/security/terms-of-service
+- type: PrivacyPolicy
+  url: https://ando.so/security/privacy-policy
+- type: About
+  url: https://ando.so/about
+- type: X
+  url: https://x.com/andocorporation
+- type: LinkedIn
+  url: https://www.linkedin.com/company/andohq/
 - type: Website
-  url: http://ando.so
+  url: https://ando.so
+x-enrichment:
+  date: '2026-07-19'
+  status: backfilled
+  pass: local-v1
+  note: backfilled from .gitignore signal + verified work evidence
