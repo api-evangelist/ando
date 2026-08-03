@@ -1,0 +1,30 @@
+generated: '2026-07-17'
+method: searched
+source: https://docs.ando.so/changelog
+versioning:
+  scheme: dated-spec
+  current: v1
+  host_path: /v1
+  spec_snapshots:
+  - openapi-public-api-v1-latest
+  - openapi-public-api-v1-2026-07-12
+  webhook_api_version: '2026-05-27'
+  docs: https://docs.ando.so/api-reference/overview
+deprecation:
+  policy_url: null
+  sunset_header: false
+  notes: >-
+    No formal RFC 8594 deprecation/sunset policy page is published. Ando marks
+    superseded surfaces inline instead: legacy /api/v1 compatibility routes and
+    clipboard endpoints (searchClipboards, getClipboard) are flagged "legacy
+    compatibility, do not use for new integrations", and several MCP tools carry
+    per-tool deprecation notes (get_member -> get_workspace_member, list_members
+    -> list_workspace_members, search_members -> search_workspace_members).
+status_page: https://status.ando.so
+sla:
+  url: null
+  uptime_target: null
+changelog: https://docs.ando.so/changelog
+deprecated_operations:
+- openapi/ando-public-api-v1-openapi.json#getClipboard
+- openapi/ando-public-api-v1-openapi.json#searchClipboards

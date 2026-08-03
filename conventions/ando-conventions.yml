@@ -1,0 +1,78 @@
+generated: '2026-07-17'
+method: searched
+source: https://docs.ando.so/api-reference/http-api
+docs:
+- https://docs.ando.so/api-reference/authorization
+- https://docs.ando.so/api-reference/http-api
+- https://docs.ando.so/developers/sdk
+base_url: https://api.ando.so/v1
+authentication:
+  style: api-key
+  transport: [x-api-key header (preferred), 'Authorization: Bearer (compatibility)']
+  key_prefix: ando_sk_
+  scope: per-workspace
+  detail: authentication/ando-authentication.yml
+idempotency:
+  supported: true
+  header: Idempotency-Key
+  required_on_writes: true
+  max_length: 255
+  scope: per-request-body
+  guidance: >-
+    Every write requires an Idempotency-Key header. Reuse the same key only when
+    retrying the same request body after a timeout or network failure; use a new
+    key for a different message. The @andocorp/sdk sends an Idempotency-Key
+    automatically on write methods when one is not supplied.
+  retry_policy: >-
+    Clients (and the SDK) retry transient failures (429, 5xx, network errors);
+    non-idempotent methods are only retried when they carry an Idempotency-Key.
+pagination:
+  style: cursor
+  response_envelope: data.items
+  page_info_field: data.page_info
+  cursor_params: [before, after]
+  cursor_value: cursor-or-iso-timestamp
+  compatibility_aliases: [items, pageInfo]
+  notes: >-
+    Paginated list responses use data.items and data.page_info. Pass
+    before=<cursor-or-iso-timestamp> to page backward. Some v1 responses also
+    include top-level items and pageInfo compatibility aliases; new clients
+    should read the data envelope.
+request_tracing:
+  request_id_field: error.request_id
+  notes: >-
+    The public API error envelope carries error.request_id; the SDK surfaces it
+    as AndoApiError.requestId. Used to correlate a failed request with support.
+error_envelope:
+  format: custom-json
+  rfc9457: false
+  public_shape:
+    field: error
+    properties: [code, message, request_id]
+  legacy_shape:
+    field: error
+    properties: [error, error_code, missing_scopes]
+  detail: errors/ando-problem-types.yml
+  notes: >-
+    The target public API envelope wraps a single error object with a
+    machine-readable code, human message, and nullable request_id. Legacy
+    /api/v1 routes return a flat {error, error_code, missing_scopes} envelope.
+rate_limiting:
+  signaled_via: HTTP 429
+  response: PublicApiErrorResponse (error.code/message)
+  detail: '429 responses share the standard error envelope; retryable with backoff.'
+versioning:
+  scheme: dated-spec
+  current_spec: 2026-07-12
+  webhook_api_version: '2026-05-27'
+  host_path: /v1
+  detail: lifecycle/ando-lifecycle.yml
+  notes: >-
+    The public API is served under /v1 with dated OpenAPI snapshots
+    (openapi-public-api-v1-<date>.json). Webhook payloads carry their own
+    Ando-API-Version header (2026-05-27). Legacy /api/v1 response envelopes are
+    preserved while converging on the api.ando.so/v1 shape.
+webhooks:
+  signing: HMAC-SHA256
+  signature_header: Ando-Signature
+  detail: asyncapi/ando-webhooks.yml

@@ -1,0 +1,28 @@
+{
+  "provider": "ando",
+  "sources": [
+    "ando-calls-api-openapi.yml",
+    "ando-clipboards-api-openapi.yml",
+    "ando-members-api-openapi.yml",
+    "ando-messages-api-openapi.yml",
+    "ando-realtime-api-openapi.yml",
+    "ando-search-api-openapi.yml",
+    "ando-tasks-api-openapi.yml",
+    "ando-webhooks-api-openapi.yml"
+  ],
+  "outputs": [
+    "ando-calls-api-openapi.yml",
+    "ando-clipboards-api-openapi.yml",
+    "ando-members-api-openapi.yml",
+    "ando-messages-api-openapi.yml",
+    "ando-realtime-api-openapi.yml",
+    "ando-search-api-openapi.yml",
+    "ando-tasks-api-openapi.yml",
+    "ando-webhooks-api-openapi.yml"
+  ],
+  "archived": [],
+  "errors": [],
+  "warnings": [],
+  "notes": [],
+  "skipped": []
+}

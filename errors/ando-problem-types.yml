@@ -1,0 +1,64 @@
+generated: '2026-07-17'
+method: derived
+source: openapi/ando-public-api-v1-openapi.json
+docs: https://docs.ando.so/api-reference/authorization
+format: custom-json
+rfc9457: false
+envelope:
+  public:
+    field: error
+    properties: [code, message, request_id]
+    schema: PublicApiErrorResponse
+  legacy:
+    field: error
+    properties: [error, error_code, missing_scopes]
+    schema: LegacyErrorResponse
+notes: >-
+  Ando does not use RFC 9457 application/problem+json. Errors are returned in a
+  JSON envelope: the target public shape wraps a single error object
+  (code/message/request_id); legacy /api/v1 routes return a flat
+  {error, error_code, missing_scopes}. Status set is uniform across operations.
+problems:
+- status: 400
+  name: BadRequest
+  title: Bad request
+  schema: LegacyErrorResponse
+  remediation: Validate request body/params against the operation schema.
+- status: 401
+  name: Unauthorized
+  title: Unauthorized
+  schema: PublicApiErrorResponse
+  meaning: The key is missing, malformed, expired, or unknown.
+  remediation: Send a valid workspace API key via x-api-key or Authorization Bearer.
+- status: 403
+  name: Forbidden
+  title: Forbidden
+  schema: PublicApiErrorResponse
+  meaning: The key is valid but cannot access the requested workspace resource.
+  remediation: Use a key scoped to the workspace that owns the resource.
+- status: 404
+  name: NotFound
+  title: Resource not found
+  schema: PublicApiErrorResponse
+  meaning: The resource does not exist or is not visible to the key.
+- status: 409
+  name: Conflict
+  title: Conflict
+  schema: PublicApiErrorResponse
+  remediation: Resolve the conflicting state or reuse the original Idempotency-Key.
+- status: 429
+  name: RateLimited
+  title: Rate limit or quota exceeded
+  schema: PublicApiErrorResponse
+  remediation: Back off and retry; safe/idempotent requests are retried by the SDK.
+- status: 500
+  name: InternalError
+  title: Internal server error
+  schema: PublicApiErrorResponse
+  remediation: Retry with backoff; capture error.request_id for support.
+- status: 503
+  name: ServiceUnavailable
+  title: Service unavailable
+  schema: PublicApiErrorResponse
+  applies_to: [openRealtimeConnection]
+  remediation: Realtime connection could not be opened; retry the ticket request.

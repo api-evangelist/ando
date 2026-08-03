@@ -1,0 +1,20 @@
+generated: '2026-07-17'
+method: searched
+host: https://ando.so
+notes: >-
+  Probed the marketing host (ando.so) for the standard /.well-known discovery
+  surface on 2026-07-17. None are published (all 404). Ando uses API-key auth
+  with no OAuth/OIDC discovery surface, so openid-configuration and
+  oauth-authorization-server are expected absent. No security.txt is published;
+  no api-catalog or ai-plugin.json.
+documents:
+- path: /.well-known/security.txt
+  status: 404
+- path: /.well-known/openid-configuration
+  status: 404
+- path: /.well-known/oauth-authorization-server
+  status: 404
+- path: /.well-known/api-catalog
+  status: 404
+- path: /.well-known/ai-plugin.json
+  status: 404

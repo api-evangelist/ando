@@ -1,0 +1,62 @@
+generated: '2026-07-17'
+method: searched
+source: https://docs.ando.so/api-reference/webhook-events
+spec_type: Webhooks
+asyncapi_published: false
+asyncapi_note: >-
+  Ando explicitly does not publish an AsyncAPI document ("AsyncAPI generated: no").
+  Webhook payload contracts are source-backed TypeScript types; generated JSON/MDX
+  is the public docs artifact. This file captures the webhook event catalog and
+  delivery/signing model as the event surface (type: Webhooks). Realtime websocket
+  delivery is a separate live channel (message.created only, ando.realtime.v1).
+transport: HTTP POST (at-least-once, unordered)
+webhook_api_version: '2026-05-27'
+management_operations:
+- createWebhookEndpoint
+- listWebhookEndpoints
+- getWebhookEndpoint
+- updateWebhookEndpoint
+- rotateWebhookEndpointSecret
+- sendWebhookEndpointTestEvent
+- listWebhookDeliveries
+- replayWebhookDelivery
+signing:
+  algorithm: HMAC-SHA256
+  signature_header: Ando-Signature
+  signature_format: t=<unix seconds>,v1=<hex>
+  payload: '<timestamp>.<raw request body>'
+  timestamp_tolerance_seconds: 300
+  rotation: secret rotation can include more than one v1 value
+delivery_headers:
+- Ando-Signature
+- Ando-Timestamp
+- Ando-Event-Id
+- Ando-Delivery-Id
+- Ando-Event-Type
+- Ando-API-Version
+envelope:
+  object: event
+  fields:
+  - id
+  - object
+  - type
+  - api_version
+  - created_at
+  - workspace_id
+  - data.object
+  - data.previous_attributes
+  - related.conversation_id
+  - related.message_id
+  - related.thread_root_message_id
+  - related.call_id
+events:
+- {type: call.ended, owner: calls, payload: CallWebhookObject}
+- {type: call.started, owner: calls, payload: CallWebhookObject}
+- {type: call.transcript.updated, owner: calls, payload: CallTranscriptUpdatedWebhookObject}
+- {type: call.updated, owner: calls, payload: CallWebhookObject, previous_attributes: true}
+- {type: conversation.archived, owner: conversations, payload: ConversationResult}
+- {type: conversation.membership.created, owner: conversations, payload: ConversationMembershipCreatedWebhookObject}
+- {type: conversation.unarchived, owner: conversations, payload: ConversationResult}
+- {type: message.created, owner: messaging, payload: MessageResult}
+- {type: message.updated, owner: messaging, payload: MessageResult, previous_attributes: true}
+- {type: webhook.test, owner: platform, payload: WebhookTestEventObject}

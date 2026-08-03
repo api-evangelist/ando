@@ -1,0 +1,43 @@
+generated: '2026-07-17'
+method: searched
+source: https://docs.ando.so/changelog
+scheme: dated-weekly
+format: rss-backed
+current_snapshot: '2026-07-12'
+notes: >-
+  Ando publishes a dated product changelog (roughly weekly Update entries with
+  Featured items + an Improvements accordion). Captured recent window below;
+  the live changelog is the source of truth.
+entries:
+- date: '2026-06-12'
+  title: Slack bridge and scheduled sends
+  tags: [Agent, API, Channels, Composer, Integrations, MCP, Mobile, Onboarding]
+  highlights:
+  - Slack bridge — backfill Slack history and keep selected channels synced.
+  - Scheduled send — compose a message and choose when it is delivered.
+  - Mobile polish pass across navigation, conversations, Jams, and message actions.
+  - Docs added for GitHub, Linear, Notion, Granola, HubSpot, Sentry, Custom MCP.
+- date: '2026-05-10'
+  title: Custom MCP Apps
+  tags: [Agent, Channels, Composer, Desktop, Inbox, Jams, Onboarding, Search, Threads]
+  highlights:
+  - Custom MCP Apps — connect any third-party MCP server with OAuth; tools, chat
+    suggestions, and a permissions surface, with managed token refresh/health checks.
+  - Pinned threads — pin threads to a dedicated sidebar section.
+  - More agent MCP tools — delete messages, manage memberships, bulk-archive members.
+- date: '2026-05-03'
+  title: Weekly update
+- date: '2026-04-27'
+  title: Weekly update
+- date: '2026-04-20'
+  title: Weekly update
+recent_dates:
+- '2026-06-12'
+- '2026-05-10'
+- '2026-05-03'
+- '2026-04-27'
+- '2026-04-20'
+- '2026-04-13'
+- '2026-04-06'
+- '2026-03-27'
+- '2026-03-20'

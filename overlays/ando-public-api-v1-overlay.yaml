@@ -1,0 +1,23 @@
+overlay: 1.0.0
+info:
+  title: API Evangelist enhancements for Ando Public API
+  version: 1.0.0
+extends: openapi/ando-public-api-v1-openapi.json
+actions:
+- target: $.info
+  update:
+    x-apievangelist-enriched: '2026-07-17'
+    x-apievangelist-provider: ando
+    x-apievangelist-auth: api-key
+    x-apievangelist-idempotency: Idempotency-Key
+    x-apievangelist-pagination: cursor (data.items / data.page_info; before/after)
+    x-apievangelist-mcp-server: https://mcp.ando.so/mcp
+    x-apievangelist-status-page: https://status.ando.so
+    x-apievangelist-webhooks: asyncapi/ando-webhooks.yml
+- target: $.info
+  update:
+    x-apievangelist-categories:
+    - Team Collaboration
+    - Messaging
+    - AI Agents
+    - Developer Tools

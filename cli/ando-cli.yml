@@ -1,0 +1,44 @@
+generated: '2026-07-17'
+method: searched
+source: https://docs.ando.so/developers/cli
+name: ando
+package: "@andocorp/cli"
+registry: npm
+binary: ando
+runtime: Node 20+
+install:
+- npm install -g @andocorp/cli
+- npx @andocorp/cli
+authentication:
+  default_flow: >-
+    `ando login` opens the browser, shows a verification code, and stores the
+    resulting API key in the system keyring (service `ando-cli`).
+  headless_flow: ['ando login --no-browser', 'ando login poll']
+  ci_flow: 'export ANDO_API_KEY=... (or --api-key <key>)'
+  keyring: 'System keyring by default; ANDO_KEYRING=0 uses a 0600 file store (auth.json).'
+  config_dir: '~/.config/ando (or $XDG_CONFIG_HOME/ando, %APPDATA%\ando, $ANDO_HOME)'
+command_groups:
+- group: auth
+  commands:
+  - {name: login, summary: 'Browser/headless login; stores key in keyring'}
+  - {name: 'login poll', summary: 'Complete a headless (--no-browser) login'}
+  - {name: whoami, summary: 'Show member and workspace for the active key'}
+  - {name: doctor, summary: 'Local auth diagnostics: config path, credential source, API probe'}
+  - {name: logout, summary: 'Revoke browser-created credentials remotely and clear local state'}
+- group: api
+  commands:
+  - {name: api, summary: 'Raw public-API escape hatch: `ando api <operationId> field==value`'}
+- group: realtime
+  commands:
+  - {name: watch, summary: 'Realtime message watcher over the websocket connection'}
+- group: webhooks
+  commands:
+  - {name: webhooks, summary: 'Webhook endpoint and delivery management from scripts'}
+env_vars:
+- {name: ANDO_API_KEY, use: 'API key for any command without stored credentials'}
+- {name: ANDO_KEYRING, use: 'Set to 0 to use a file store instead of the system keyring'}
+- {name: ANDO_HOME, use: 'Override the config directory'}
+notes: >-
+  Agent-first terminal client for Ando: auth into the keyring, a raw public-API
+  escape hatch (`ando api <operationId>`), a realtime message watcher, and webhook
+  endpoint/delivery workflows. The binary is catalogued in packages/.

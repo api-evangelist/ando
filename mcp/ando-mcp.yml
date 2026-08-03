@@ -1,0 +1,161 @@
+generated: '2026-07-17'
+method: searched
+status: published
+source: https://docs.ando.so/docs/ando-mcp
+docs: https://docs.ando.so/docs/ando-mcp-tools
+server:
+  name: ando
+  transport: http
+  variant: streamable-http
+  url: https://mcp.ando.so/mcp
+  authentication:
+    type: bearer
+    description: >-
+      Workspace API key (ando_sk_ prefix) sent as Authorization: Bearer <key>.
+      Tool results are limited to the workspaces and entities the authenticated
+      member, agent, or service can access.
+  supported_clients:
+  - Claude Code
+  - Codex CLI
+  - Cursor
+notes: >-
+  Ando's hosted Model Context Protocol server for searching and fetching workspace
+  context (conversations, messages, members, Jams, tasks, workspace actions) in
+  MCP-capable clients and agents. Request/response tool access only — it does not
+  listen for or push live events (use realtime or webhooks for that). Manifest
+  reports 32 public tools, 17 of which overlap public API v1 operations.
+tool_counts:
+  public_tools: 32
+  public_api_overlap: 17
+tools:
+- name: search_messages
+  capability: message.search
+  kind: search
+  safety: read-only
+  source_operation: openapi/ando-public-api-v1-openapi.json#searchMessages
+- name: search_conversations
+  capability: conversation.search
+  kind: search
+  safety: read-only
+  source_operation: openapi/ando-public-api-v1-openapi.json#searchConversations
+- name: search_workspace_members
+  capability: workspace_member.search
+  kind: search
+  safety: read-only
+  source_operation: openapi/ando-public-api-v1-openapi.json#searchMembers
+- name: search_calls
+  capability: call.search
+  kind: search
+  safety: read-only
+  source_operation: openapi/ando-public-api-v1-openapi.json#searchCalls
+- name: search_tasks
+  capability: task.search
+  kind: search
+  safety: read-only
+  source_operation: openapi/ando-public-api-v1-openapi.json#searchTasks
+- name: get_conversation_messages
+  capability: message.list_conversation
+  kind: list
+  safety: read-only
+  source_operation: openapi/ando-public-api-v1-openapi.json#listConversationMessages
+- name: get_thread_replies
+  capability: message.list_thread_replies
+  kind: list
+  safety: read-only
+  source_operation: openapi/ando-public-api-v1-openapi.json#listThreadReplies
+- name: get_message
+  capability: message.get
+  kind: lookup
+  safety: read-only
+  source_operation: openapi/ando-public-api-v1-openapi.json#getConversationMessage
+- name: get_workspace_member
+  capability: workspace_member.get
+  kind: lookup
+  safety: read-only
+  source_operation: openapi/ando-public-api-v1-openapi.json#getMember
+- name: get_call
+  capability: call.get
+  kind: lookup
+  safety: read-only
+  source_operation: openapi/ando-public-api-v1-openapi.json#getCall
+- name: get_call_transcript
+  capability: call.transcript.get
+  kind: lookup
+  safety: read-only
+  source_operation: openapi/ando-public-api-v1-openapi.json#getCallTranscript
+- name: get_task
+  capability: task.get
+  kind: lookup
+  safety: read-only
+  source_operation: openapi/ando-public-api-v1-openapi.json#getTask
+- name: record_task_update
+  capability: task.update.record
+  kind: update
+  safety: write
+  source_operation: openapi/ando-public-api-v1-openapi.json#recordTaskUpdate
+- name: send_message
+  capability: message.send
+  kind: create
+  safety: write
+  source_operation: openapi/ando-public-api-v1-openapi.json#createConversationMessage
+- name: reply_to_message
+  capability: message.reply
+  kind: create
+  safety: write
+  source_operation: openapi/ando-public-api-v1-openapi.json#createConversationMessage
+- name: send_direct_message
+  capability: message.send_direct
+  kind: create
+  safety: write
+- name: create_conversation
+  capability: conversation.create
+  kind: create
+  safety: write
+- name: add_to_conversation
+  capability: conversation.membership.add
+  kind: create
+  safety: write
+- name: join_conversation
+  capability: conversation.membership.join_self
+  kind: create
+  safety: write
+- name: remove_from_conversation
+  capability: conversation.membership.remove
+  kind: delete
+  safety: destructive
+- name: delete_message
+  capability: message.delete
+  kind: delete
+  safety: destructive
+- name: react_to_message
+  capability: message.reaction.create
+  kind: create
+  safety: write
+- name: invite_to_workspace
+  capability: workspace.invite
+  kind: create
+  safety: write
+- name: list_conversations
+  capability: conversation.list
+  kind: list
+  safety: read-only
+- name: list_public_channels
+  capability: conversation.channel_public.list
+  kind: list
+  safety: read-only
+- name: list_conversation_members
+  capability: conversation.members.list
+  kind: list
+  safety: read-only
+- name: list_workspace_members
+  capability: workspace_member.list
+  kind: list
+  safety: read-only
+- name: list_calls
+  capability: call.list
+  kind: list
+  safety: read-only
+- name: get_conversation_threads
+  capability: message.list_conversation_threads
+  kind: list
+  safety: read-only

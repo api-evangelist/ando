@@ -1,0 +1,21 @@
+generated: '2026-07-17'
+method: generated
+source: openapi/ando-public-api-v1-openapi.json
+notes: >-
+  Packaged Agent Skills for the Ando public API v1. Every step is grounded in a
+  real operationId from openapi/ando-public-api-v1-openapi.json. Auth is a
+  workspace API key (x-api-key / Bearer, ando_sk_ prefix); every write requires an
+  Idempotency-Key header.
+skills:
+- file: ando-search-and-read-context.md
+  name: Search and read Ando workspace context
+  api: openapi/ando-public-api-v1-openapi.json
+  operations: [searchMessages, searchConversations, listConversationMessages, getConversationMessage, listThreadReplies]
+- file: ando-post-message-and-reply.md
+  name: Post a message and reply in a thread
+  api: openapi/ando-public-api-v1-openapi.json
+  operations: [searchConversations, createConversationMessage, getConversationMessage, listThreadReplies]
+- file: ando-receive-and-verify-webhooks.md
+  name: Receive and verify Ando webhooks
+  api: openapi/ando-public-api-v1-openapi.json
+  operations: [createWebhookEndpoint, sendWebhookEndpointTestEvent, listWebhookDeliveries, replayWebhookDelivery, rotateWebhookEndpointSecret]

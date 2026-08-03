@@ -1,0 +1,41 @@
+generated: '2026-07-17'
+method: derived
+source: openapi/ando-public-api-v1-openapi.json
+standards:
+- id: openapi-3.0
+  conforms: true
+  evidence: openapi/ando-public-api-v1-openapi.json declares openapi 3.0.3
+- id: api-key-auth
+  conforms: true
+  evidence: securitySchemes AndoApiKey (apiKey header x-api-key) + BearerApiKey (http bearer)
+- id: oauth2
+  conforms: false
+  evidence: no oauth2 security scheme; API-key auth only
+- id: oidc
+  conforms: false
+- id: rfc9457-problem-details
+  conforms: false
+  evidence: custom error envelope (error.code/message/request_id), not application/problem+json
+- id: idempotency-keys
+  conforms: true
+  evidence: Idempotency-Key header required on write operations (createConversationMessage, recordTaskUpdate)
+- id: cursor-pagination
+  conforms: true
+  evidence: list responses use data.items + data.page_info with before/after cursors
+- id: webhooks-hmac-signing
+  conforms: true
+  evidence: outbound webhooks signed with Ando-Signature (t=,v1= HMAC-SHA256), timestamp tolerance 300s
+- id: rfc6455-websocket
+  conforms: true
+  evidence: realtime uses a websocket connection (ando.realtime.v1 subprotocol) via openRealtimeConnection
+- id: mcp
+  conforms: true
+  evidence: hosted streamable-HTTP MCP server at https://mcp.ando.so/mcp (32 public tools)
+- id: fhir-r4
+  conforms: false
+- id: fapi
+  conforms: false
+- id: scim
+  conforms: false
+- id: json-api
+  conforms: false

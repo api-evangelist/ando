@@ -1,0 +1,47 @@
+generated: '2026-07-17'
+method: derived
+source: openapi/ando-public-api-v1-openapi.json
+notes: >-
+  Entity-relationship graph derived from OpenAPI component schemas and the
+  id-reference fields on public result objects (conversation_id, author_id,
+  workspaceMembershipId, creator_member_id, etc). Ids are opaque prefixed strings
+  (e.g. conv_, msg_) observed in docs examples.
+entities:
+- name: Conversation
+  schema: ConversationResult
+  id_prefix: conv_
+  key_fields: [id, name, type, description, human_members_count, agent_members_count]
+- name: Message
+  schema: MessageResult
+  id_prefix: msg_
+  key_fields: [id, content, author_id, author_name, conversation_id, created_at, reactions, replies_count]
+- name: WorkspaceMember
+  schema: MemberResult
+  key_fields: [id, display_name, email, title, workspaceMembershipId, profile_image_url]
+- name: Call
+  schema: CallResult
+  key_fields: [id, conversation_id, status, started_at, ended_at, duration_seconds, participant_count, summary]
+- name: CallTranscript
+  key_fields: [call_id, segments]
+- name: Task
+  schema: TaskResult
+  key_fields: [id, name, objective, phase, conversation_id, creator_member_id, state_version, summary]
+- name: Clipboard
+  schema: ClipboardResult
+  status: legacy
+  key_fields: [id, title, description, item_count]
+- name: WebhookEndpoint
+  key_fields: [id, name, url, enabled_events, signing_secret_prefix]
+- name: WebhookDelivery
+  key_fields: [id, endpoint_id, event_id, status]
+relationships:
+- {from: Message, type: belongs_to, to: Conversation, via: conversation_id}
+- {from: Message, type: belongs_to, to: WorkspaceMember, via: author_id}
+- {from: Message, type: has_many, to: Message, via: thread_root_id, note: thread replies}
+- {from: Conversation, type: has_many, to: Message}
+- {from: Conversation, type: has_many, to: WorkspaceMember, note: human + agent members}
+- {from: Call, type: belongs_to, to: Conversation, via: conversation_id}
+- {from: Call, type: has_one, to: CallTranscript, via: call_id}
+- {from: Task, type: belongs_to, to: Conversation, via: conversation_id}
+- {from: Task, type: belongs_to, to: WorkspaceMember, via: creator_member_id}
+- {from: WebhookDelivery, type: belongs_to, to: WebhookEndpoint, via: endpoint_id}
