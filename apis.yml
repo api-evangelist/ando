@@ -253,7 +253,7 @@ common:
 - type: Authentication
   url: authentication/ando-authentication.yml
 - type: OpenAPI
-  url: openapi/ando-public-api-v1-openapi.json
+  url: openapi/_original/ando-public-api-v1-openapi.json
 - type: Overlay
   url: overlays/ando-public-api-v1-overlay.yaml
 - type: Conventions
