@@ -1,0 +1,43 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Ando Public Calls Clipboards API",
+    "version": "v1"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Clipboards",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Get a clipboard",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.ando.so/v1/clipboards/:clipboardId",
+            "params": [
+              {
+                "name": "clipboardId",
+                "value": "",
+                "type": "path",
+                "description": "Clipboard identifier."
+              }
+            ],
+            "auth": {
+              "type": "apikey",
+              "key": "x-api-key",
+              "value": "{{x-api-key}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Returns a clipboard and its included context items. This is a legacy compatibility route kept for older clients; do not use it for new public API integrations."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

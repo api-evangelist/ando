@@ -10,19 +10,15 @@ server:
   url: https://mcp.ando.so/mcp
   authentication:
     type: bearer
-    description: >-
-      Workspace API key (ando_sk_ prefix) sent as Authorization: Bearer <key>.
-      Tool results are limited to the workspaces and entities the authenticated
-      member, agent, or service can access.
+    description: 'Workspace API key (ando_sk_ prefix) sent as Authorization: Bearer <key>. Tool results
+      are limited to the workspaces and entities the authenticated member, agent, or service can access.'
   supported_clients:
   - Claude Code
   - Codex CLI
   - Cursor
-notes: >-
-  Ando's hosted Model Context Protocol server for searching and fetching workspace
-  context (conversations, messages, members, Jams, tasks, workspace actions) in
-  MCP-capable clients and agents. Request/response tool access only — it does not
-  listen for or push live events (use realtime or webhooks for that). Manifest
+notes: Ando's hosted Model Context Protocol server for searching and fetching workspace context (conversations,
+  messages, members, Jams, tasks, workspace actions) in MCP-capable clients and agents. Request/response
+  tool access only — it does not listen for or push live events (use realtime or webhooks for that). Manifest
   reports 32 public tools, 17 of which overlap public API v1 operations.
 tool_counts:
   public_tools: 32
@@ -159,3 +155,10 @@ tools:
   capability: message.list_conversation_threads
   kind: list
   safety: read-only
+deployment:
+  mode: remote
+  endpoint: https://mcp.ando.so/mcp
+  verified: probed
+  probe: gated
+  checked: '2026-08-12'
+  source: catalog MCP census

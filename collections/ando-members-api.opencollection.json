@@ -1,0 +1,43 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Ando Public Calls Members API",
+    "version": "v1"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Members",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Get a workspace member",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.ando.so/v1/members/:memberId",
+            "params": [
+              {
+                "name": "memberId",
+                "value": "",
+                "type": "path",
+                "description": "Workspace member identifier. v1 uses the legacy memberId spelling."
+              }
+            ],
+            "auth": {
+              "type": "apikey",
+              "key": "x-api-key",
+              "value": "{{x-api-key}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Returns a workspace member visible to the authenticated API key. The v1 path and memberId parameter are compatibility spellings for a workspace member identifier."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

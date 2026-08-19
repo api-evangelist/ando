@@ -1,0 +1,197 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Ando Public Calls Search API",
+    "version": "v1"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Search",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Search calls",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.ando.so/v1/search/calls",
+            "params": [
+              {
+                "name": "q",
+                "value": "",
+                "type": "query",
+                "description": "Search query text."
+              },
+              {
+                "name": "conversation",
+                "value": "",
+                "type": "query",
+                "description": "Comma-separated conversation identifiers to filter to."
+              },
+              {
+                "name": "after",
+                "value": "",
+                "type": "query",
+                "description": "Cursor or ISO timestamp after which results should be returned."
+              },
+              {
+                "name": "before",
+                "value": "",
+                "type": "query",
+                "description": "Cursor or ISO timestamp before which results should be returned."
+              }
+            ],
+            "auth": {
+              "type": "apikey",
+              "key": "x-api-key",
+              "value": "{{x-api-key}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Searches calls accessible to the authenticated API key."
+        },
+        {
+          "info": {
+            "name": "Search clipboards",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.ando.so/v1/search/clipboard",
+            "params": [
+              {
+                "name": "q",
+                "value": "",
+                "type": "query",
+                "description": "Search query text."
+              }
+            ],
+            "auth": {
+              "type": "apikey",
+              "key": "x-api-key",
+              "value": "{{x-api-key}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Searches clipboards accessible to the authenticated API key. This is a legacy compatibility route kept for older clients; do not use it for new public API integrations."
+        },
+        {
+          "info": {
+            "name": "Search conversations",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.ando.so/v1/search/conversations",
+            "params": [
+              {
+                "name": "q",
+                "value": "",
+                "type": "query",
+                "description": "Search query text."
+              }
+            ],
+            "auth": {
+              "type": "apikey",
+              "key": "x-api-key",
+              "value": "{{x-api-key}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Searches conversations accessible to the authenticated API key."
+        },
+        {
+          "info": {
+            "name": "Search workspace members",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.ando.so/v1/search/members",
+            "params": [
+              {
+                "name": "q",
+                "value": "",
+                "type": "query",
+                "description": "Search query text."
+              }
+            ],
+            "auth": {
+              "type": "apikey",
+              "key": "x-api-key",
+              "value": "{{x-api-key}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Searches workspace members in the authenticated API key workspace. The v1 path keeps the /search/members compatibility spelling."
+        },
+        {
+          "info": {
+            "name": "Search messages",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.ando.so/v1/search/messages",
+            "params": [
+              {
+                "name": "q",
+                "value": "",
+                "type": "query",
+                "description": "Search query text."
+              },
+              {
+                "name": "author",
+                "value": "",
+                "type": "query",
+                "description": "Comma-separated author workspace member identifiers."
+              },
+              {
+                "name": "conversation",
+                "value": "",
+                "type": "query",
+                "description": "Comma-separated conversation identifiers."
+              },
+              {
+                "name": "thread",
+                "value": "",
+                "type": "query",
+                "description": "Thread root message identifier."
+              },
+              {
+                "name": "after",
+                "value": "",
+                "type": "query",
+                "description": "Cursor or ISO timestamp after which results should be returned."
+              },
+              {
+                "name": "before",
+                "value": "",
+                "type": "query",
+                "description": "Cursor or ISO timestamp before which results should be returned."
+              },
+              {
+                "name": "mode",
+                "value": "",
+                "type": "query",
+                "description": "Search mode."
+              }
+            ],
+            "auth": {
+              "type": "apikey",
+              "key": "x-api-key",
+              "value": "{{x-api-key}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Searches messages in conversations accessible to the authenticated API key."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

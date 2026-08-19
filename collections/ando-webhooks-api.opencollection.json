@@ -1,0 +1,244 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Ando Public Calls Webhooks API",
+    "version": "v1"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Webhooks",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "List webhook endpoints",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.ando.so/v1/webhook-endpoints",
+            "auth": {
+              "type": "apikey",
+              "key": "x-api-key",
+              "value": "{{x-api-key}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Lists workspace webhook endpoint metadata."
+        },
+        {
+          "info": {
+            "name": "Create a webhook endpoint",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.ando.so/v1/webhook-endpoints",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "apikey",
+              "key": "x-api-key",
+              "value": "{{x-api-key}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Creates a workspace webhook endpoint and returns its signing secret exactly once."
+        },
+        {
+          "info": {
+            "name": "Get a webhook endpoint",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.ando.so/v1/webhook-endpoints/:endpointId",
+            "params": [
+              {
+                "name": "endpointId",
+                "value": "",
+                "type": "path",
+                "description": "Webhook endpoint identifier."
+              }
+            ],
+            "auth": {
+              "type": "apikey",
+              "key": "x-api-key",
+              "value": "{{x-api-key}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Returns webhook endpoint metadata and a recent delivery summary."
+        },
+        {
+          "info": {
+            "name": "Update a webhook endpoint",
+            "type": "http"
+          },
+          "http": {
+            "method": "PATCH",
+            "url": "https://api.ando.so/v1/webhook-endpoints/:endpointId",
+            "params": [
+              {
+                "name": "endpointId",
+                "value": "",
+                "type": "path",
+                "description": "Webhook endpoint identifier."
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "apikey",
+              "key": "x-api-key",
+              "value": "{{x-api-key}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Updates webhook endpoint metadata and delivery settings."
+        },
+        {
+          "info": {
+            "name": "Rotate webhook endpoint secret",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.ando.so/v1/webhook-endpoints/:endpointId/rotate-secret",
+            "params": [
+              {
+                "name": "endpointId",
+                "value": "",
+                "type": "path",
+                "description": "Webhook endpoint identifier."
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "apikey",
+              "key": "x-api-key",
+              "value": "{{x-api-key}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Rotates a webhook endpoint signing secret and returns the new secret exactly once."
+        },
+        {
+          "info": {
+            "name": "Send a webhook test event",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.ando.so/v1/webhook-endpoints/:endpointId/test",
+            "params": [
+              {
+                "name": "endpointId",
+                "value": "",
+                "type": "path",
+                "description": "Webhook endpoint identifier."
+              }
+            ],
+            "auth": {
+              "type": "apikey",
+              "key": "x-api-key",
+              "value": "{{x-api-key}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Creates a webhook.test event and schedules delivery to one endpoint."
+        },
+        {
+          "info": {
+            "name": "List webhook deliveries",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.ando.so/v1/webhook-deliveries",
+            "params": [
+              {
+                "name": "endpoint_id",
+                "value": "",
+                "type": "query",
+                "description": "Filter by webhook endpoint identifier."
+              },
+              {
+                "name": "event_id",
+                "value": "",
+                "type": "query",
+                "description": "Filter by webhook event identifier."
+              },
+              {
+                "name": "status",
+                "value": "",
+                "type": "query",
+                "description": "Filter by delivery status."
+              },
+              {
+                "name": "created_after",
+                "value": "",
+                "type": "query",
+                "description": "Return deliveries created after this timestamp."
+              },
+              {
+                "name": "created_before",
+                "value": "",
+                "type": "query",
+                "description": "Return deliveries created before this timestamp."
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query",
+                "description": "Maximum number of deliveries to return."
+              }
+            ],
+            "auth": {
+              "type": "apikey",
+              "key": "x-api-key",
+              "value": "{{x-api-key}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Lists webhook deliveries with optional endpoint, event, status, and creation-time filters."
+        },
+        {
+          "info": {
+            "name": "Replay a webhook delivery",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.ando.so/v1/webhook-deliveries/:deliveryId/replay",
+            "params": [
+              {
+                "name": "deliveryId",
+                "value": "",
+                "type": "path",
+                "description": "Webhook delivery identifier."
+              }
+            ],
+            "auth": {
+              "type": "apikey",
+              "key": "x-api-key",
+              "value": "{{x-api-key}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Creates a fresh scheduled delivery for the same endpoint and event."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

@@ -1,0 +1,1613 @@
+{
+  "item": [
+    {
+      "id": "8db9c925-f510-4040-a0c9-85a85fc6b62f",
+      "name": "Tasks",
+      "description": {
+        "content": "Task routes.",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "60b35f0c-0ced-441c-a8d9-78a85cca333b",
+          "name": "Search tasks",
+          "request": {
+            "name": "Search tasks",
+            "description": {
+              "content": "Searches tasks visible to the authenticated API key.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "search",
+                "tasks"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "q",
+                  "value": "<string>",
+                  "description": "Search query text. When omitted, returns the default task list ordering."
+                },
+                {
+                  "disabled": false,
+                  "key": "limit",
+                  "value": "<integer>",
+                  "description": "Maximum number of records to return."
+                }
+              ],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                {
+                  "key": "key",
+                  "value": "x-api-key"
+                },
+                {
+                  "key": "value",
+                  "value": "{{apiKey}}"
+                },
+                {
+                  "key": "in",
+                  "value": "header"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "f9ec9f98-40df-4cdd-bee2-ba870316e71d",
+              "name": "Task search results.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "search",
+                    "tasks"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "q",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "<integer>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "x-api-key",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"data\": {\n    \"items\": [\n      {\n        \"id\": \"01jzn7e61x3a7v9h2r7t2m3q4p\",\n        \"name\": \"string\",\n        \"objective\": \"string\",\n        \"phase\": \"building\",\n        \"summary\": \"string\",\n        \"conversation_id\": \"string\",\n        \"conversation_name\": \"string\",\n        \"creatorWorkspaceMembershipId\": \"string\",\n        \"creator_member_id\": \"string\",\n        \"state_version\": 3374,\n        \"last_activity_at\": \"2026-05-14T08:00:00.000Z\",\n        \"created_at\": \"2026-05-14T08:00:00.000Z\",\n        \"updated_at\": \"2026-05-14T08:00:00.000Z\"\n      },\n      {\n        \"id\": \"01jzn7e61x3a7v9h2r7t2m3q4p\",\n        \"name\": \"string\",\n        \"objective\": \"string\",\n        \"phase\": \"done\",\n        \"summary\": \"string\",\n        \"conversation_id\": \"string\",\n        \"conversation_name\": \"string\",\n        \"creatorWorkspaceMembershipId\": \"string\",\n        \"creator_member_id\": \"string\",\n        \"state_version\": 1491,\n        \"last_activity_at\": \"2026-05-14T08:00:00.000Z\",\n        \"created_at\": \"2026-05-14T08:00:00.000Z\",\n        \"updated_at\": \"2026-05-14T08:00:00.000Z\"\n      }\n    ]\n  },\n  \"items\": [\n    {\n      \"id\": \"01jzn7e61x3a7v9h2r7t2m3q4p\",\n      \"name\": \"string\",\n      \"objective\": \"string\",\n      \"phase\": \"review\",\n      \"summary\": \"string\",\n      \"conversation_id\": \"string\",\n      \"conversation_name\": \"string\",\n      \"creatorWorkspaceMembershipId\": \"string\",\n      \"creator_member_id\": \"string\",\n      \"state_version\": 4019,\n      \"last_activity_at\": \"2026-05-14T08:00:00.000Z\",\n      \"created_at\": \"2026-05-14T08:00:00.000Z\",\n      \"updated_at\": \"2026-05-14T08:00:00.000Z\"\n    },\n    {\n      \"id\": \"01jzn7e61x3a7v9h2r7t2m3q4p\",\n      \"name\": \"string\",\n      \"objective\": \"string\",\n      \"phase\": \"idea\",\n      \"summary\": \"string\",\n      \"conversation_id\": \"string\",\n      \"conversation_name\": \"string\",\n      \"creatorWorkspaceMembershipId\": \"string\",\n      \"creator_member_id\": \"string\",\n      \"state_version\": 794,\n      \"last_activity_at\": \"2026-05-14T08:00:00.000Z\",\n      \"created_at\": \"2026-05-14T08:00:00.000Z\",\n      \"updated_at\": \"2026-05-14T08:00:00.000Z\"\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "7f7f7d8b-b613-4562-84a5-7c4f73509c8e",
+              "name": "Bad request.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "search",
+                    "tasks"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "q",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "<integer>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "x-api-key",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"error_code\": \"string\",\n  \"missing_scopes\": [\n    \"string\",\n    \"string\"\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "f48dcc0d-11bd-4346-a700-16d20313b83f",
+              "name": "Missing or invalid API key.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "search",
+                    "tasks"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "q",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "<integer>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "x-api-key",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"error_code\": \"string\",\n  \"missing_scopes\": [\n    \"string\",\n    \"string\"\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "228a8261-98cb-4892-957e-818a0b408247",
+              "name": "Forbidden.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "search",
+                    "tasks"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "q",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "<integer>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "x-api-key",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"error_code\": \"string\",\n  \"missing_scopes\": [\n    \"string\",\n    \"string\"\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "419e83a5-e174-493c-aef0-193da699e828",
+              "name": "Not found.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "search",
+                    "tasks"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "q",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "<integer>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "x-api-key",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"error_code\": \"string\",\n  \"missing_scopes\": [\n    \"string\",\n    \"string\"\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "b9c9a4fd-5fbe-4fed-8466-9298dac8a502",
+              "name": "Conflict.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "search",
+                    "tasks"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "q",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "<integer>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "x-api-key",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Conflict",
+              "code": 409,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"error_code\": \"string\",\n  \"missing_scopes\": [\n    \"string\",\n    \"string\"\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "86deca29-67a9-49c5-8242-76d68089ac99",
+              "name": "Rate limit or quota exceeded.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "search",
+                    "tasks"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "q",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "<integer>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "x-api-key",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Too Many Requests",
+              "code": 429,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"code\": \"string\",\n    \"message\": \"string\",\n    \"request_id\": \"string\"\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "ddb7cc1b-098c-47b2-81d6-42f207268509",
+              "name": "Internal server error.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "search",
+                    "tasks"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "q",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "<integer>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "x-api-key",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"error_code\": \"string\",\n  \"missing_scopes\": [\n    \"string\",\n    \"string\"\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "51cef0b2-afac-40a4-8a43-82c03a3c1df3",
+          "name": "Get a task",
+          "request": {
+            "name": "Get a task",
+            "description": {
+              "content": "Returns task context, including task entries and resources.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "tasks",
+                ":taskId"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "taskId",
+                  "description": "(Required) Task identifier."
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                {
+                  "key": "key",
+                  "value": "x-api-key"
+                },
+                {
+                  "key": "value",
+                  "value": "{{apiKey}}"
+                },
+                {
+                  "key": "in",
+                  "value": "header"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "46b49bb8-b6b5-4aed-9a10-2bb94085ef8d",
+              "name": "Task context.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "tasks",
+                    ":taskId"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "taskId",
+                      "description": "(Required) Task identifier."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "x-api-key",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"task\": {\n    \"id\": \"01jzn7e61x3a7v9h2r7t2m3q4p\",\n    \"name\": \"string\",\n    \"objective\": \"string\",\n    \"phase\": \"idea\",\n    \"summary\": \"string\",\n    \"conversation_id\": \"string\",\n    \"conversation_name\": \"string\",\n    \"creatorWorkspaceMembershipId\": \"string\",\n    \"creator_member_id\": \"string\",\n    \"state_version\": 3318,\n    \"last_activity_at\": \"2026-05-14T08:00:00.000Z\",\n    \"created_at\": \"2026-05-14T08:00:00.000Z\",\n    \"updated_at\": \"2026-05-14T08:00:00.000Z\"\n  },\n  \"entries\": [\n    {\n      \"id\": \"01jzn7e61x3a7v9h2r7t2m3q4p\",\n      \"task_id\": \"01jzn7e61x3a7v9h2r7t2m3q4p\",\n      \"workspace_id\": \"01jzn7e61x3a7v9h2r7t2m3q4p\",\n      \"kind\": \"memory\",\n      \"author_kind\": \"system\",\n      \"authorWorkspaceMembershipId\": \"string\",\n      \"author_member_id\": \"string\",\n      \"author_label\": \"string\",\n      \"run_id\": \"string\",\n      \"source_message_id\": \"string\",\n      \"body_markdown\": \"string\",\n      \"created_at\": \"2026-05-14T08:00:00.000Z\",\n      \"updated_at\": \"2026-05-14T08:00:00.000Z\"\n    },\n    {\n      \"id\": \"01jzn7e61x3a7v9h2r7t2m3q4p\",\n      \"task_id\": \"01jzn7e61x3a7v9h2r7t2m3q4p\",\n      \"workspace_id\": \"01jzn7e61x3a7v9h2r7t2m3q4p\",\n      \"kind\": \"note\",\n      \"author_kind\": \"member\",\n      \"authorWorkspaceMembershipId\": \"string\",\n      \"author_member_id\": \"string\",\n      \"author_label\": \"string\",\n      \"run_id\": \"string\",\n      \"source_message_id\": \"string\",\n      \"body_markdown\": \"string\",\n      \"created_at\": \"2026-05-14T08:00:00.000Z\",\n      \"updated_at\": \"2026-05-14T08:00:00.000Z\"\n    }\n  ],\n  \"resources\": [\n    {\n      \"id\": \"01jzn7e61x3a7v9h2r7t2m3q4p\",\n      \"task_id\": \"01jzn7e61x3a7v9h2r7t2m3q4p\",\n      \"workspace_id\": \"01jzn7e61x3a7v9h2r7t2m3q4p\",\n      \"label\": \"string\",\n      \"url\": \"https://EKqvOdOMZjURTfVMwItWlKPCeunRcViC.cdAvlIhwZb3uFaFF,m2dgLZT7nbCKBzmT-pF3o16R.oTqc3nO8lNGQNhWQC2+\",\n      \"created_by_entry_id\": \"string\",\n      \"archived_at\": \"1962-04-17T15:01:17.486Z\",\n      \"created_at\": \"2026-05-14T08:00:00.000Z\",\n      \"updated_at\": \"2026-05-14T08:00:00.000Z\"\n    },\n    {\n      \"id\": \"01jzn7e61x3a7v9h2r7t2m3q4p\",\n      \"task_id\": \"01jzn7e61x3a7v9h2r7t2m3q4p\",\n      \"workspace_id\": \"01jzn7e61x3a7v9h2r7t2m3q4p\",\n      \"label\": \"string\",\n      \"url\": \"https://WPFxskbNxYDzBxTiCtGrouEvFYqdL.vpdkrW+DVsJwwGc8\",\n      \"created_by_entry_id\": \"string\",\n      \"archived_at\": \"1985-08-25T21:24:37.368Z\",\n      \"created_at\": \"2026-05-14T08:00:00.000Z\",\n      \"updated_at\": \"2026-05-14T08:00:00.000Z\"\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "34d0bcc6-dc0f-4636-9770-4b2512894a82",
+              "name": "Bad request.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "tasks",
+                    ":taskId"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "taskId",
+                      "description": "(Required) Task identifier."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "x-api-key",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"error_code\": \"string\",\n  \"missing_scopes\": [\n    \"string\",\n    \"string\"\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "f5ba13fb-9922-4603-b40b-734f5ffcf65a",
+              "name": "Missing or invalid API key.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "tasks",
+                    ":taskId"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "taskId",
+                      "description": "(Required) Task identifier."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "x-api-key",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"error_code\": \"string\",\n  \"missing_scopes\": [\n    \"string\",\n    \"string\"\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "dd05febc-252f-4aee-b761-82cab84d3304",
+              "name": "Forbidden.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "tasks",
+                    ":taskId"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "taskId",
+                      "description": "(Required) Task identifier."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "x-api-key",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"error_code\": \"string\",\n  \"missing_scopes\": [\n    \"string\",\n    \"string\"\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "4a63c5a7-85c1-40e1-96fe-17745f44e58f",
+              "name": "Not found.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "tasks",
+                    ":taskId"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "taskId",
+                      "description": "(Required) Task identifier."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "x-api-key",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"error_code\": \"string\",\n  \"missing_scopes\": [\n    \"string\",\n    \"string\"\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "4fc2ea02-4004-4e32-88a6-8c3da0ecfa83",
+              "name": "Conflict.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "tasks",
+                    ":taskId"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "taskId",
+                      "description": "(Required) Task identifier."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "x-api-key",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Conflict",
+              "code": 409,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"error_code\": \"string\",\n  \"missing_scopes\": [\n    \"string\",\n    \"string\"\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "c8d30701-0b9a-4366-a117-d917a3427ad7",
+              "name": "Rate limit or quota exceeded.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "tasks",
+                    ":taskId"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "taskId",
+                      "description": "(Required) Task identifier."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "x-api-key",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Too Many Requests",
+              "code": 429,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"code\": \"string\",\n    \"message\": \"string\",\n    \"request_id\": \"string\"\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "9bf7a1e1-2c23-4fd3-9480-53c78841727d",
+              "name": "Internal server error.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "tasks",
+                    ":taskId"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "taskId",
+                      "description": "(Required) Task identifier."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "x-api-key",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"error_code\": \"string\",\n  \"missing_scopes\": [\n    \"string\",\n    \"string\"\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "2bbffdd2-1306-4933-b3a3-310cf362f673",
+          "name": "Record a task update",
+          "request": {
+            "name": "Record a task update",
+            "description": {
+              "content": "Records a task update and optional task/resource changes.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "tasks",
+                ":taskId",
+                "updates"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "taskId",
+                  "description": "(Required) Task identifier."
+                }
+              ]
+            },
+            "header": [
+              {
+                "disabled": false,
+                "description": "Idempotency key for safely retrying this write.",
+                "key": "Idempotency-Key",
+                "value": "<string>"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": {
+              "type": "apikey",
+              "apikey": [
+                {
+                  "key": "key",
+                  "value": "x-api-key"
+                },
+                {
+                  "key": "value",
+                  "value": "{{apiKey}}"
+                },
+                {
+                  "key": "in",
+                  "value": "header"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"entry\": {\n    \"kind\": \"<string>\",\n    \"author_kind\": \"<string>\",\n    \"author_label\": \"<string>\",\n    \"body_markdown\": \"<string>\",\n    \"run_id\": \"<string>\",\n    \"source_message_id\": \"<string>\"\n  },\n  \"expected_state_version\": \"<integer>\",\n  \"resource_ops\": [\n    {\n      \"op\": \"<string>\",\n      \"label\": \"<string>\",\n      \"url\": \"<uri>\"\n    },\n    {\n      \"op\": \"<string>\",\n      \"label\": \"<string>\",\n      \"url\": \"<uri>\"\n    }\n  ],\n  \"task_patch\": {\n    \"phase\": \"<string>\",\n    \"summary\": \"<string>\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "39573f0a-c94a-421d-8fbf-bb176a6e2ce7",
+              "name": "Recorded task update.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "tasks",
+                    ":taskId",
+                    "updates"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "taskId",
+                      "description": "(Required) Task identifier."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "x-api-key",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "disabled": false,
+                    "description": "Idempotency key for safely retrying this write.",
+                    "key": "Idempotency-Key",
+                    "value": "<string>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"entry\": {\n    \"kind\": \"worklog\",\n    \"author_kind\": \"local_agent\",\n    \"author_label\": \"Local agent\",\n    \"body_markdown\": \"Validated the route migration.\"\n  },\n  \"task_patch\": {\n    \"phase\": \"review\",\n    \"summary\": \"Ready for validation.\"\n  },\n  \"resource_ops\": [\n    {\n      \"op\": \"add\",\n      \"label\": \"Pull request\",\n      \"url\": \"https://github.com/Ando-Corporation/ando/pull/3628\"\n    }\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"task\": {\n    \"id\": \"01jzn7e61x3a7v9h2r7t2m3q4p\",\n    \"name\": \"string\",\n    \"objective\": \"string\",\n    \"phase\": \"<string>\",\n    \"summary\": \"string\",\n    \"conversation_id\": \"string\",\n    \"conversation_name\": \"string\",\n    \"creatorWorkspaceMembershipId\": \"string\",\n    \"creator_member_id\": \"string\",\n    \"state_version\": 5791,\n    \"last_activity_at\": \"2026-05-14T08:00:00.000Z\",\n    \"created_at\": \"2026-05-14T08:00:00.000Z\",\n    \"updated_at\": \"2026-05-14T08:00:00.000Z\"\n  },\n  \"entry\": {\n    \"id\": \"01jzn7e61x3a7v9h2r7t2m3q4p\",\n    \"task_id\": \"01jzn7e61x3a7v9h2r7t2m3q4p\",\n    \"workspace_id\": \"01jzn7e61x3a7v9h2r7t2m3q4p\",\n    \"kind\": \"<string>\",\n    \"author_kind\": \"<string>\",\n    \"authorWorkspaceMembershipId\": \"string\",\n    \"author_member_id\": \"string\",\n    \"author_label\": \"string\",\n    \"run_id\": \"string\",\n    \"source_message_id\": \"string\",\n    \"body_markdown\": \"string\",\n    \"created_at\": \"2026-05-14T08:00:00.000Z\",\n    \"updated_at\": \"2026-05-14T08:00:00.000Z\"\n  },\n  \"changed_resources\": [\n    {\n      \"id\": \"01jzn7e61x3a7v9h2r7t2m3q4p\",\n      \"task_id\": \"01jzn7e61x3a7v9h2r7t2m3q4p\",\n      \"workspace_id\": \"01jzn7e61x3a7v9h2r7t2m3q4p\",\n      \"label\": \"string\",\n      \"url\": \"http://wIBqQHtVftfJqym.txbF4OpTZQxkLeyH2BLKtByXFbEDb7Nsq3ULmROFSSuMaDL0A-HreBep3hkOl+V7ALa4hVAYodwq5oedO\",\n      \"created_by_entry_id\": \"string\",\n      \"archived_at\": \"2007-08-12T15:30:37.297Z\",\n      \"created_at\": \"2026-05-14T08:00:00.000Z\",\n      \"updated_at\": \"2026-05-14T08:00:00.000Z\"\n    },\n    {\n      \"id\": \"01jzn7e61x3a7v9h2r7t2m3q4p\",\n      \"task_id\": \"01jzn7e61x3a7v9h2r7t2m3q4p\",\n      \"workspace_id\": \"01jzn7e61x3a7v9h2r7t2m3q4p\",\n      \"label\": \"string\",\n      \"url\": \"https://VlqU.mgfuRRq+DJamSl.lgW5GAdLos-Tn6X\",\n      \"created_by_entry_id\": \"string\",\n      \"archived_at\": \"1948-04-10T07:50:05.611Z\",\n      \"created_at\": \"2026-05-14T08:00:00.000Z\",\n      \"updated_at\": \"2026-05-14T08:00:00.000Z\"\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "605e59d6-8b12-407b-bc2d-ebfd80d9a945",
+              "name": "Bad request.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "tasks",
+                    ":taskId",
+                    "updates"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "taskId",
+                      "description": "(Required) Task identifier."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "x-api-key",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "disabled": false,
+                    "description": "Idempotency key for safely retrying this write.",
+                    "key": "Idempotency-Key",
+                    "value": "<string>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"entry\": {\n    \"kind\": \"worklog\",\n    \"author_kind\": \"local_agent\",\n    \"author_label\": \"Local agent\",\n    \"body_markdown\": \"Validated the route migration.\"\n  },\n  \"task_patch\": {\n    \"phase\": \"review\",\n    \"summary\": \"Ready for validation.\"\n  },\n  \"resource_ops\": [\n    {\n      \"op\": \"add\",\n      \"label\": \"Pull request\",\n      \"url\": \"https://github.com/Ando-Corporation/ando/pull/3628\"\n    }\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"error_code\": \"string\",\n  \"missing_scopes\": [\n    \"string\",\n    \"string\"\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "61a92be0-3127-484d-8b23-f2c5f382e27c",
+              "name": "Missing or invalid API key.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "tasks",
+                    ":taskId",
+                    "updates"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "taskId",
+                      "description": "(Required) Task identifier."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "x-api-key",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "disabled": false,
+                    "description": "Idempotency key for safely retrying this write.",
+                    "key": "Idempotency-Key",
+                    "value": "<string>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"entry\": {\n    \"kind\": \"worklog\",\n    \"author_kind\": \"local_agent\",\n    \"author_label\": \"Local agent\",\n    \"body_markdown\": \"Validated the route migration.\"\n  },\n  \"task_patch\": {\n    \"phase\": \"review\",\n    \"summary\": \"Ready for validation.\"\n  },\n  \"resource_ops\": [\n    {\n      \"op\": \"add\",\n      \"label\": \"Pull request\",\n      \"url\": \"https://github.com/Ando-Corporation/ando/pull/3628\"\n    }\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"error_code\": \"string\",\n  \"missing_scopes\": [\n    \"string\",\n    \"string\"\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "e594a07b-bb05-4649-8d1f-e0a426754cdb",
+              "name": "Forbidden.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "tasks",
+                    ":taskId",
+                    "updates"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "taskId",
+                      "description": "(Required) Task identifier."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "x-api-key",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "disabled": false,
+                    "description": "Idempotency key for safely retrying this write.",
+                    "key": "Idempotency-Key",
+                    "value": "<string>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"entry\": {\n    \"kind\": \"worklog\",\n    \"author_kind\": \"local_agent\",\n    \"author_label\": \"Local agent\",\n    \"body_markdown\": \"Validated the route migration.\"\n  },\n  \"task_patch\": {\n    \"phase\": \"review\",\n    \"summary\": \"Ready for validation.\"\n  },\n  \"resource_ops\": [\n    {\n      \"op\": \"add\",\n      \"label\": \"Pull request\",\n      \"url\": \"https://github.com/Ando-Corporation/ando/pull/3628\"\n    }\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"error_code\": \"string\",\n  \"missing_scopes\": [\n    \"string\",\n    \"string\"\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "2b9913c5-cd12-4ac2-b12b-785f937df291",
+              "name": "Not found.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "tasks",
+                    ":taskId",
+                    "updates"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "taskId",
+                      "description": "(Required) Task identifier."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "x-api-key",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "disabled": false,
+                    "description": "Idempotency key for safely retrying this write.",
+                    "key": "Idempotency-Key",
+                    "value": "<string>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"entry\": {\n    \"kind\": \"worklog\",\n    \"author_kind\": \"local_agent\",\n    \"author_label\": \"Local agent\",\n    \"body_markdown\": \"Validated the route migration.\"\n  },\n  \"task_patch\": {\n    \"phase\": \"review\",\n    \"summary\": \"Ready for validation.\"\n  },\n  \"resource_ops\": [\n    {\n      \"op\": \"add\",\n      \"label\": \"Pull request\",\n      \"url\": \"https://github.com/Ando-Corporation/ando/pull/3628\"\n    }\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"error_code\": \"string\",\n  \"missing_scopes\": [\n    \"string\",\n    \"string\"\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "86fad047-4bc8-48bc-9670-3a584a007a3e",
+              "name": "Conflict.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "tasks",
+                    ":taskId",
+                    "updates"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "taskId",
+                      "description": "(Required) Task identifier."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "x-api-key",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "disabled": false,
+                    "description": "Idempotency key for safely retrying this write.",
+                    "key": "Idempotency-Key",
+                    "value": "<string>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"entry\": {\n    \"kind\": \"worklog\",\n    \"author_kind\": \"local_agent\",\n    \"author_label\": \"Local agent\",\n    \"body_markdown\": \"Validated the route migration.\"\n  },\n  \"task_patch\": {\n    \"phase\": \"review\",\n    \"summary\": \"Ready for validation.\"\n  },\n  \"resource_ops\": [\n    {\n      \"op\": \"add\",\n      \"label\": \"Pull request\",\n      \"url\": \"https://github.com/Ando-Corporation/ando/pull/3628\"\n    }\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Conflict",
+              "code": 409,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"error_code\": \"string\",\n  \"missing_scopes\": [\n    \"string\",\n    \"string\"\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "5fc30010-2fd2-46fb-a65f-2bb1abd930fa",
+              "name": "Rate limit or quota exceeded.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "tasks",
+                    ":taskId",
+                    "updates"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "taskId",
+                      "description": "(Required) Task identifier."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "x-api-key",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "disabled": false,
+                    "description": "Idempotency key for safely retrying this write.",
+                    "key": "Idempotency-Key",
+                    "value": "<string>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"entry\": {\n    \"kind\": \"worklog\",\n    \"author_kind\": \"local_agent\",\n    \"author_label\": \"Local agent\",\n    \"body_markdown\": \"Validated the route migration.\"\n  },\n  \"task_patch\": {\n    \"phase\": \"review\",\n    \"summary\": \"Ready for validation.\"\n  },\n  \"resource_ops\": [\n    {\n      \"op\": \"add\",\n      \"label\": \"Pull request\",\n      \"url\": \"https://github.com/Ando-Corporation/ando/pull/3628\"\n    }\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Too Many Requests",
+              "code": 429,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"code\": \"string\",\n    \"message\": \"string\",\n    \"request_id\": \"string\"\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "174b70ac-06e1-4905-9a88-dd8242338388",
+              "name": "Internal server error.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "tasks",
+                    ":taskId",
+                    "updates"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "taskId",
+                      "description": "(Required) Task identifier."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: apikey",
+                      "type": "text/plain"
+                    },
+                    "key": "x-api-key",
+                    "value": "<API Key>"
+                  },
+                  {
+                    "disabled": false,
+                    "description": "Idempotency key for safely retrying this write.",
+                    "key": "Idempotency-Key",
+                    "value": "<string>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"entry\": {\n    \"kind\": \"worklog\",\n    \"author_kind\": \"local_agent\",\n    \"author_label\": \"Local agent\",\n    \"body_markdown\": \"Validated the route migration.\"\n  },\n  \"task_patch\": {\n    \"phase\": \"review\",\n    \"summary\": \"Ready for validation.\"\n  },\n  \"resource_ops\": [\n    {\n      \"op\": \"add\",\n      \"label\": \"Pull request\",\n      \"url\": \"https://github.com/Ando-Corporation/ando/pull/3628\"\n    }\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"string\",\n  \"error_code\": \"string\",\n  \"missing_scopes\": [\n    \"string\",\n    \"string\"\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "https://api.ando.so/v1",
+      "key": "baseUrl"
+    }
+  ],
+  "info": {
+    "_postman_id": "26da79b9-e2bf-4368-8dcf-102440460195",
+    "name": "Ando Public Calls Tasks API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "Generated from Ando's accepted public API v1 contract metadata. Current routes preserve legacy /api/v1 response envelopes while converging on the public https://api.ando.so/v1 shape.",
+      "type": "text/plain"
+    }
+  }
+}
