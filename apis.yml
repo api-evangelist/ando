@@ -41,6 +41,17 @@ tags:
 - Agents
 - Developer Tools
 - MCP
+- Webhook
+- Productivity
+tags_raw:
+- Company
+- Business Applications
+- Messaging
+- Team Collaboration
+- AI Agents
+- Agents
+- Developer Tools
+- MCP
 - Webhooks
 - Productivity
 maintainers:
@@ -127,6 +138,8 @@ apis:
   humanURL: https://docs.ando.so/api-reference/overview
   baseURL: https://api.ando.so/v1
   tags:
+  - Message
+  tags_raw:
   - Messages
   properties:
   - type: OpenAPI
@@ -151,6 +164,8 @@ apis:
   humanURL: https://docs.ando.so/api-reference/overview
   baseURL: https://api.ando.so/v1
   tags:
+  - Real-Time
+  tags_raw:
   - Realtime
   properties:
   - type: OpenAPI
@@ -199,6 +214,8 @@ apis:
   humanURL: https://docs.ando.so/api-reference/overview
   baseURL: https://api.ando.so/v1
   tags:
+  - Task
+  tags_raw:
   - Tasks
   properties:
   - type: OpenAPI
@@ -223,6 +240,8 @@ apis:
   humanURL: https://docs.ando.so/api-reference/overview
   baseURL: https://api.ando.so/v1
   tags:
+  - Webhook
+  tags_raw:
   - Webhooks
   properties:
   - type: OpenAPI
