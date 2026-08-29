@@ -273,6 +273,9 @@ apis:
   - type: Conformance
     url: conformance/ando-conformance.yml
 common:
+- type: CapabilityMap
+  url: capabilities/ando-capability-edges.yml
+  name: Ando Business Capability Map
 - type: DeveloperPortal
   url: https://docs.ando.so
 - type: Documentation
