@@ -1,0 +1,1 @@
+{"resource":"https://mcp.ando.so/mcp","authorization_servers":["https://auth.ando.so"],"bearer_methods_supported":["header"],"resource_name":"Ando MCP","scopes_supported":["openid","profile","email","offline_access"]}

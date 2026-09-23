@@ -1,4 +1,4 @@
-openapi: 3.0.3
+openapi: 3.2.0
 info:
   description: Generated from Ando's accepted public API v1 contract metadata. Current routes preserve legacy /api/v1 response envelopes while converging on the public https://api.ando.so/v1 shape.
   title: Ando Public Calls API
@@ -131,42 +131,6 @@ paths:
       x-ando-target-runtime: convex_http
 components:
   schemas:
-    CallParticipant:
-      additionalProperties: false
-      description: A participant in a call.
-      properties:
-        id:
-          description: Participant workspace member identifier.
-          type: string
-          example: 01jzn7e61x3a7v9h2r7t2m3q4p
-        name:
-          description: Display name.
-          type: string
-          nullable: true
-      required:
-      - id
-      - name
-      type: object
-    LegacyErrorResponse:
-      additionalProperties: false
-      description: Current compatibility error envelope used by legacy /api/v1 routes.
-      properties:
-        error:
-          description: Error message.
-          type: string
-        error_code:
-          description: Optional machine-readable error code.
-          type: string
-          nullable: true
-        missing_scopes:
-          description: Missing scopes.
-          items:
-            description: Scope.
-            type: string
-          type: array
-      required:
-      - error
-      type: object
     PublicApiErrorResponse:
       additionalProperties: false
       description: Target public API error envelope.
@@ -183,14 +147,176 @@ components:
               type: string
             request_id:
               description: Request identifier.
-              type: string
-              nullable: true
+              type:
+              - string
+              - 'null'
           required:
           - code
           - message
           type: object
       required:
       - error
+      type: object
+    LegacyPageInfo:
+      additionalProperties: false
+      description: Current compatibility pagination metadata with camelCase field names.
+      properties:
+        endCursor:
+          description: Cursor for the last item.
+          type:
+          - string
+          - 'null'
+        hasNextPage:
+          description: Whether another page exists after this page.
+          type: boolean
+        hasPreviousPage:
+          description: Whether another page exists before this page.
+          type: boolean
+        startCursor:
+          description: Cursor for the first item.
+          type:
+          - string
+          - 'null'
+      required:
+      - hasNextPage
+      - hasPreviousPage
+      type: object
+    CallResponse:
+      additionalProperties: false
+      description: Call detail response.
+      properties:
+        chapters:
+          description: Call summary chapters.
+          items:
+            $ref: '#/components/schemas/CallTranscriptChapter'
+          type: array
+        conversation_id:
+          description: Conversation identifier.
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+        conversation_name:
+          description: Conversation name.
+          type:
+          - string
+          - 'null'
+        duration_seconds:
+          description: Call duration in seconds.
+          type:
+          - number
+          - 'null'
+        ended_at:
+          description: Call end timestamp.
+          type:
+          - string
+          - 'null'
+          format: date-time
+        id:
+          description: Call identifier.
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+        participants:
+          description: Call participants.
+          items:
+            $ref: '#/components/schemas/CallParticipant'
+          type: array
+        started_at:
+          description: Call start timestamp.
+          type:
+          - string
+          - 'null'
+          format: date-time
+        status:
+          description: Call status.
+          type: string
+        summary:
+          description: Call summary markdown.
+          type:
+          - string
+          - 'null'
+      required:
+      - id
+      - conversation_id
+      - conversation_name
+      - status
+      - duration_seconds
+      - participants
+      - summary
+      - chapters
+      - started_at
+      - ended_at
+      type: object
+    CallParticipant:
+      additionalProperties: false
+      description: A participant in a call.
+      properties:
+        id:
+          description: Participant workspace member identifier.
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+        name:
+          description: Display name.
+          type:
+          - string
+          - 'null'
+      required:
+      - id
+      - name
+      type: object
+    CallTranscriptResponse:
+      additionalProperties: false
+      description: Current call transcript compatibility response.
+      properties:
+        call_id:
+          description: Call identifier.
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+        conversation_name:
+          description: Conversation name.
+          type:
+          - string
+          - 'null'
+        duration_seconds:
+          description: Call duration in seconds.
+          type:
+          - number
+          - 'null'
+        pageInfo:
+          $ref: '#/components/schemas/LegacyPageInfo'
+        segments:
+          description: Transcript segments.
+          items:
+            $ref: '#/components/schemas/CallTranscriptSegment'
+          type: array
+      required:
+      - call_id
+      - conversation_name
+      - duration_seconds
+      - segments
+      - pageInfo
+      type: object
+    CallTranscriptSegment:
+      additionalProperties: false
+      description: A transcript segment.
+      properties:
+        content:
+          description: Transcript text.
+          type: string
+        end_ms:
+          description: Segment end offset in milliseconds.
+          type: integer
+        speaker_name:
+          description: Speaker display name.
+          type:
+          - string
+          - 'null'
+        start_ms:
+          description: Segment start offset in milliseconds.
+          type: integer
+      required:
+      - speaker_name
+      - content
+      - start_ms
+      - end_ms
       type: object
     CallTranscriptChapter:
       additionalProperties: false
@@ -214,183 +340,70 @@ components:
       - start_ms
       - end_ms
       type: object
-    CallTranscriptResponse:
+    LegacyErrorResponse:
       additionalProperties: false
-      description: Current call transcript compatibility response.
+      description: Current compatibility error envelope used by legacy /api/v1 routes.
       properties:
-        call_id:
-          description: Call identifier.
+        error:
+          description: Error message.
           type: string
-          example: 01jzn7e61x3a7v9h2r7t2m3q4p
-        conversation_name:
-          description: Conversation name.
-          type: string
-          nullable: true
-        duration_seconds:
-          description: Call duration in seconds.
-          type: number
-          nullable: true
-        pageInfo:
-          $ref: '#/components/schemas/LegacyPageInfo'
-        segments:
-          description: Transcript segments.
+        error_code:
+          description: Optional machine-readable error code.
+          type:
+          - string
+          - 'null'
+        missing_scopes:
+          description: Missing scopes.
           items:
-            $ref: '#/components/schemas/CallTranscriptSegment'
+            description: Scope.
+            type: string
           type: array
       required:
-      - call_id
-      - conversation_name
-      - duration_seconds
-      - segments
-      - pageInfo
-      type: object
-    CallResponse:
-      additionalProperties: false
-      description: Call detail response.
-      properties:
-        chapters:
-          description: Call summary chapters.
-          items:
-            $ref: '#/components/schemas/CallTranscriptChapter'
-          type: array
-        conversation_id:
-          description: Conversation identifier.
-          type: string
-          example: 01jzn7e61x3a7v9h2r7t2m3q4p
-        conversation_name:
-          description: Conversation name.
-          type: string
-          nullable: true
-        duration_seconds:
-          description: Call duration in seconds.
-          type: number
-          nullable: true
-        ended_at:
-          description: Call end timestamp.
-          type: string
-          format: date-time
-          nullable: true
-        id:
-          description: Call identifier.
-          type: string
-          example: 01jzn7e61x3a7v9h2r7t2m3q4p
-        participants:
-          description: Call participants.
-          items:
-            $ref: '#/components/schemas/CallParticipant'
-          type: array
-        started_at:
-          description: Call start timestamp.
-          type: string
-          format: date-time
-          nullable: true
-        status:
-          description: Call status.
-          type: string
-        summary:
-          description: Call summary markdown.
-          type: string
-          nullable: true
-      required:
-      - id
-      - conversation_id
-      - conversation_name
-      - status
-      - duration_seconds
-      - participants
-      - summary
-      - chapters
-      - started_at
-      - ended_at
-      type: object
-    CallTranscriptSegment:
-      additionalProperties: false
-      description: A transcript segment.
-      properties:
-        content:
-          description: Transcript text.
-          type: string
-        end_ms:
-          description: Segment end offset in milliseconds.
-          type: integer
-        speaker_name:
-          description: Speaker display name.
-          type: string
-          nullable: true
-        start_ms:
-          description: Segment start offset in milliseconds.
-          type: integer
-      required:
-      - speaker_name
-      - content
-      - start_ms
-      - end_ms
-      type: object
-    LegacyPageInfo:
-      additionalProperties: false
-      description: Current compatibility pagination metadata with camelCase field names.
-      properties:
-        endCursor:
-          description: Cursor for the last item.
-          type: string
-          nullable: true
-        hasNextPage:
-          description: Whether another page exists after this page.
-          type: boolean
-        hasPreviousPage:
-          description: Whether another page exists before this page.
-          type: boolean
-        startCursor:
-          description: Cursor for the first item.
-          type: string
-          nullable: true
-      required:
-      - hasNextPage
-      - hasPreviousPage
+      - error
       type: object
   responses:
-    Forbidden:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/LegacyErrorResponse'
-      description: Forbidden.
-    Unauthorized:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/LegacyErrorResponse'
-      description: Missing or invalid API key.
     RateLimited:
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/PublicApiErrorResponse'
       description: Rate limit or quota exceeded.
-    BadRequest:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/LegacyErrorResponse'
-      description: Bad request.
-    NotFound:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/LegacyErrorResponse'
-      description: Not found.
-    InternalError:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/LegacyErrorResponse'
-      description: Internal server error.
     Conflict:
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/LegacyErrorResponse'
       description: Conflict.
+    InternalError:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Internal server error.
+    BadRequest:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Bad request.
+    Forbidden:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Forbidden.
+    NotFound:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Not found.
+    Unauthorized:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Missing or invalid API key.
   securitySchemes:
     AndoApiKey:
       description: Workspace API key. Current accepted keys use the ando_sk_ prefix.

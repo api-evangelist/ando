@@ -1,7 +1,7 @@
-openapi: 3.0.3
+openapi: 3.2.0
 info:
   description: Generated from Ando's accepted public API v1 contract metadata. Current routes preserve legacy /api/v1 response envelopes while converging on the public https://api.ando.so/v1 shape.
-  title: Ando Public Calls Tasks API
+  title: Ando Public Tasks API
   version: v1
 servers:
 - description: Canonical public API host.
@@ -207,6 +207,105 @@ paths:
       x-ando-target-runtime: convex_http
 components:
   schemas:
+    SearchTasksResponse:
+      additionalProperties: false
+      description: Search tasks response. Results are returned in data.items; top-level items is a compatibility alias.
+      properties:
+        data:
+          additionalProperties: false
+          description: Standard public response data. New clients should read data.items.
+          properties:
+            items:
+              description: Task results.
+              items:
+                $ref: '#/components/schemas/TaskResult'
+              type: array
+          required:
+          - items
+          type: object
+        items:
+          description: Compatibility alias for data.items. New clients should read data.items.
+          items:
+            $ref: '#/components/schemas/TaskResult'
+          type: array
+          deprecated: true
+      required:
+      - data
+      - items
+      type: object
+    RecordTaskUpdateResponse:
+      additionalProperties: false
+      description: Recorded task update response.
+      properties:
+        changed_resources:
+          description: Resources changed by this update.
+          items:
+            $ref: '#/components/schemas/TaskResourceResult'
+          type: array
+        entry:
+          $ref: '#/components/schemas/TaskEntryResult'
+        task:
+          $ref: '#/components/schemas/TaskResult'
+      required:
+      - task
+      - entry
+      - changed_resources
+      type: object
+    TaskResourceResult:
+      additionalProperties: false
+      description: Task resource.
+      properties:
+        archived_at:
+          description: Archive timestamp.
+          type:
+          - string
+          - 'null'
+          format: date-time
+        created_at:
+          description: Resource creation timestamp.
+          type: string
+          example: '2026-05-14T08:00:00.000Z'
+          format: date-time
+        created_by_entry_id:
+          description: Creating entry identifier.
+          type:
+          - string
+          - 'null'
+        id:
+          description: Resource identifier.
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+        label:
+          description: Resource label.
+          type: string
+        task_id:
+          description: Task identifier.
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+        updated_at:
+          description: Resource update timestamp.
+          type: string
+          example: '2026-05-14T08:00:00.000Z'
+          format: date-time
+        url:
+          description: Resource URL.
+          type: string
+          format: uri
+        workspace_id:
+          description: Workspace identifier.
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+      required:
+      - id
+      - task_id
+      - workspace_id
+      - label
+      - url
+      - created_by_entry_id
+      - archived_at
+      - created_at
+      - updated_at
+      type: object
     TaskResourceOperation:
       description: Task resource operation.
       oneOf:
@@ -269,166 +368,6 @@ components:
         - op
         - resource_id
         type: object
-    TaskEntryKind:
-      description: Task entry kind.
-      enum:
-      - memory
-      - note
-      - worklog
-      - checkpoint
-      - handoff
-      type: string
-    TaskPhase:
-      description: Task phase.
-      enum:
-      - idea
-      - building
-      - review
-      - done
-      type: string
-    LegacyErrorResponse:
-      additionalProperties: false
-      description: Current compatibility error envelope used by legacy /api/v1 routes.
-      properties:
-        error:
-          description: Error message.
-          type: string
-        error_code:
-          description: Optional machine-readable error code.
-          type: string
-          nullable: true
-        missing_scopes:
-          description: Missing scopes.
-          items:
-            description: Scope.
-            type: string
-          type: array
-      required:
-      - error
-      type: object
-    TaskResult:
-      additionalProperties: false
-      description: Task result.
-      properties:
-        conversation_id:
-          description: Conversation identifier.
-          type: string
-          nullable: true
-        conversation_name:
-          description: Conversation name.
-          type: string
-          nullable: true
-        created_at:
-          description: Task creation timestamp.
-          type: string
-          example: '2026-05-14T08:00:00.000Z'
-          format: date-time
-        creatorWorkspaceMembershipId:
-          description: Canonical creator workspace membership identifier. Matches legacy creator_member_id during the compatibility window.
-          type: string
-          nullable: true
-        creator_member_id:
-          description: 'Creator workspace member identifier. Deprecated: read creatorWorkspaceMembershipId instead.'
-          type: string
-          nullable: true
-          deprecated: true
-        id:
-          description: Task identifier.
-          type: string
-          example: 01jzn7e61x3a7v9h2r7t2m3q4p
-        last_activity_at:
-          description: Last activity timestamp.
-          type: string
-          example: '2026-05-14T08:00:00.000Z'
-          format: date-time
-        name:
-          description: Task name.
-          type: string
-        objective:
-          description: Task objective.
-          type: string
-        phase:
-          $ref: '#/components/schemas/TaskPhase'
-        state_version:
-          description: Optimistic task state version.
-          type: integer
-        summary:
-          description: Task summary.
-          type: string
-          nullable: true
-        updated_at:
-          description: Task update timestamp.
-          type: string
-          example: '2026-05-14T08:00:00.000Z'
-          format: date-time
-      required:
-      - id
-      - name
-      - objective
-      - phase
-      - summary
-      - conversation_id
-      - conversation_name
-      - creatorWorkspaceMembershipId
-      - creator_member_id
-      - state_version
-      - last_activity_at
-      - created_at
-      - updated_at
-      type: object
-    TaskResourceResult:
-      additionalProperties: false
-      description: Task resource.
-      properties:
-        archived_at:
-          description: Archive timestamp.
-          type: string
-          format: date-time
-          nullable: true
-        created_at:
-          description: Resource creation timestamp.
-          type: string
-          example: '2026-05-14T08:00:00.000Z'
-          format: date-time
-        created_by_entry_id:
-          description: Creating entry identifier.
-          type: string
-          nullable: true
-        id:
-          description: Resource identifier.
-          type: string
-          example: 01jzn7e61x3a7v9h2r7t2m3q4p
-        label:
-          description: Resource label.
-          type: string
-        task_id:
-          description: Task identifier.
-          type: string
-          example: 01jzn7e61x3a7v9h2r7t2m3q4p
-        updated_at:
-          description: Resource update timestamp.
-          type: string
-          example: '2026-05-14T08:00:00.000Z'
-          format: date-time
-        url:
-          description: Resource URL.
-          type: string
-          format: uri
-        workspace_id:
-          description: Workspace identifier.
-          type: string
-          example: 01jzn7e61x3a7v9h2r7t2m3q4p
-      required:
-      - id
-      - task_id
-      - workspace_id
-      - label
-      - url
-      - created_by_entry_id
-      - archived_at
-      - created_at
-      - updated_at
-      type: object
     RecordTaskUpdateBody:
       additionalProperties: false
       description: Record a task worklog/checkpoint update and optional task/resource changes.
@@ -444,18 +383,21 @@ components:
               type: string
             body_markdown:
               description: Entry markdown body.
-              type: string
-              nullable: true
+              type:
+              - string
+              - 'null'
             kind:
               $ref: '#/components/schemas/TaskEntryKind'
             run_id:
               description: Agent or local run identifier.
-              type: string
-              nullable: true
+              type:
+              - string
+              - 'null'
             source_message_id:
               description: Source message identifier.
-              type: string
-              nullable: true
+              type:
+              - string
+              - 'null'
           required:
           - kind
           - author_kind
@@ -478,29 +420,33 @@ components:
               $ref: '#/components/schemas/TaskPhase'
             summary:
               description: Task summary.
-              type: string
-              nullable: true
+              type:
+              - string
+              - 'null'
           type: object
       required:
       - entry
       type: object
-    RecordTaskUpdateResponse:
+    TaskContextResponse:
       additionalProperties: false
-      description: Recorded task update response.
+      description: Task context response.
       properties:
-        changed_resources:
-          description: Resources changed by this update.
+        entries:
+          description: Task entries.
+          items:
+            $ref: '#/components/schemas/TaskEntryResult'
+          type: array
+        resources:
+          description: Task resources.
           items:
             $ref: '#/components/schemas/TaskResourceResult'
           type: array
-        entry:
-          $ref: '#/components/schemas/TaskEntryResult'
         task:
           $ref: '#/components/schemas/TaskResult'
       required:
       - task
-      - entry
-      - changed_resources
+      - entries
+      - resources
       type: object
     PublicApiErrorResponse:
       additionalProperties: false
@@ -518,8 +464,9 @@ components:
               type: string
             request_id:
               description: Request identifier.
-              type: string
-              nullable: true
+              type:
+              - string
+              - 'null'
           required:
           - code
           - message
@@ -527,6 +474,14 @@ components:
       required:
       - error
       type: object
+    TaskPhase:
+      description: Task phase.
+      enum:
+      - idea
+      - building
+      - review
+      - done
+      type: string
     TaskEntryResult:
       additionalProperties: false
       description: Task entry.
@@ -538,17 +493,20 @@ components:
           type: string
         authorWorkspaceMembershipId:
           description: Canonical author workspace membership identifier. Matches legacy author_member_id during the compatibility window.
-          type: string
-          nullable: true
+          type:
+          - string
+          - 'null'
         author_member_id:
           description: 'Author workspace member identifier. Deprecated: read authorWorkspaceMembershipId instead.'
-          type: string
-          nullable: true
+          type:
+          - string
+          - 'null'
           deprecated: true
         body_markdown:
           description: Entry markdown body.
-          type: string
-          nullable: true
+          type:
+          - string
+          - 'null'
         created_at:
           description: Entry creation timestamp.
           type: string
@@ -562,12 +520,14 @@ components:
           $ref: '#/components/schemas/TaskEntryKind'
         run_id:
           description: Run identifier.
-          type: string
-          nullable: true
+          type:
+          - string
+          - 'null'
         source_message_id:
           description: Source message identifier.
-          type: string
-          nullable: true
+          type:
+          - string
+          - 'null'
         task_id:
           description: Task identifier.
           type: string
@@ -605,96 +565,154 @@ components:
       - local_agent
       - system
       type: string
-    TaskContextResponse:
+    TaskEntryKind:
+      description: Task entry kind.
+      enum:
+      - memory
+      - note
+      - worklog
+      - checkpoint
+      - handoff
+      type: string
+    LegacyErrorResponse:
       additionalProperties: false
-      description: Task context response.
+      description: Current compatibility error envelope used by legacy /api/v1 routes.
       properties:
-        entries:
-          description: Task entries.
+        error:
+          description: Error message.
+          type: string
+        error_code:
+          description: Optional machine-readable error code.
+          type:
+          - string
+          - 'null'
+        missing_scopes:
+          description: Missing scopes.
           items:
-            $ref: '#/components/schemas/TaskEntryResult'
+            description: Scope.
+            type: string
           type: array
-        resources:
-          description: Task resources.
-          items:
-            $ref: '#/components/schemas/TaskResourceResult'
-          type: array
-        task:
-          $ref: '#/components/schemas/TaskResult'
       required:
-      - task
-      - entries
-      - resources
+      - error
       type: object
-    SearchTasksResponse:
+    TaskResult:
       additionalProperties: false
-      description: Search tasks response. Results are returned in data.items; top-level items is a compatibility alias.
+      description: Task result.
       properties:
-        data:
-          additionalProperties: false
-          description: Standard public response data. New clients should read data.items.
-          properties:
-            items:
-              description: Task results.
-              items:
-                $ref: '#/components/schemas/TaskResult'
-              type: array
-          required:
-          - items
-          type: object
-        items:
-          description: Compatibility alias for data.items. New clients should read data.items.
-          items:
-            $ref: '#/components/schemas/TaskResult'
-          type: array
+        conversation_id:
+          description: Conversation identifier.
+          type:
+          - string
+          - 'null'
+        conversation_name:
+          description: Conversation name.
+          type:
+          - string
+          - 'null'
+        created_at:
+          description: Task creation timestamp.
+          type: string
+          example: '2026-05-14T08:00:00.000Z'
+          format: date-time
+        creatorWorkspaceMembershipId:
+          description: Canonical creator workspace membership identifier. Matches legacy creator_member_id during the compatibility window.
+          type:
+          - string
+          - 'null'
+        creator_member_id:
+          description: 'Creator workspace member identifier. Deprecated: read creatorWorkspaceMembershipId instead.'
+          type:
+          - string
+          - 'null'
           deprecated: true
+        id:
+          description: Task identifier.
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+        last_activity_at:
+          description: Last activity timestamp.
+          type: string
+          example: '2026-05-14T08:00:00.000Z'
+          format: date-time
+        name:
+          description: Task name.
+          type: string
+        objective:
+          description: Task objective.
+          type: string
+        phase:
+          $ref: '#/components/schemas/TaskPhase'
+        state_version:
+          description: Optimistic task state version.
+          type: integer
+        summary:
+          description: Task summary.
+          type:
+          - string
+          - 'null'
+        updated_at:
+          description: Task update timestamp.
+          type: string
+          example: '2026-05-14T08:00:00.000Z'
+          format: date-time
       required:
-      - data
-      - items
+      - id
+      - name
+      - objective
+      - phase
+      - summary
+      - conversation_id
+      - conversation_name
+      - creatorWorkspaceMembershipId
+      - creator_member_id
+      - state_version
+      - last_activity_at
+      - created_at
+      - updated_at
       type: object
   responses:
-    Forbidden:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/LegacyErrorResponse'
-      description: Forbidden.
-    RateLimited:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/PublicApiErrorResponse'
-      description: Rate limit or quota exceeded.
-    NotFound:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/LegacyErrorResponse'
-      description: Not found.
-    InternalError:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/LegacyErrorResponse'
-      description: Internal server error.
     Conflict:
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/LegacyErrorResponse'
       description: Conflict.
-    Unauthorized:
+    InternalError:
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/LegacyErrorResponse'
-      description: Missing or invalid API key.
+      description: Internal server error.
     BadRequest:
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/LegacyErrorResponse'
       description: Bad request.
+    Unauthorized:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Missing or invalid API key.
+    RateLimited:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/PublicApiErrorResponse'
+      description: Rate limit or quota exceeded.
+    Forbidden:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Forbidden.
+    NotFound:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Not found.
   securitySchemes:
     AndoApiKey:
       description: Workspace API key. Current accepted keys use the ando_sk_ prefix.

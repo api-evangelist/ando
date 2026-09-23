@@ -1,14 +1,7 @@
 {
   "provider": "ando",
   "sources": [
-    "ando-calls-api-openapi.yml",
-    "ando-clipboards-api-openapi.yml",
-    "ando-members-api-openapi.yml",
-    "ando-messages-api-openapi.yml",
-    "ando-realtime-api-openapi.yml",
-    "ando-search-api-openapi.yml",
-    "ando-tasks-api-openapi.yml",
-    "ando-webhooks-api-openapi.yml"
+    "_original/ando-public-api-v1-openapi.json"
   ],
   "outputs": [
     "ando-calls-api-openapi.yml",
@@ -23,6 +16,20 @@
   "archived": [],
   "errors": [],
   "warnings": [],
-  "notes": [],
-  "skipped": []
+  "notes": [
+    "sourced from openapi/_original/ (1 archived document(s)); previously refined output at the top level was skipped rather than re-split",
+    "ando-public-api-v1-openapi.json: upgraded openapi 3.0.3 -> OpenAPI 3.2.0",
+    "ando-public-api-v1-openapi.json: declared missing tag: Realtime",
+    "apis.yml register: already-registered"
+  ],
+  "skipped": [
+    "ando-calls-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "ando-clipboards-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "ando-members-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "ando-messages-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "ando-realtime-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "ando-search-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "ando-tasks-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "ando-webhooks-api-openapi.yml: previously refined output, superseded by openapi/_original/"
+  ]
 }

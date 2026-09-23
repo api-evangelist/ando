@@ -1,7 +1,7 @@
-openapi: 3.0.3
+openapi: 3.2.0
 info:
   description: Generated from Ando's accepted public API v1 contract metadata. Current routes preserve legacy /api/v1 response envelopes while converging on the public https://api.ando.so/v1 shape.
-  title: Ando Public Calls Search API
+  title: Ando Public Search API
   version: v1
 servers:
 - description: Canonical public API host.
@@ -428,49 +428,154 @@ paths:
       x-ando-target-runtime: convex_http
 components:
   responses:
-    Forbidden:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/LegacyErrorResponse'
-      description: Forbidden.
-    RateLimited:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/PublicApiErrorResponse'
-      description: Rate limit or quota exceeded.
-    NotFound:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/LegacyErrorResponse'
-      description: Not found.
-    InternalError:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/LegacyErrorResponse'
-      description: Internal server error.
     Conflict:
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/LegacyErrorResponse'
       description: Conflict.
-    Unauthorized:
+    InternalError:
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/LegacyErrorResponse'
-      description: Missing or invalid API key.
+      description: Internal server error.
     BadRequest:
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/LegacyErrorResponse'
       description: Bad request.
+    Unauthorized:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Missing or invalid API key.
+    RateLimited:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/PublicApiErrorResponse'
+      description: Rate limit or quota exceeded.
+    Forbidden:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Forbidden.
+    NotFound:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Not found.
   schemas:
+    CallResult:
+      additionalProperties: false
+      description: Search result for a call.
+      properties:
+        conversation_id:
+          description: Conversation identifier.
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+        conversation_name:
+          description: Conversation name.
+          type:
+          - string
+          - 'null'
+        duration_seconds:
+          description: Call duration in seconds.
+          type:
+          - number
+          - 'null'
+        ended_at:
+          description: Call end timestamp.
+          type:
+          - string
+          - 'null'
+          format: date-time
+        id:
+          description: Call identifier.
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+        participant_count:
+          description: Number of call participants.
+          type: integer
+        participant_names:
+          description: Participant display names.
+          items:
+            description: Name.
+            type: string
+          type: array
+        started_at:
+          description: Call start timestamp.
+          type:
+          - string
+          - 'null'
+          format: date-time
+        status:
+          description: Call status.
+          type: string
+        summary:
+          description: Call summary markdown.
+          type:
+          - string
+          - 'null'
+      required:
+      - id
+      - conversation_id
+      - conversation_name
+      - status
+      - duration_seconds
+      - participant_names
+      - participant_count
+      - summary
+      - started_at
+      - ended_at
+      type: object
+    MemberResult:
+      additionalProperties: false
+      description: Workspace member result visible to the authenticated API key. The v1 schema name is a compatibility spelling for this resource.
+      properties:
+        display_name:
+          description: Display name.
+          type:
+          - string
+          - 'null'
+        email:
+          description: Email address.
+          type:
+          - string
+          - 'null'
+          format: email
+        id:
+          description: Workspace member identifier.
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+        profile_image_url:
+          description: Profile image URL.
+          type:
+          - string
+          - 'null'
+          format: uri
+        title:
+          description: Workspace member title.
+          type:
+          - string
+          - 'null'
+        workspaceMembershipId:
+          description: Canonical workspace membership identifier. Matches legacy id during the compatibility window.
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+      required:
+      - id
+      - workspaceMembershipId
+      - display_name
+      - email
+      - title
+      - profile_image_url
+      type: object
     SearchConversationsResponse:
       additionalProperties: false
       description: Search conversations response. Results are returned in data.items; top-level items is a compatibility alias.
@@ -497,6 +602,58 @@ components:
       - data
       - items
       type: object
+    PublicApiErrorResponse:
+      additionalProperties: false
+      description: Target public API error envelope.
+      properties:
+        error:
+          additionalProperties: false
+          description: Error details.
+          properties:
+            code:
+              description: Machine-readable error code.
+              type: string
+            message:
+              description: Human-readable error message.
+              type: string
+            request_id:
+              description: Request identifier.
+              type:
+              - string
+              - 'null'
+          required:
+          - code
+          - message
+          type: object
+      required:
+      - error
+      type: object
+    SearchMessagesResponse:
+      additionalProperties: false
+      description: Search messages response. Results are returned in data.items; top-level items is a compatibility alias.
+      properties:
+        data:
+          additionalProperties: false
+          description: Standard public response data. New clients should read data.items.
+          properties:
+            items:
+              description: Message results.
+              items:
+                $ref: '#/components/schemas/PublicApiSearchMessageResult'
+              type: array
+          required:
+          - items
+          type: object
+        items:
+          description: Compatibility alias for data.items. New clients should read data.items.
+          items:
+            $ref: '#/components/schemas/PublicApiSearchMessageResult'
+          type: array
+          deprecated: true
+      required:
+      - data
+      - items
+      type: object
     PublicApiSearchMessageResult:
       additionalProperties: false
       description: Search result for a message.
@@ -512,20 +669,23 @@ components:
           deprecated: true
         author_name:
           description: Author workspace member display name.
-          type: string
-          nullable: true
+          type:
+          - string
+          - 'null'
         content:
           description: Message markdown content.
-          type: string
-          nullable: true
+          type:
+          - string
+          - 'null'
         conversation_id:
           description: Conversation identifier.
           type: string
           example: 01jzn7e61x3a7v9h2r7t2m3q4p
         conversation_name:
           description: Conversation name.
-          type: string
-          nullable: true
+          type:
+          - string
+          - 'null'
         created_at:
           description: Message creation timestamp.
           type: string
@@ -557,228 +717,6 @@ components:
       - replies_count
       - created_at
       type: object
-    ClipboardResult:
-      additionalProperties: false
-      description: Search result for a clipboard.
-      properties:
-        created_at:
-          description: Clipboard creation timestamp.
-          type: string
-          example: '2026-05-14T08:00:00.000Z'
-          format: date-time
-        description:
-          description: Clipboard description.
-          type: string
-          nullable: true
-        id:
-          description: Clipboard identifier.
-          type: string
-          example: 01jzn7e61x3a7v9h2r7t2m3q4p
-        item_count:
-          description: Number of items in the clipboard.
-          type: integer
-        title:
-          description: Clipboard title.
-          type: string
-          nullable: true
-      required:
-      - id
-      - title
-      - description
-      - item_count
-      - created_at
-      type: object
-    MemberResult:
-      additionalProperties: false
-      description: Workspace member result visible to the authenticated API key. The v1 schema name is a compatibility spelling for this resource.
-      properties:
-        display_name:
-          description: Display name.
-          type: string
-          nullable: true
-        email:
-          description: Email address.
-          type: string
-          format: email
-          nullable: true
-        id:
-          description: Workspace member identifier.
-          type: string
-          example: 01jzn7e61x3a7v9h2r7t2m3q4p
-        profile_image_url:
-          description: Profile image URL.
-          type: string
-          format: uri
-          nullable: true
-        title:
-          description: Workspace member title.
-          type: string
-          nullable: true
-        workspaceMembershipId:
-          description: Canonical workspace membership identifier. Matches legacy id during the compatibility window.
-          type: string
-          example: 01jzn7e61x3a7v9h2r7t2m3q4p
-      required:
-      - id
-      - workspaceMembershipId
-      - display_name
-      - email
-      - title
-      - profile_image_url
-      type: object
-    ConversationResult:
-      additionalProperties: false
-      description: Search result for a conversation.
-      properties:
-        agent_members_count:
-          description: Number of agent workspace members.
-          type: integer
-        description:
-          description: Conversation description.
-          type: string
-          nullable: true
-        human_members_count:
-          description: Number of human workspace members.
-          type: integer
-        id:
-          description: Conversation identifier.
-          type: string
-          example: 01jzn7e61x3a7v9h2r7t2m3q4p
-        name:
-          description: Conversation name.
-          type: string
-          nullable: true
-        type:
-          description: Stable public conversation type. Legacy /api/v1 compatibility routes may still emit the internal integer value until migrated.
-          enum:
-          - channel
-          - direct_message
-          - task_channel
-          type: string
-      required:
-      - id
-      - name
-      - type
-      - description
-      - human_members_count
-      - agent_members_count
-      type: object
-    LegacyErrorResponse:
-      additionalProperties: false
-      description: Current compatibility error envelope used by legacy /api/v1 routes.
-      properties:
-        error:
-          description: Error message.
-          type: string
-        error_code:
-          description: Optional machine-readable error code.
-          type: string
-          nullable: true
-        missing_scopes:
-          description: Missing scopes.
-          items:
-            description: Scope.
-            type: string
-          type: array
-      required:
-      - error
-      type: object
-    SearchMessagesResponse:
-      additionalProperties: false
-      description: Search messages response. Results are returned in data.items; top-level items is a compatibility alias.
-      properties:
-        data:
-          additionalProperties: false
-          description: Standard public response data. New clients should read data.items.
-          properties:
-            items:
-              description: Message results.
-              items:
-                $ref: '#/components/schemas/PublicApiSearchMessageResult'
-              type: array
-          required:
-          - items
-          type: object
-        items:
-          description: Compatibility alias for data.items. New clients should read data.items.
-          items:
-            $ref: '#/components/schemas/PublicApiSearchMessageResult'
-          type: array
-          deprecated: true
-      required:
-      - data
-      - items
-      type: object
-    SearchClipboardResponse:
-      additionalProperties: false
-      description: Search clipboards response.
-      properties:
-        items:
-          description: Clipboard results.
-          items:
-            $ref: '#/components/schemas/ClipboardResult'
-          type: array
-      required:
-      - items
-      type: object
-    CallResult:
-      additionalProperties: false
-      description: Search result for a call.
-      properties:
-        conversation_id:
-          description: Conversation identifier.
-          type: string
-          example: 01jzn7e61x3a7v9h2r7t2m3q4p
-        conversation_name:
-          description: Conversation name.
-          type: string
-          nullable: true
-        duration_seconds:
-          description: Call duration in seconds.
-          type: number
-          nullable: true
-        ended_at:
-          description: Call end timestamp.
-          type: string
-          format: date-time
-          nullable: true
-        id:
-          description: Call identifier.
-          type: string
-          example: 01jzn7e61x3a7v9h2r7t2m3q4p
-        participant_count:
-          description: Number of call participants.
-          type: integer
-        participant_names:
-          description: Participant display names.
-          items:
-            description: Name.
-            type: string
-          type: array
-        started_at:
-          description: Call start timestamp.
-          type: string
-          format: date-time
-          nullable: true
-        status:
-          description: Call status.
-          type: string
-        summary:
-          description: Call summary markdown.
-          type: string
-          nullable: true
-      required:
-      - id
-      - conversation_id
-      - conversation_name
-      - status
-      - duration_seconds
-      - participant_names
-      - participant_count
-      - summary
-      - started_at
-      - ended_at
-      type: object
     SearchCallsResponse:
       additionalProperties: false
       description: Search calls response. Results are returned in data.items; top-level items is a compatibility alias.
@@ -805,30 +743,110 @@ components:
       - data
       - items
       type: object
-    PublicApiErrorResponse:
+    SearchClipboardResponse:
       additionalProperties: false
-      description: Target public API error envelope.
+      description: Search clipboards response.
+      properties:
+        items:
+          description: Clipboard results.
+          items:
+            $ref: '#/components/schemas/ClipboardResult'
+          type: array
+      required:
+      - items
+      type: object
+    ConversationResult:
+      additionalProperties: false
+      description: Search result for a conversation.
+      properties:
+        agent_members_count:
+          description: Number of agent workspace members.
+          type: integer
+        description:
+          description: Conversation description.
+          type:
+          - string
+          - 'null'
+        human_members_count:
+          description: Number of human workspace members.
+          type: integer
+        id:
+          description: Conversation identifier.
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+        name:
+          description: Conversation name.
+          type:
+          - string
+          - 'null'
+        type:
+          description: Stable public conversation type. Legacy /api/v1 compatibility routes may still emit the internal integer value until migrated.
+          enum:
+          - channel
+          - direct_message
+          - task_channel
+          type: string
+      required:
+      - id
+      - name
+      - type
+      - description
+      - human_members_count
+      - agent_members_count
+      type: object
+    LegacyErrorResponse:
+      additionalProperties: false
+      description: Current compatibility error envelope used by legacy /api/v1 routes.
       properties:
         error:
-          additionalProperties: false
-          description: Error details.
-          properties:
-            code:
-              description: Machine-readable error code.
-              type: string
-            message:
-              description: Human-readable error message.
-              type: string
-            request_id:
-              description: Request identifier.
-              type: string
-              nullable: true
-          required:
-          - code
-          - message
-          type: object
+          description: Error message.
+          type: string
+        error_code:
+          description: Optional machine-readable error code.
+          type:
+          - string
+          - 'null'
+        missing_scopes:
+          description: Missing scopes.
+          items:
+            description: Scope.
+            type: string
+          type: array
       required:
       - error
+      type: object
+    ClipboardResult:
+      additionalProperties: false
+      description: Search result for a clipboard.
+      properties:
+        created_at:
+          description: Clipboard creation timestamp.
+          type: string
+          example: '2026-05-14T08:00:00.000Z'
+          format: date-time
+        description:
+          description: Clipboard description.
+          type:
+          - string
+          - 'null'
+        id:
+          description: Clipboard identifier.
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+        item_count:
+          description: Number of items in the clipboard.
+          type: integer
+        title:
+          description: Clipboard title.
+          type:
+          - string
+          - 'null'
+      required:
+      - id
+      - title
+      - description
+      - item_count
+      - created_at
       type: object
     SearchMembersResponse:
       additionalProperties: false
