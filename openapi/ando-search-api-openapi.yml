@@ -427,112 +427,104 @@ paths:
       x-ando-selected-runtime: convex_http
       x-ando-target-runtime: convex_http
 components:
-  responses:
-    Conflict:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/LegacyErrorResponse'
-      description: Conflict.
-    InternalError:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/LegacyErrorResponse'
-      description: Internal server error.
-    BadRequest:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/LegacyErrorResponse'
-      description: Bad request.
-    Unauthorized:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/LegacyErrorResponse'
-      description: Missing or invalid API key.
-    RateLimited:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/PublicApiErrorResponse'
-      description: Rate limit or quota exceeded.
-    Forbidden:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/LegacyErrorResponse'
-      description: Forbidden.
-    NotFound:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/LegacyErrorResponse'
-      description: Not found.
   schemas:
-    CallResult:
+    ConversationResult:
       additionalProperties: false
-      description: Search result for a call.
+      description: Search result for a conversation.
       properties:
-        conversation_id:
+        agent_members_count:
+          description: Number of agent workspace members.
+          type: integer
+        description:
+          description: Conversation description.
+          type:
+          - string
+          - 'null'
+        human_members_count:
+          description: Number of human workspace members.
+          type: integer
+        id:
           description: Conversation identifier.
           type: string
           example: 01jzn7e61x3a7v9h2r7t2m3q4p
-        conversation_name:
+        name:
           description: Conversation name.
           type:
           - string
           - 'null'
-        duration_seconds:
-          description: Call duration in seconds.
-          type:
-          - number
-          - 'null'
-        ended_at:
-          description: Call end timestamp.
+        type:
+          description: Stable public conversation type. Legacy /api/v1 compatibility routes may still emit the internal integer value until migrated.
+          enum:
+          - channel
+          - direct_message
+          - task_channel
+          type: string
+      required:
+      - id
+      - name
+      - type
+      - description
+      - human_members_count
+      - agent_members_count
+      type: object
+    SearchCallsResponse:
+      additionalProperties: false
+      description: Search calls response. Results are returned in data.items; top-level items is a compatibility alias.
+      properties:
+        data:
+          additionalProperties: false
+          description: Standard public response data. New clients should read data.items.
+          properties:
+            items:
+              description: Call results.
+              items:
+                $ref: '#/components/schemas/CallResult'
+              type: array
+          required:
+          - items
+          type: object
+        items:
+          description: Compatibility alias for data.items. New clients should read data.items.
+          items:
+            $ref: '#/components/schemas/CallResult'
+          type: array
+          deprecated: true
+      required:
+      - data
+      - items
+      type: object
+    ClipboardResult:
+      additionalProperties: false
+      description: Search result for a clipboard.
+      properties:
+        created_at:
+          description: Clipboard creation timestamp.
+          type: string
+          example: '2026-05-14T08:00:00.000Z'
+          format: date-time
+        description:
+          description: Clipboard description.
           type:
           - string
           - 'null'
-          format: date-time
         id:
-          description: Call identifier.
+          description: Clipboard identifier.
           type: string
           example: 01jzn7e61x3a7v9h2r7t2m3q4p
-        participant_count:
-          description: Number of call participants.
+        item_count:
+          description: Number of items in the clipboard.
           type: integer
-        participant_names:
-          description: Participant display names.
-          items:
-            description: Name.
-            type: string
-          type: array
-        started_at:
-          description: Call start timestamp.
-          type:
-          - string
-          - 'null'
-          format: date-time
-        status:
-          description: Call status.
-          type: string
-        summary:
-          description: Call summary markdown.
+        title:
+          description: Clipboard title.
           type:
           - string
           - 'null'
       required:
       - id
-      - conversation_id
-      - conversation_name
-      - status
-      - duration_seconds
-      - participant_names
-      - participant_count
-      - summary
-      - started_at
-      - ended_at
+      - title
+      - description
+      - item_count
+      - created_at
       type: object
     MemberResult:
       additionalProperties: false
@@ -602,6 +594,102 @@ components:
       - data
       - items
       type: object
+    SearchClipboardResponse:
+      additionalProperties: false
+      description: Search clipboards response.
+      properties:
+        items:
+          description: Clipboard results.
+          items:
+            $ref: '#/components/schemas/ClipboardResult'
+          type: array
+      required:
+      - items
+      type: object
+    LegacyErrorResponse:
+      additionalProperties: false
+      description: Current compatibility error envelope used by legacy /api/v1 routes.
+      properties:
+        error:
+          description: Error message.
+          type: string
+        error_code:
+          description: Optional machine-readable error code.
+          type:
+          - string
+          - 'null'
+        missing_scopes:
+          description: Missing scopes.
+          items:
+            description: Scope.
+            type: string
+          type: array
+      required:
+      - error
+      type: object
+    CallResult:
+      additionalProperties: false
+      description: Search result for a call.
+      properties:
+        conversation_id:
+          description: Conversation identifier.
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+        conversation_name:
+          description: Conversation name.
+          type:
+          - string
+          - 'null'
+        duration_seconds:
+          description: Call duration in seconds.
+          type:
+          - number
+          - 'null'
+        ended_at:
+          description: Call end timestamp.
+          type:
+          - string
+          - 'null'
+          format: date-time
+        id:
+          description: Call identifier.
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+        participant_count:
+          description: Number of call participants.
+          type: integer
+        participant_names:
+          description: Participant display names.
+          items:
+            description: Name.
+            type: string
+          type: array
+        started_at:
+          description: Call start timestamp.
+          type:
+          - string
+          - 'null'
+          format: date-time
+        status:
+          description: Call status.
+          type: string
+        summary:
+          description: Call summary markdown.
+          type:
+          - string
+          - 'null'
+      required:
+      - id
+      - conversation_id
+      - conversation_name
+      - status
+      - duration_seconds
+      - participant_names
+      - participant_count
+      - summary
+      - started_at
+      - ended_at
+      type: object
     PublicApiErrorResponse:
       additionalProperties: false
       description: Target public API error envelope.
@@ -627,32 +715,6 @@ components:
           type: object
       required:
       - error
-      type: object
-    SearchMessagesResponse:
-      additionalProperties: false
-      description: Search messages response. Results are returned in data.items; top-level items is a compatibility alias.
-      properties:
-        data:
-          additionalProperties: false
-          description: Standard public response data. New clients should read data.items.
-          properties:
-            items:
-              description: Message results.
-              items:
-                $ref: '#/components/schemas/PublicApiSearchMessageResult'
-              type: array
-          required:
-          - items
-          type: object
-        items:
-          description: Compatibility alias for data.items. New clients should read data.items.
-          items:
-            $ref: '#/components/schemas/PublicApiSearchMessageResult'
-          type: array
-          deprecated: true
-      required:
-      - data
-      - items
       type: object
     PublicApiSearchMessageResult:
       additionalProperties: false
@@ -717,18 +779,18 @@ components:
       - replies_count
       - created_at
       type: object
-    SearchCallsResponse:
+    SearchMessagesResponse:
       additionalProperties: false
-      description: Search calls response. Results are returned in data.items; top-level items is a compatibility alias.
+      description: Search messages response. Results are returned in data.items; top-level items is a compatibility alias.
       properties:
         data:
           additionalProperties: false
           description: Standard public response data. New clients should read data.items.
           properties:
             items:
-              description: Call results.
+              description: Message results.
               items:
-                $ref: '#/components/schemas/CallResult'
+                $ref: '#/components/schemas/PublicApiSearchMessageResult'
               type: array
           required:
           - items
@@ -736,117 +798,12 @@ components:
         items:
           description: Compatibility alias for data.items. New clients should read data.items.
           items:
-            $ref: '#/components/schemas/CallResult'
+            $ref: '#/components/schemas/PublicApiSearchMessageResult'
           type: array
           deprecated: true
       required:
       - data
       - items
-      type: object
-    SearchClipboardResponse:
-      additionalProperties: false
-      description: Search clipboards response.
-      properties:
-        items:
-          description: Clipboard results.
-          items:
-            $ref: '#/components/schemas/ClipboardResult'
-          type: array
-      required:
-      - items
-      type: object
-    ConversationResult:
-      additionalProperties: false
-      description: Search result for a conversation.
-      properties:
-        agent_members_count:
-          description: Number of agent workspace members.
-          type: integer
-        description:
-          description: Conversation description.
-          type:
-          - string
-          - 'null'
-        human_members_count:
-          description: Number of human workspace members.
-          type: integer
-        id:
-          description: Conversation identifier.
-          type: string
-          example: 01jzn7e61x3a7v9h2r7t2m3q4p
-        name:
-          description: Conversation name.
-          type:
-          - string
-          - 'null'
-        type:
-          description: Stable public conversation type. Legacy /api/v1 compatibility routes may still emit the internal integer value until migrated.
-          enum:
-          - channel
-          - direct_message
-          - task_channel
-          type: string
-      required:
-      - id
-      - name
-      - type
-      - description
-      - human_members_count
-      - agent_members_count
-      type: object
-    LegacyErrorResponse:
-      additionalProperties: false
-      description: Current compatibility error envelope used by legacy /api/v1 routes.
-      properties:
-        error:
-          description: Error message.
-          type: string
-        error_code:
-          description: Optional machine-readable error code.
-          type:
-          - string
-          - 'null'
-        missing_scopes:
-          description: Missing scopes.
-          items:
-            description: Scope.
-            type: string
-          type: array
-      required:
-      - error
-      type: object
-    ClipboardResult:
-      additionalProperties: false
-      description: Search result for a clipboard.
-      properties:
-        created_at:
-          description: Clipboard creation timestamp.
-          type: string
-          example: '2026-05-14T08:00:00.000Z'
-          format: date-time
-        description:
-          description: Clipboard description.
-          type:
-          - string
-          - 'null'
-        id:
-          description: Clipboard identifier.
-          type: string
-          example: 01jzn7e61x3a7v9h2r7t2m3q4p
-        item_count:
-          description: Number of items in the clipboard.
-          type: integer
-        title:
-          description: Clipboard title.
-          type:
-          - string
-          - 'null'
-      required:
-      - id
-      - title
-      - description
-      - item_count
-      - created_at
       type: object
     SearchMembersResponse:
       additionalProperties: false
@@ -874,6 +831,49 @@ components:
       - data
       - items
       type: object
+  responses:
+    Unauthorized:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Missing or invalid API key.
+    NotFound:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Not found.
+    Conflict:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Conflict.
+    Forbidden:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Forbidden.
+    RateLimited:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/PublicApiErrorResponse'
+      description: Rate limit or quota exceeded.
+    BadRequest:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Bad request.
+    InternalError:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Internal server error.
   securitySchemes:
     AndoApiKey:
       description: Workspace API key. Current accepted keys use the ando_sk_ prefix.

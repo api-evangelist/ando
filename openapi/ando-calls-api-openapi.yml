@@ -131,6 +131,52 @@ paths:
       x-ando-target-runtime: convex_http
 components:
   schemas:
+    CallTranscriptChapter:
+      additionalProperties: false
+      description: A summary chapter for a call transcript.
+      properties:
+        content:
+          description: Chapter content.
+          type: string
+        end_ms:
+          description: Chapter end offset in milliseconds.
+          type: integer
+        start_ms:
+          description: Chapter start offset in milliseconds.
+          type: integer
+        title:
+          description: Chapter title.
+          type: string
+      required:
+      - title
+      - content
+      - start_ms
+      - end_ms
+      type: object
+    LegacyPageInfo:
+      additionalProperties: false
+      description: Current compatibility pagination metadata with camelCase field names.
+      properties:
+        endCursor:
+          description: Cursor for the last item.
+          type:
+          - string
+          - 'null'
+        hasNextPage:
+          description: Whether another page exists after this page.
+          type: boolean
+        hasPreviousPage:
+          description: Whether another page exists before this page.
+          type: boolean
+        startCursor:
+          description: Cursor for the first item.
+          type:
+          - string
+          - 'null'
+      required:
+      - hasNextPage
+      - hasPreviousPage
+      type: object
     PublicApiErrorResponse:
       additionalProperties: false
       description: Target public API error envelope.
@@ -157,29 +203,82 @@ components:
       required:
       - error
       type: object
-    LegacyPageInfo:
+    LegacyErrorResponse:
       additionalProperties: false
-      description: Current compatibility pagination metadata with camelCase field names.
+      description: Current compatibility error envelope used by legacy /api/v1 routes.
       properties:
-        endCursor:
-          description: Cursor for the last item.
+        error:
+          description: Error message.
+          type: string
+        error_code:
+          description: Optional machine-readable error code.
           type:
           - string
           - 'null'
-        hasNextPage:
-          description: Whether another page exists after this page.
-          type: boolean
-        hasPreviousPage:
-          description: Whether another page exists before this page.
-          type: boolean
-        startCursor:
-          description: Cursor for the first item.
-          type:
-          - string
-          - 'null'
+        missing_scopes:
+          description: Missing scopes.
+          items:
+            description: Scope.
+            type: string
+          type: array
       required:
-      - hasNextPage
-      - hasPreviousPage
+      - error
+      type: object
+    CallTranscriptSegment:
+      additionalProperties: false
+      description: A transcript segment.
+      properties:
+        content:
+          description: Transcript text.
+          type: string
+        end_ms:
+          description: Segment end offset in milliseconds.
+          type: integer
+        speaker_name:
+          description: Speaker display name.
+          type:
+          - string
+          - 'null'
+        start_ms:
+          description: Segment start offset in milliseconds.
+          type: integer
+      required:
+      - speaker_name
+      - content
+      - start_ms
+      - end_ms
+      type: object
+    CallTranscriptResponse:
+      additionalProperties: false
+      description: Current call transcript compatibility response.
+      properties:
+        call_id:
+          description: Call identifier.
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+        conversation_name:
+          description: Conversation name.
+          type:
+          - string
+          - 'null'
+        duration_seconds:
+          description: Call duration in seconds.
+          type:
+          - number
+          - 'null'
+        pageInfo:
+          $ref: '#/components/schemas/LegacyPageInfo'
+        segments:
+          description: Transcript segments.
+          items:
+            $ref: '#/components/schemas/CallTranscriptSegment'
+          type: array
+      required:
+      - call_id
+      - conversation_name
+      - duration_seconds
+      - segments
+      - pageInfo
       type: object
     CallResponse:
       additionalProperties: false
@@ -262,124 +361,31 @@ components:
       - id
       - name
       type: object
-    CallTranscriptResponse:
-      additionalProperties: false
-      description: Current call transcript compatibility response.
-      properties:
-        call_id:
-          description: Call identifier.
-          type: string
-          example: 01jzn7e61x3a7v9h2r7t2m3q4p
-        conversation_name:
-          description: Conversation name.
-          type:
-          - string
-          - 'null'
-        duration_seconds:
-          description: Call duration in seconds.
-          type:
-          - number
-          - 'null'
-        pageInfo:
-          $ref: '#/components/schemas/LegacyPageInfo'
-        segments:
-          description: Transcript segments.
-          items:
-            $ref: '#/components/schemas/CallTranscriptSegment'
-          type: array
-      required:
-      - call_id
-      - conversation_name
-      - duration_seconds
-      - segments
-      - pageInfo
-      type: object
-    CallTranscriptSegment:
-      additionalProperties: false
-      description: A transcript segment.
-      properties:
-        content:
-          description: Transcript text.
-          type: string
-        end_ms:
-          description: Segment end offset in milliseconds.
-          type: integer
-        speaker_name:
-          description: Speaker display name.
-          type:
-          - string
-          - 'null'
-        start_ms:
-          description: Segment start offset in milliseconds.
-          type: integer
-      required:
-      - speaker_name
-      - content
-      - start_ms
-      - end_ms
-      type: object
-    CallTranscriptChapter:
-      additionalProperties: false
-      description: A summary chapter for a call transcript.
-      properties:
-        content:
-          description: Chapter content.
-          type: string
-        end_ms:
-          description: Chapter end offset in milliseconds.
-          type: integer
-        start_ms:
-          description: Chapter start offset in milliseconds.
-          type: integer
-        title:
-          description: Chapter title.
-          type: string
-      required:
-      - title
-      - content
-      - start_ms
-      - end_ms
-      type: object
-    LegacyErrorResponse:
-      additionalProperties: false
-      description: Current compatibility error envelope used by legacy /api/v1 routes.
-      properties:
-        error:
-          description: Error message.
-          type: string
-        error_code:
-          description: Optional machine-readable error code.
-          type:
-          - string
-          - 'null'
-        missing_scopes:
-          description: Missing scopes.
-          items:
-            description: Scope.
-            type: string
-          type: array
-      required:
-      - error
-      type: object
   responses:
-    RateLimited:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/PublicApiErrorResponse'
-      description: Rate limit or quota exceeded.
-    Conflict:
+    Unauthorized:
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/LegacyErrorResponse'
-      description: Conflict.
+      description: Missing or invalid API key.
     InternalError:
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/LegacyErrorResponse'
       description: Internal server error.
+    NotFound:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Not found.
+    Conflict:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Conflict.
     BadRequest:
       content:
         application/json:
@@ -392,18 +398,12 @@ components:
           schema:
             $ref: '#/components/schemas/LegacyErrorResponse'
       description: Forbidden.
-    NotFound:
+    RateLimited:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/LegacyErrorResponse'
-      description: Not found.
-    Unauthorized:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/LegacyErrorResponse'
-      description: Missing or invalid API key.
+            $ref: '#/components/schemas/PublicApiErrorResponse'
+      description: Rate limit or quota exceeded.
   securitySchemes:
     AndoApiKey:
       description: Workspace API key. Current accepted keys use the ando_sk_ prefix.

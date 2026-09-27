@@ -65,32 +65,6 @@ paths:
       x-ando-target-runtime: convex_http
 components:
   schemas:
-    PublicApiErrorResponse:
-      additionalProperties: false
-      description: Target public API error envelope.
-      properties:
-        error:
-          additionalProperties: false
-          description: Error details.
-          properties:
-            code:
-              description: Machine-readable error code.
-              type: string
-            message:
-              description: Human-readable error message.
-              type: string
-            request_id:
-              description: Request identifier.
-              type:
-              - string
-              - 'null'
-          required:
-          - code
-          - message
-          type: object
-      required:
-      - error
-      type: object
     MemberResult:
       additionalProperties: false
       description: Workspace member result visible to the authenticated API key. The v1 schema name is a compatibility spelling for this resource.
@@ -154,25 +128,57 @@ components:
       required:
       - error
       type: object
+    PublicApiErrorResponse:
+      additionalProperties: false
+      description: Target public API error envelope.
+      properties:
+        error:
+          additionalProperties: false
+          description: Error details.
+          properties:
+            code:
+              description: Machine-readable error code.
+              type: string
+            message:
+              description: Human-readable error message.
+              type: string
+            request_id:
+              description: Request identifier.
+              type:
+              - string
+              - 'null'
+          required:
+          - code
+          - message
+          type: object
+      required:
+      - error
+      type: object
   responses:
-    RateLimited:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/PublicApiErrorResponse'
-      description: Rate limit or quota exceeded.
-    Conflict:
+    Unauthorized:
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/LegacyErrorResponse'
-      description: Conflict.
+      description: Missing or invalid API key.
     InternalError:
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/LegacyErrorResponse'
       description: Internal server error.
+    NotFound:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Not found.
+    Conflict:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Conflict.
     BadRequest:
       content:
         application/json:
@@ -185,18 +191,12 @@ components:
           schema:
             $ref: '#/components/schemas/LegacyErrorResponse'
       description: Forbidden.
-    NotFound:
+    RateLimited:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/LegacyErrorResponse'
-      description: Not found.
-    Unauthorized:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/LegacyErrorResponse'
-      description: Missing or invalid API key.
+            $ref: '#/components/schemas/PublicApiErrorResponse'
+      description: Rate limit or quota exceeded.
   securitySchemes:
     AndoApiKey:
       description: Workspace API key. Current accepted keys use the ando_sk_ prefix.

@@ -64,6 +64,49 @@ paths:
       x-ando-selected-runtime: express
       x-ando-target-runtime: convex_http
 components:
+  responses:
+    Unauthorized:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Missing or invalid API key.
+    InternalError:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Internal server error.
+    NotFound:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Not found.
+    Conflict:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Conflict.
+    BadRequest:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Bad request.
+    Forbidden:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Forbidden.
+    RateLimited:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/PublicApiErrorResponse'
+      description: Rate limit or quota exceeded.
   schemas:
     PublicApiErrorResponse:
       additionalProperties: false
@@ -91,40 +134,26 @@ components:
       required:
       - error
       type: object
-    ClipboardResponse:
+    LegacyErrorResponse:
       additionalProperties: false
-      description: Clipboard detail response.
+      description: Current compatibility error envelope used by legacy /api/v1 routes.
       properties:
-        created_at:
-          description: Clipboard creation timestamp.
+        error:
+          description: Error message.
           type: string
-          example: '2026-05-14T08:00:00.000Z'
-          format: date-time
-        description:
-          description: Clipboard description.
+        error_code:
+          description: Optional machine-readable error code.
           type:
           - string
           - 'null'
-        id:
-          description: Clipboard identifier.
-          type: string
-          example: 01jzn7e61x3a7v9h2r7t2m3q4p
-        items:
-          description: Clipboard items.
+        missing_scopes:
+          description: Missing scopes.
           items:
-            $ref: '#/components/schemas/ClipboardItem'
+            description: Scope.
+            type: string
           type: array
-        title:
-          description: Clipboard title.
-          type:
-          - string
-          - 'null'
       required:
-      - id
-      - title
-      - description
-      - created_at
-      - items
+      - error
       type: object
     ClipboardItem:
       additionalProperties: false
@@ -187,70 +216,41 @@ components:
       - type
       - id
       type: object
-    LegacyErrorResponse:
+    ClipboardResponse:
       additionalProperties: false
-      description: Current compatibility error envelope used by legacy /api/v1 routes.
+      description: Clipboard detail response.
       properties:
-        error:
-          description: Error message.
+        created_at:
+          description: Clipboard creation timestamp.
           type: string
-        error_code:
-          description: Optional machine-readable error code.
+          example: '2026-05-14T08:00:00.000Z'
+          format: date-time
+        description:
+          description: Clipboard description.
           type:
           - string
           - 'null'
-        missing_scopes:
-          description: Missing scopes.
+        id:
+          description: Clipboard identifier.
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+        items:
+          description: Clipboard items.
           items:
-            description: Scope.
-            type: string
+            $ref: '#/components/schemas/ClipboardItem'
           type: array
+        title:
+          description: Clipboard title.
+          type:
+          - string
+          - 'null'
       required:
-      - error
+      - id
+      - title
+      - description
+      - created_at
+      - items
       type: object
-  responses:
-    RateLimited:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/PublicApiErrorResponse'
-      description: Rate limit or quota exceeded.
-    Conflict:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/LegacyErrorResponse'
-      description: Conflict.
-    InternalError:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/LegacyErrorResponse'
-      description: Internal server error.
-    BadRequest:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/LegacyErrorResponse'
-      description: Bad request.
-    Forbidden:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/LegacyErrorResponse'
-      description: Forbidden.
-    NotFound:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/LegacyErrorResponse'
-      description: Not found.
-    Unauthorized:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/LegacyErrorResponse'
-      description: Missing or invalid API key.
   securitySchemes:
     AndoApiKey:
       description: Workspace API key. Current accepted keys use the ando_sk_ prefix.
