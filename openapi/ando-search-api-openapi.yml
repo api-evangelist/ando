@@ -467,18 +467,18 @@ components:
       - human_members_count
       - agent_members_count
       type: object
-    SearchCallsResponse:
+    SearchConversationsResponse:
       additionalProperties: false
-      description: Search calls response. Results are returned in data.items; top-level items is a compatibility alias.
+      description: Search conversations response. Results are returned in data.items; top-level items is a compatibility alias.
       properties:
         data:
           additionalProperties: false
           description: Standard public response data. New clients should read data.items.
           properties:
             items:
-              description: Call results.
+              description: Conversation results.
               items:
-                $ref: '#/components/schemas/CallResult'
+                $ref: '#/components/schemas/ConversationResult'
               type: array
           required:
           - items
@@ -486,12 +486,75 @@ components:
         items:
           description: Compatibility alias for data.items. New clients should read data.items.
           items:
-            $ref: '#/components/schemas/CallResult'
+            $ref: '#/components/schemas/ConversationResult'
           type: array
           deprecated: true
       required:
       - data
       - items
+      type: object
+    PublicApiSearchMessageResult:
+      additionalProperties: false
+      description: Search result for a message.
+      properties:
+        authorWorkspaceMembershipId:
+          description: Canonical author workspace membership identifier. Matches legacy author_id during the compatibility window.
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+        author_id:
+          description: 'Author workspace member identifier. Deprecated: read authorWorkspaceMembershipId instead.'
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+          deprecated: true
+        author_name:
+          description: Author workspace member display name.
+          type:
+          - string
+          - 'null'
+        content:
+          description: Message markdown content.
+          type:
+          - string
+          - 'null'
+        conversation_id:
+          description: Conversation identifier.
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+        conversation_name:
+          description: Conversation name.
+          type:
+          - string
+          - 'null'
+        created_at:
+          description: Message creation timestamp.
+          type: string
+          example: '2026-05-14T08:00:00.000Z'
+          format: date-time
+        id:
+          description: Message identifier.
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+        image_urls:
+          description: Image URLs extracted from the message.
+          items:
+            description: Image URL.
+            type: string
+            format: uri
+          type: array
+        replies_count:
+          description: Number of thread replies.
+          type: integer
+      required:
+      - id
+      - conversation_id
+      - conversation_name
+      - authorWorkspaceMembershipId
+      - author_id
+      - author_name
+      - content
+      - image_urls
+      - replies_count
+      - created_at
       type: object
     ClipboardResult:
       additionalProperties: false
@@ -526,85 +589,31 @@ components:
       - item_count
       - created_at
       type: object
-    MemberResult:
+    PublicApiErrorResponse:
       additionalProperties: false
-      description: Workspace member result visible to the authenticated API key. The v1 schema name is a compatibility spelling for this resource.
+      description: Target public API error envelope.
       properties:
-        display_name:
-          description: Display name.
-          type:
-          - string
-          - 'null'
-        email:
-          description: Email address.
-          type:
-          - string
-          - 'null'
-          format: email
-        id:
-          description: Workspace member identifier.
-          type: string
-          example: 01jzn7e61x3a7v9h2r7t2m3q4p
-        profile_image_url:
-          description: Profile image URL.
-          type:
-          - string
-          - 'null'
-          format: uri
-        title:
-          description: Workspace member title.
-          type:
-          - string
-          - 'null'
-        workspaceMembershipId:
-          description: Canonical workspace membership identifier. Matches legacy id during the compatibility window.
-          type: string
-          example: 01jzn7e61x3a7v9h2r7t2m3q4p
-      required:
-      - id
-      - workspaceMembershipId
-      - display_name
-      - email
-      - title
-      - profile_image_url
-      type: object
-    SearchConversationsResponse:
-      additionalProperties: false
-      description: Search conversations response. Results are returned in data.items; top-level items is a compatibility alias.
-      properties:
-        data:
+        error:
           additionalProperties: false
-          description: Standard public response data. New clients should read data.items.
+          description: Error details.
           properties:
-            items:
-              description: Conversation results.
-              items:
-                $ref: '#/components/schemas/ConversationResult'
-              type: array
+            code:
+              description: Machine-readable error code.
+              type: string
+            message:
+              description: Human-readable error message.
+              type: string
+            request_id:
+              description: Request identifier.
+              type:
+              - string
+              - 'null'
           required:
-          - items
+          - code
+          - message
           type: object
-        items:
-          description: Compatibility alias for data.items. New clients should read data.items.
-          items:
-            $ref: '#/components/schemas/ConversationResult'
-          type: array
-          deprecated: true
       required:
-      - data
-      - items
-      type: object
-    SearchClipboardResponse:
-      additionalProperties: false
-      description: Search clipboards response.
-      properties:
-        items:
-          description: Clipboard results.
-          items:
-            $ref: '#/components/schemas/ClipboardResult'
-          type: array
-      required:
-      - items
+      - error
       type: object
     LegacyErrorResponse:
       additionalProperties: false
@@ -690,120 +699,47 @@ components:
       - started_at
       - ended_at
       type: object
-    PublicApiErrorResponse:
+    MemberResult:
       additionalProperties: false
-      description: Target public API error envelope.
+      description: Workspace member result visible to the authenticated API key. The v1 schema name is a compatibility spelling for this resource.
       properties:
-        error:
-          additionalProperties: false
-          description: Error details.
-          properties:
-            code:
-              description: Machine-readable error code.
-              type: string
-            message:
-              description: Human-readable error message.
-              type: string
-            request_id:
-              description: Request identifier.
-              type:
-              - string
-              - 'null'
-          required:
-          - code
-          - message
-          type: object
-      required:
-      - error
-      type: object
-    PublicApiSearchMessageResult:
-      additionalProperties: false
-      description: Search result for a message.
-      properties:
-        authorWorkspaceMembershipId:
-          description: Canonical author workspace membership identifier. Matches legacy author_id during the compatibility window.
-          type: string
-          example: 01jzn7e61x3a7v9h2r7t2m3q4p
-        author_id:
-          description: 'Author workspace member identifier. Deprecated: read authorWorkspaceMembershipId instead.'
-          type: string
-          example: 01jzn7e61x3a7v9h2r7t2m3q4p
-          deprecated: true
-        author_name:
-          description: Author workspace member display name.
+        display_name:
+          description: Display name.
           type:
           - string
           - 'null'
-        content:
-          description: Message markdown content.
+        email:
+          description: Email address.
           type:
           - string
           - 'null'
-        conversation_id:
-          description: Conversation identifier.
-          type: string
-          example: 01jzn7e61x3a7v9h2r7t2m3q4p
-        conversation_name:
-          description: Conversation name.
-          type:
-          - string
-          - 'null'
-        created_at:
-          description: Message creation timestamp.
-          type: string
-          example: '2026-05-14T08:00:00.000Z'
-          format: date-time
+          format: email
         id:
-          description: Message identifier.
+          description: Workspace member identifier.
           type: string
           example: 01jzn7e61x3a7v9h2r7t2m3q4p
-        image_urls:
-          description: Image URLs extracted from the message.
-          items:
-            description: Image URL.
-            type: string
-            format: uri
-          type: array
-        replies_count:
-          description: Number of thread replies.
-          type: integer
+        profile_image_url:
+          description: Profile image URL.
+          type:
+          - string
+          - 'null'
+          format: uri
+        title:
+          description: Workspace member title.
+          type:
+          - string
+          - 'null'
+        workspaceMembershipId:
+          description: Canonical workspace membership identifier. Matches legacy id during the compatibility window.
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
       required:
       - id
-      - conversation_id
-      - conversation_name
-      - authorWorkspaceMembershipId
-      - author_id
-      - author_name
-      - content
-      - image_urls
-      - replies_count
-      - created_at
-      type: object
-    SearchMessagesResponse:
-      additionalProperties: false
-      description: Search messages response. Results are returned in data.items; top-level items is a compatibility alias.
-      properties:
-        data:
-          additionalProperties: false
-          description: Standard public response data. New clients should read data.items.
-          properties:
-            items:
-              description: Message results.
-              items:
-                $ref: '#/components/schemas/PublicApiSearchMessageResult'
-              type: array
-          required:
-          - items
-          type: object
-        items:
-          description: Compatibility alias for data.items. New clients should read data.items.
-          items:
-            $ref: '#/components/schemas/PublicApiSearchMessageResult'
-          type: array
-          deprecated: true
-      required:
-      - data
-      - items
+      - workspaceMembershipId
+      - display_name
+      - email
+      - title
+      - profile_image_url
       type: object
     SearchMembersResponse:
       additionalProperties: false
@@ -831,49 +767,113 @@ components:
       - data
       - items
       type: object
+    SearchClipboardResponse:
+      additionalProperties: false
+      description: Search clipboards response.
+      properties:
+        items:
+          description: Clipboard results.
+          items:
+            $ref: '#/components/schemas/ClipboardResult'
+          type: array
+      required:
+      - items
+      type: object
+    SearchCallsResponse:
+      additionalProperties: false
+      description: Search calls response. Results are returned in data.items; top-level items is a compatibility alias.
+      properties:
+        data:
+          additionalProperties: false
+          description: Standard public response data. New clients should read data.items.
+          properties:
+            items:
+              description: Call results.
+              items:
+                $ref: '#/components/schemas/CallResult'
+              type: array
+          required:
+          - items
+          type: object
+        items:
+          description: Compatibility alias for data.items. New clients should read data.items.
+          items:
+            $ref: '#/components/schemas/CallResult'
+          type: array
+          deprecated: true
+      required:
+      - data
+      - items
+      type: object
+    SearchMessagesResponse:
+      additionalProperties: false
+      description: Search messages response. Results are returned in data.items; top-level items is a compatibility alias.
+      properties:
+        data:
+          additionalProperties: false
+          description: Standard public response data. New clients should read data.items.
+          properties:
+            items:
+              description: Message results.
+              items:
+                $ref: '#/components/schemas/PublicApiSearchMessageResult'
+              type: array
+          required:
+          - items
+          type: object
+        items:
+          description: Compatibility alias for data.items. New clients should read data.items.
+          items:
+            $ref: '#/components/schemas/PublicApiSearchMessageResult'
+          type: array
+          deprecated: true
+      required:
+      - data
+      - items
+      type: object
   responses:
-    Unauthorized:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/LegacyErrorResponse'
-      description: Missing or invalid API key.
-    NotFound:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/LegacyErrorResponse'
-      description: Not found.
-    Conflict:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/LegacyErrorResponse'
-      description: Conflict.
-    Forbidden:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/LegacyErrorResponse'
-      description: Forbidden.
     RateLimited:
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/PublicApiErrorResponse'
       description: Rate limit or quota exceeded.
-    BadRequest:
+    NotFound:
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/LegacyErrorResponse'
-      description: Bad request.
+      description: Not found.
+    Unauthorized:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Missing or invalid API key.
+    Forbidden:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Forbidden.
     InternalError:
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/LegacyErrorResponse'
       description: Internal server error.
+    Conflict:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Conflict.
+    BadRequest:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Bad request.
   securitySchemes:
     AndoApiKey:
       description: Workspace API key. Current accepted keys use the ando_sk_ prefix.

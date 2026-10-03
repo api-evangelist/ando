@@ -177,77 +177,6 @@ components:
       - hasNextPage
       - hasPreviousPage
       type: object
-    PublicApiErrorResponse:
-      additionalProperties: false
-      description: Target public API error envelope.
-      properties:
-        error:
-          additionalProperties: false
-          description: Error details.
-          properties:
-            code:
-              description: Machine-readable error code.
-              type: string
-            message:
-              description: Human-readable error message.
-              type: string
-            request_id:
-              description: Request identifier.
-              type:
-              - string
-              - 'null'
-          required:
-          - code
-          - message
-          type: object
-      required:
-      - error
-      type: object
-    LegacyErrorResponse:
-      additionalProperties: false
-      description: Current compatibility error envelope used by legacy /api/v1 routes.
-      properties:
-        error:
-          description: Error message.
-          type: string
-        error_code:
-          description: Optional machine-readable error code.
-          type:
-          - string
-          - 'null'
-        missing_scopes:
-          description: Missing scopes.
-          items:
-            description: Scope.
-            type: string
-          type: array
-      required:
-      - error
-      type: object
-    CallTranscriptSegment:
-      additionalProperties: false
-      description: A transcript segment.
-      properties:
-        content:
-          description: Transcript text.
-          type: string
-        end_ms:
-          description: Segment end offset in milliseconds.
-          type: integer
-        speaker_name:
-          description: Speaker display name.
-          type:
-          - string
-          - 'null'
-        start_ms:
-          description: Segment start offset in milliseconds.
-          type: integer
-      required:
-      - speaker_name
-      - content
-      - start_ms
-      - end_ms
-      type: object
     CallTranscriptResponse:
       additionalProperties: false
       description: Current call transcript compatibility response.
@@ -279,6 +208,56 @@ components:
       - duration_seconds
       - segments
       - pageInfo
+      type: object
+    CallTranscriptSegment:
+      additionalProperties: false
+      description: A transcript segment.
+      properties:
+        content:
+          description: Transcript text.
+          type: string
+        end_ms:
+          description: Segment end offset in milliseconds.
+          type: integer
+        speaker_name:
+          description: Speaker display name.
+          type:
+          - string
+          - 'null'
+        start_ms:
+          description: Segment start offset in milliseconds.
+          type: integer
+      required:
+      - speaker_name
+      - content
+      - start_ms
+      - end_ms
+      type: object
+    PublicApiErrorResponse:
+      additionalProperties: false
+      description: Target public API error envelope.
+      properties:
+        error:
+          additionalProperties: false
+          description: Error details.
+          properties:
+            code:
+              description: Machine-readable error code.
+              type: string
+            message:
+              description: Human-readable error message.
+              type: string
+            request_id:
+              description: Request identifier.
+              type:
+              - string
+              - 'null'
+          required:
+          - code
+          - message
+          type: object
+      required:
+      - error
       type: object
     CallResponse:
       additionalProperties: false
@@ -344,6 +323,27 @@ components:
       - started_at
       - ended_at
       type: object
+    LegacyErrorResponse:
+      additionalProperties: false
+      description: Current compatibility error envelope used by legacy /api/v1 routes.
+      properties:
+        error:
+          description: Error message.
+          type: string
+        error_code:
+          description: Optional machine-readable error code.
+          type:
+          - string
+          - 'null'
+        missing_scopes:
+          description: Missing scopes.
+          items:
+            description: Scope.
+            type: string
+          type: array
+      required:
+      - error
+      type: object
     CallParticipant:
       additionalProperties: false
       description: A participant in a call.
@@ -362,12 +362,12 @@ components:
       - name
       type: object
   responses:
-    Unauthorized:
+    Forbidden:
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/LegacyErrorResponse'
-      description: Missing or invalid API key.
+      description: Forbidden.
     InternalError:
       content:
         application/json:
@@ -380,6 +380,18 @@ components:
           schema:
             $ref: '#/components/schemas/LegacyErrorResponse'
       description: Not found.
+    RateLimited:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/PublicApiErrorResponse'
+      description: Rate limit or quota exceeded.
+    Unauthorized:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Missing or invalid API key.
     Conflict:
       content:
         application/json:
@@ -392,18 +404,6 @@ components:
           schema:
             $ref: '#/components/schemas/LegacyErrorResponse'
       description: Bad request.
-    Forbidden:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/LegacyErrorResponse'
-      description: Forbidden.
-    RateLimited:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/PublicApiErrorResponse'
-      description: Rate limit or quota exceeded.
   securitySchemes:
     AndoApiKey:
       description: Workspace API key. Current accepted keys use the ando_sk_ prefix.

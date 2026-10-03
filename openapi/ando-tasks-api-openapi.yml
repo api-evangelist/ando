@@ -207,32 +207,107 @@ paths:
       x-ando-target-runtime: convex_http
 components:
   schemas:
-    TaskEntryKind:
-      description: Task entry kind.
+    TaskEntryAuthorKind:
+      description: Task entry author kind. The member value is a v1 compatibility spelling for a human workspace member author.
       enum:
-      - memory
-      - note
-      - worklog
-      - checkpoint
-      - handoff
+      - member
+      - managed_agent
+      - connected_agent
+      - local_agent
+      - system
       type: string
-    RecordTaskUpdateResponse:
+    TaskPhase:
+      description: Task phase.
+      enum:
+      - idea
+      - building
+      - review
+      - done
+      type: string
+    RecordTaskUpdateBody:
       additionalProperties: false
-      description: Recorded task update response.
+      description: Record a task worklog/checkpoint update and optional task/resource changes.
       properties:
-        changed_resources:
-          description: Resources changed by this update.
-          items:
-            $ref: '#/components/schemas/TaskResourceResult'
-          type: array
         entry:
-          $ref: '#/components/schemas/TaskEntryResult'
-        task:
-          $ref: '#/components/schemas/TaskResult'
+          additionalProperties: false
+          description: Task update entry.
+          properties:
+            author_kind:
+              $ref: '#/components/schemas/TaskEntryAuthorKind'
+            author_label:
+              description: Author display label.
+              type: string
+            body_markdown:
+              description: Entry markdown body.
+              type:
+              - string
+              - 'null'
+            kind:
+              $ref: '#/components/schemas/TaskEntryKind'
+            run_id:
+              description: Agent or local run identifier.
+              type:
+              - string
+              - 'null'
+            source_message_id:
+              description: Source message identifier.
+              type:
+              - string
+              - 'null'
+          required:
+          - kind
+          - author_kind
+          - author_label
+          type: object
+        expected_state_version:
+          description: Optimistic task state version expected by the caller.
+          type: integer
+          minimum: 0
+        resource_ops:
+          description: Resource changes.
+          items:
+            $ref: '#/components/schemas/TaskResourceOperation'
+          type: array
+        task_patch:
+          additionalProperties: false
+          description: Task fields to update.
+          properties:
+            phase:
+              $ref: '#/components/schemas/TaskPhase'
+            summary:
+              description: Task summary.
+              type:
+              - string
+              - 'null'
+          type: object
       required:
-      - task
       - entry
-      - changed_resources
+      type: object
+    SearchTasksResponse:
+      additionalProperties: false
+      description: Search tasks response. Results are returned in data.items; top-level items is a compatibility alias.
+      properties:
+        data:
+          additionalProperties: false
+          description: Standard public response data. New clients should read data.items.
+          properties:
+            items:
+              description: Task results.
+              items:
+                $ref: '#/components/schemas/TaskResult'
+              type: array
+          required:
+          - items
+          type: object
+        items:
+          description: Compatibility alias for data.items. New clients should read data.items.
+          items:
+            $ref: '#/components/schemas/TaskResult'
+          type: array
+          deprecated: true
+      required:
+      - data
+      - items
       type: object
     TaskResourceOperation:
       description: Task resource operation.
@@ -296,240 +371,31 @@ components:
         - op
         - resource_id
         type: object
-    TaskEntryResult:
+    PublicApiErrorResponse:
       additionalProperties: false
-      description: Task entry.
+      description: Target public API error envelope.
       properties:
-        author_kind:
-          $ref: '#/components/schemas/TaskEntryAuthorKind'
-        author_label:
-          description: Author display label.
-          type: string
-        authorWorkspaceMembershipId:
-          description: Canonical author workspace membership identifier. Matches legacy author_member_id during the compatibility window.
-          type:
-          - string
-          - 'null'
-        author_member_id:
-          description: 'Author workspace member identifier. Deprecated: read authorWorkspaceMembershipId instead.'
-          type:
-          - string
-          - 'null'
-          deprecated: true
-        body_markdown:
-          description: Entry markdown body.
-          type:
-          - string
-          - 'null'
-        created_at:
-          description: Entry creation timestamp.
-          type: string
-          example: '2026-05-14T08:00:00.000Z'
-          format: date-time
-        id:
-          description: Entry identifier.
-          type: string
-          example: 01jzn7e61x3a7v9h2r7t2m3q4p
-        kind:
-          $ref: '#/components/schemas/TaskEntryKind'
-        run_id:
-          description: Run identifier.
-          type:
-          - string
-          - 'null'
-        source_message_id:
-          description: Source message identifier.
-          type:
-          - string
-          - 'null'
-        task_id:
-          description: Task identifier.
-          type: string
-          example: 01jzn7e61x3a7v9h2r7t2m3q4p
-        updated_at:
-          description: Entry update timestamp.
-          type: string
-          example: '2026-05-14T08:00:00.000Z'
-          format: date-time
-        workspace_id:
-          description: Workspace identifier.
-          type: string
-          example: 01jzn7e61x3a7v9h2r7t2m3q4p
-      required:
-      - id
-      - task_id
-      - workspace_id
-      - kind
-      - author_kind
-      - authorWorkspaceMembershipId
-      - author_member_id
-      - author_label
-      - run_id
-      - source_message_id
-      - body_markdown
-      - created_at
-      - updated_at
-      type: object
-    TaskContextResponse:
-      additionalProperties: false
-      description: Task context response.
-      properties:
-        entries:
-          description: Task entries.
-          items:
-            $ref: '#/components/schemas/TaskEntryResult'
-          type: array
-        resources:
-          description: Task resources.
-          items:
-            $ref: '#/components/schemas/TaskResourceResult'
-          type: array
-        task:
-          $ref: '#/components/schemas/TaskResult'
-      required:
-      - task
-      - entries
-      - resources
-      type: object
-    SearchTasksResponse:
-      additionalProperties: false
-      description: Search tasks response. Results are returned in data.items; top-level items is a compatibility alias.
-      properties:
-        data:
+        error:
           additionalProperties: false
-          description: Standard public response data. New clients should read data.items.
+          description: Error details.
           properties:
-            items:
-              description: Task results.
-              items:
-                $ref: '#/components/schemas/TaskResult'
-              type: array
-          required:
-          - items
-          type: object
-        items:
-          description: Compatibility alias for data.items. New clients should read data.items.
-          items:
-            $ref: '#/components/schemas/TaskResult'
-          type: array
-          deprecated: true
-      required:
-      - data
-      - items
-      type: object
-    TaskResourceResult:
-      additionalProperties: false
-      description: Task resource.
-      properties:
-        archived_at:
-          description: Archive timestamp.
-          type:
-          - string
-          - 'null'
-          format: date-time
-        created_at:
-          description: Resource creation timestamp.
-          type: string
-          example: '2026-05-14T08:00:00.000Z'
-          format: date-time
-        created_by_entry_id:
-          description: Creating entry identifier.
-          type:
-          - string
-          - 'null'
-        id:
-          description: Resource identifier.
-          type: string
-          example: 01jzn7e61x3a7v9h2r7t2m3q4p
-        label:
-          description: Resource label.
-          type: string
-        task_id:
-          description: Task identifier.
-          type: string
-          example: 01jzn7e61x3a7v9h2r7t2m3q4p
-        updated_at:
-          description: Resource update timestamp.
-          type: string
-          example: '2026-05-14T08:00:00.000Z'
-          format: date-time
-        url:
-          description: Resource URL.
-          type: string
-          format: uri
-        workspace_id:
-          description: Workspace identifier.
-          type: string
-          example: 01jzn7e61x3a7v9h2r7t2m3q4p
-      required:
-      - id
-      - task_id
-      - workspace_id
-      - label
-      - url
-      - created_by_entry_id
-      - archived_at
-      - created_at
-      - updated_at
-      type: object
-    RecordTaskUpdateBody:
-      additionalProperties: false
-      description: Record a task worklog/checkpoint update and optional task/resource changes.
-      properties:
-        entry:
-          additionalProperties: false
-          description: Task update entry.
-          properties:
-            author_kind:
-              $ref: '#/components/schemas/TaskEntryAuthorKind'
-            author_label:
-              description: Author display label.
+            code:
+              description: Machine-readable error code.
               type: string
-            body_markdown:
-              description: Entry markdown body.
-              type:
-              - string
-              - 'null'
-            kind:
-              $ref: '#/components/schemas/TaskEntryKind'
-            run_id:
-              description: Agent or local run identifier.
-              type:
-              - string
-              - 'null'
-            source_message_id:
-              description: Source message identifier.
+            message:
+              description: Human-readable error message.
+              type: string
+            request_id:
+              description: Request identifier.
               type:
               - string
               - 'null'
           required:
-          - kind
-          - author_kind
-          - author_label
-          type: object
-        expected_state_version:
-          description: Optimistic task state version expected by the caller.
-          type: integer
-          minimum: 0
-        resource_ops:
-          description: Resource changes.
-          items:
-            $ref: '#/components/schemas/TaskResourceOperation'
-          type: array
-        task_patch:
-          additionalProperties: false
-          description: Task fields to update.
-          properties:
-            phase:
-              $ref: '#/components/schemas/TaskPhase'
-            summary:
-              description: Task summary.
-              type:
-              - string
-              - 'null'
+          - code
+          - message
           type: object
       required:
-      - entry
+      - error
       type: object
     LegacyErrorResponse:
       additionalProperties: false
@@ -552,15 +418,6 @@ components:
       required:
       - error
       type: object
-    TaskEntryAuthorKind:
-      description: Task entry author kind. The member value is a v1 compatibility spelling for a human workspace member author.
-      enum:
-      - member
-      - managed_agent
-      - connected_agent
-      - local_agent
-      - system
-      type: string
     TaskResult:
       additionalProperties: false
       description: Task result.
@@ -636,83 +493,226 @@ components:
       - created_at
       - updated_at
       type: object
-    PublicApiErrorResponse:
+    TaskEntryResult:
       additionalProperties: false
-      description: Target public API error envelope.
+      description: Task entry.
       properties:
-        error:
-          additionalProperties: false
-          description: Error details.
-          properties:
-            code:
-              description: Machine-readable error code.
-              type: string
-            message:
-              description: Human-readable error message.
-              type: string
-            request_id:
-              description: Request identifier.
-              type:
-              - string
-              - 'null'
-          required:
-          - code
-          - message
-          type: object
+        author_kind:
+          $ref: '#/components/schemas/TaskEntryAuthorKind'
+        author_label:
+          description: Author display label.
+          type: string
+        authorWorkspaceMembershipId:
+          description: Canonical author workspace membership identifier. Matches legacy author_member_id during the compatibility window.
+          type:
+          - string
+          - 'null'
+        author_member_id:
+          description: 'Author workspace member identifier. Deprecated: read authorWorkspaceMembershipId instead.'
+          type:
+          - string
+          - 'null'
+          deprecated: true
+        body_markdown:
+          description: Entry markdown body.
+          type:
+          - string
+          - 'null'
+        created_at:
+          description: Entry creation timestamp.
+          type: string
+          example: '2026-05-14T08:00:00.000Z'
+          format: date-time
+        id:
+          description: Entry identifier.
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+        kind:
+          $ref: '#/components/schemas/TaskEntryKind'
+        run_id:
+          description: Run identifier.
+          type:
+          - string
+          - 'null'
+        source_message_id:
+          description: Source message identifier.
+          type:
+          - string
+          - 'null'
+        task_id:
+          description: Task identifier.
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+        updated_at:
+          description: Entry update timestamp.
+          type: string
+          example: '2026-05-14T08:00:00.000Z'
+          format: date-time
+        workspace_id:
+          description: Workspace identifier.
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
       required:
-      - error
+      - id
+      - task_id
+      - workspace_id
+      - kind
+      - author_kind
+      - authorWorkspaceMembershipId
+      - author_member_id
+      - author_label
+      - run_id
+      - source_message_id
+      - body_markdown
+      - created_at
+      - updated_at
       type: object
-    TaskPhase:
-      description: Task phase.
+    TaskResourceResult:
+      additionalProperties: false
+      description: Task resource.
+      properties:
+        archived_at:
+          description: Archive timestamp.
+          type:
+          - string
+          - 'null'
+          format: date-time
+        created_at:
+          description: Resource creation timestamp.
+          type: string
+          example: '2026-05-14T08:00:00.000Z'
+          format: date-time
+        created_by_entry_id:
+          description: Creating entry identifier.
+          type:
+          - string
+          - 'null'
+        id:
+          description: Resource identifier.
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+        label:
+          description: Resource label.
+          type: string
+        task_id:
+          description: Task identifier.
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+        updated_at:
+          description: Resource update timestamp.
+          type: string
+          example: '2026-05-14T08:00:00.000Z'
+          format: date-time
+        url:
+          description: Resource URL.
+          type: string
+          format: uri
+        workspace_id:
+          description: Workspace identifier.
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+      required:
+      - id
+      - task_id
+      - workspace_id
+      - label
+      - url
+      - created_by_entry_id
+      - archived_at
+      - created_at
+      - updated_at
+      type: object
+    TaskContextResponse:
+      additionalProperties: false
+      description: Task context response.
+      properties:
+        entries:
+          description: Task entries.
+          items:
+            $ref: '#/components/schemas/TaskEntryResult'
+          type: array
+        resources:
+          description: Task resources.
+          items:
+            $ref: '#/components/schemas/TaskResourceResult'
+          type: array
+        task:
+          $ref: '#/components/schemas/TaskResult'
+      required:
+      - task
+      - entries
+      - resources
+      type: object
+    RecordTaskUpdateResponse:
+      additionalProperties: false
+      description: Recorded task update response.
+      properties:
+        changed_resources:
+          description: Resources changed by this update.
+          items:
+            $ref: '#/components/schemas/TaskResourceResult'
+          type: array
+        entry:
+          $ref: '#/components/schemas/TaskEntryResult'
+        task:
+          $ref: '#/components/schemas/TaskResult'
+      required:
+      - task
+      - entry
+      - changed_resources
+      type: object
+    TaskEntryKind:
+      description: Task entry kind.
       enum:
-      - idea
-      - building
-      - review
-      - done
+      - memory
+      - note
+      - worklog
+      - checkpoint
+      - handoff
       type: string
   responses:
-    Unauthorized:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/LegacyErrorResponse'
-      description: Missing or invalid API key.
-    NotFound:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/LegacyErrorResponse'
-      description: Not found.
-    Conflict:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/LegacyErrorResponse'
-      description: Conflict.
-    Forbidden:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/LegacyErrorResponse'
-      description: Forbidden.
     RateLimited:
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/PublicApiErrorResponse'
       description: Rate limit or quota exceeded.
-    BadRequest:
+    NotFound:
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/LegacyErrorResponse'
-      description: Bad request.
+      description: Not found.
+    Unauthorized:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Missing or invalid API key.
+    Forbidden:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Forbidden.
     InternalError:
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/LegacyErrorResponse'
       description: Internal server error.
+    Conflict:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Conflict.
+    BadRequest:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Bad request.
   securitySchemes:
     AndoApiKey:
       description: Workspace API key. Current accepted keys use the ando_sk_ prefix.
