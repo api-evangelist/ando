@@ -104,30 +104,188 @@ paths:
       x-ando-selected-runtime: express
       x-ando-target-runtime: express
 components:
+  responses:
+    NotFound:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Not found.
+    RateLimited:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/PublicApiErrorResponse'
+      description: Rate limit or quota exceeded.
+    Forbidden:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Forbidden.
+    Unauthorized:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Missing or invalid API key.
+    InternalError:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Internal server error.
+    BadRequest:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Bad request.
+    Conflict:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Conflict.
   schemas:
-    RealtimeConnectionSubscription:
+    RealtimeResumeRequest:
       additionalProperties: false
-      description: Canonical realtime subscription authorized by the API.
+      description: Bounded realtime resume request.
+      properties:
+        cursor:
+          description: Last acknowledged realtime cursor.
+          type: string
+      required:
+      - cursor
+      type: object
+    RealtimeDelivery:
+      description: Realtime delivery filter. Use "messages" for readable message.created delivery; use "mentions" for explicit mention-only delivery capped at 100 explicit targets per message.
+      enum:
+      - messages
+      - mentions
+      type: string
+    PublicApiErrorResponse:
+      additionalProperties: false
+      description: Target public API error envelope.
+      properties:
+        error:
+          additionalProperties: false
+          description: Error details.
+          properties:
+            code:
+              description: Machine-readable error code.
+              type: string
+            message:
+              description: Human-readable error message.
+              type: string
+            request_id:
+              description: Request identifier.
+              type:
+              - string
+              - 'null'
+          required:
+          - code
+          - message
+          type: object
+      required:
+      - error
+      type: object
+    RealtimeTarget:
+      description: Realtime target requested while opening a connection. The initial release supports self or an explicit workspace membership target.
+      oneOf:
+      - description: Authenticated principal shorthand.
+        enum:
+        - self
+        type: string
+      - additionalProperties: false
+        description: Workspace membership realtime target.
+        properties:
+          id:
+            description: Workspace membership identifier.
+            type: string
+            example: 01jzn7e61x3a7v9h2r7t2m3q4p
+          type:
+            description: Target type.
+            enum:
+            - workspace_membership
+            type: string
+        required:
+        - type
+        - id
+        type: object
+    RealtimeConnectionSubscriptionRequest:
+      additionalProperties: false
+      description: Realtime subscription requested while opening a connection.
       properties:
         delivery:
           $ref: '#/components/schemas/RealtimeDelivery'
         events:
-          description: ProductEvent types delivered on this subscription.
+          description: ProductEvent types requested for this subscription.
           items:
             $ref: '#/components/schemas/RealtimeEventType'
           type: array
           minItems: 1
-        id:
-          description: Realtime subscription identifier.
-          type: string
-          example: 01jzn7e61x3a7v9h2r7t2m3q4p
         target:
-          $ref: '#/components/schemas/RealtimeObjectTarget'
+          $ref: '#/components/schemas/RealtimeTarget'
       required:
-      - id
       - target
       - delivery
       - events
+      type: object
+    RealtimeObjectTarget:
+      additionalProperties: false
+      description: Canonical realtime target resolved by the API. The initial release returns workspace membership targets only.
+      properties:
+        id:
+          description: Target identifier.
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+        type:
+          description: Target type.
+          enum:
+          - workspace_membership
+          type: string
+      required:
+      - type
+      - id
+      type: object
+    LegacyErrorResponse:
+      additionalProperties: false
+      description: Current compatibility error envelope used by legacy /api/v1 routes.
+      properties:
+        error:
+          description: Error message.
+          type: string
+        error_code:
+          description: Optional machine-readable error code.
+          type:
+          - string
+          - 'null'
+        missing_scopes:
+          description: Missing scopes.
+          items:
+            description: Scope.
+            type: string
+          type: array
+      required:
+      - error
+      type: object
+    RealtimeConnectionWarning:
+      additionalProperties: false
+      description: Non-fatal realtime connection-opening warning.
+      properties:
+        code:
+          description: Realtime connection warning code.
+          enum:
+          - resume_failed
+          - resume_unavailable
+          type: string
+        message:
+          description: Human-readable warning message.
+          type: string
+      required:
+      - code
+      - message
       type: object
     OpenRealtimeConnectionResponse:
       additionalProperties: false
@@ -187,81 +345,29 @@ components:
       - resume_supported
       - subscriptions
       type: object
-    RealtimeResumeRequest:
+    RealtimeConnectionSubscription:
       additionalProperties: false
-      description: Bounded realtime resume request.
-      properties:
-        cursor:
-          description: Last acknowledged realtime cursor.
-          type: string
-      required:
-      - cursor
-      type: object
-    RealtimeConnectionSubscriptionRequest:
-      additionalProperties: false
-      description: Realtime subscription requested while opening a connection.
+      description: Canonical realtime subscription authorized by the API.
       properties:
         delivery:
           $ref: '#/components/schemas/RealtimeDelivery'
         events:
-          description: ProductEvent types requested for this subscription.
+          description: ProductEvent types delivered on this subscription.
           items:
             $ref: '#/components/schemas/RealtimeEventType'
           type: array
           minItems: 1
+        id:
+          description: Realtime subscription identifier.
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
         target:
-          $ref: '#/components/schemas/RealtimeTarget'
+          $ref: '#/components/schemas/RealtimeObjectTarget'
       required:
+      - id
       - target
       - delivery
       - events
-      type: object
-    PublicApiErrorResponse:
-      additionalProperties: false
-      description: Target public API error envelope.
-      properties:
-        error:
-          additionalProperties: false
-          description: Error details.
-          properties:
-            code:
-              description: Machine-readable error code.
-              type: string
-            message:
-              description: Human-readable error message.
-              type: string
-            request_id:
-              description: Request identifier.
-              type:
-              - string
-              - 'null'
-          required:
-          - code
-          - message
-          type: object
-      required:
-      - error
-      type: object
-    LegacyErrorResponse:
-      additionalProperties: false
-      description: Current compatibility error envelope used by legacy /api/v1 routes.
-      properties:
-        error:
-          description: Error message.
-          type: string
-        error_code:
-          description: Optional machine-readable error code.
-          type:
-          - string
-          - 'null'
-        missing_scopes:
-          description: Missing scopes.
-          items:
-            description: Scope.
-            type: string
-          type: array
-      required:
-      - error
       type: object
     OpenRealtimeConnectionRequest:
       additionalProperties: false
@@ -278,117 +384,11 @@ components:
       required:
       - subscriptions
       type: object
-    RealtimeDelivery:
-      description: Realtime delivery filter. Use "messages" for readable message.created delivery; use "mentions" for explicit mention-only delivery capped at 100 explicit targets per message.
-      enum:
-      - messages
-      - mentions
-      type: string
-    RealtimeObjectTarget:
-      additionalProperties: false
-      description: Canonical realtime target resolved by the API. The initial release returns workspace membership targets only.
-      properties:
-        id:
-          description: Target identifier.
-          type: string
-          example: 01jzn7e61x3a7v9h2r7t2m3q4p
-        type:
-          description: Target type.
-          enum:
-          - workspace_membership
-          type: string
-      required:
-      - type
-      - id
-      type: object
-    RealtimeConnectionWarning:
-      additionalProperties: false
-      description: Non-fatal realtime connection-opening warning.
-      properties:
-        code:
-          description: Realtime connection warning code.
-          enum:
-          - resume_failed
-          - resume_unavailable
-          type: string
-        message:
-          description: Human-readable warning message.
-          type: string
-      required:
-      - code
-      - message
-      type: object
     RealtimeEventType:
       description: ProductEvent type available on public realtime sockets.
       enum:
       - message.created
       type: string
-    RealtimeTarget:
-      description: Realtime target requested while opening a connection. The initial release supports self or an explicit workspace membership target.
-      oneOf:
-      - description: Authenticated principal shorthand.
-        enum:
-        - self
-        type: string
-      - additionalProperties: false
-        description: Workspace membership realtime target.
-        properties:
-          id:
-            description: Workspace membership identifier.
-            type: string
-            example: 01jzn7e61x3a7v9h2r7t2m3q4p
-          type:
-            description: Target type.
-            enum:
-            - workspace_membership
-            type: string
-        required:
-        - type
-        - id
-        type: object
-  responses:
-    RateLimited:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/PublicApiErrorResponse'
-      description: Rate limit or quota exceeded.
-    NotFound:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/LegacyErrorResponse'
-      description: Not found.
-    Unauthorized:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/LegacyErrorResponse'
-      description: Missing or invalid API key.
-    Forbidden:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/LegacyErrorResponse'
-      description: Forbidden.
-    InternalError:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/LegacyErrorResponse'
-      description: Internal server error.
-    Conflict:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/LegacyErrorResponse'
-      description: Conflict.
-    BadRequest:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/LegacyErrorResponse'
-      description: Bad request.
   securitySchemes:
     AndoApiKey:
       description: Workspace API key. Current accepted keys use the ando_sk_ prefix.

@@ -91,6 +91,62 @@ components:
       required:
       - error
       type: object
+    LegacyErrorResponse:
+      additionalProperties: false
+      description: Current compatibility error envelope used by legacy /api/v1 routes.
+      properties:
+        error:
+          description: Error message.
+          type: string
+        error_code:
+          description: Optional machine-readable error code.
+          type:
+          - string
+          - 'null'
+        missing_scopes:
+          description: Missing scopes.
+          items:
+            description: Scope.
+            type: string
+          type: array
+      required:
+      - error
+      type: object
+    ClipboardResponse:
+      additionalProperties: false
+      description: Clipboard detail response.
+      properties:
+        created_at:
+          description: Clipboard creation timestamp.
+          type: string
+          example: '2026-05-14T08:00:00.000Z'
+          format: date-time
+        description:
+          description: Clipboard description.
+          type:
+          - string
+          - 'null'
+        id:
+          description: Clipboard identifier.
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+        items:
+          description: Clipboard items.
+          items:
+            $ref: '#/components/schemas/ClipboardItem'
+          type: array
+        title:
+          description: Clipboard title.
+          type:
+          - string
+          - 'null'
+      required:
+      - id
+      - title
+      - description
+      - created_at
+      - items
+      type: object
     ClipboardItem:
       additionalProperties: false
       description: An item inside a clipboard.
@@ -152,105 +208,49 @@ components:
       - type
       - id
       type: object
-    LegacyErrorResponse:
-      additionalProperties: false
-      description: Current compatibility error envelope used by legacy /api/v1 routes.
-      properties:
-        error:
-          description: Error message.
-          type: string
-        error_code:
-          description: Optional machine-readable error code.
-          type:
-          - string
-          - 'null'
-        missing_scopes:
-          description: Missing scopes.
-          items:
-            description: Scope.
-            type: string
-          type: array
-      required:
-      - error
-      type: object
-    ClipboardResponse:
-      additionalProperties: false
-      description: Clipboard detail response.
-      properties:
-        created_at:
-          description: Clipboard creation timestamp.
-          type: string
-          example: '2026-05-14T08:00:00.000Z'
-          format: date-time
-        description:
-          description: Clipboard description.
-          type:
-          - string
-          - 'null'
-        id:
-          description: Clipboard identifier.
-          type: string
-          example: 01jzn7e61x3a7v9h2r7t2m3q4p
-        items:
-          description: Clipboard items.
-          items:
-            $ref: '#/components/schemas/ClipboardItem'
-          type: array
-        title:
-          description: Clipboard title.
-          type:
-          - string
-          - 'null'
-      required:
-      - id
-      - title
-      - description
-      - created_at
-      - items
-      type: object
   responses:
-    Forbidden:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/LegacyErrorResponse'
-      description: Forbidden.
-    InternalError:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/LegacyErrorResponse'
-      description: Internal server error.
-    NotFound:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/LegacyErrorResponse'
-      description: Not found.
-    RateLimited:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/PublicApiErrorResponse'
-      description: Rate limit or quota exceeded.
-    Unauthorized:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/LegacyErrorResponse'
-      description: Missing or invalid API key.
     Conflict:
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/LegacyErrorResponse'
       description: Conflict.
+    NotFound:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Not found.
+    InternalError:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Internal server error.
+    Forbidden:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Forbidden.
+    Unauthorized:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Missing or invalid API key.
     BadRequest:
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/LegacyErrorResponse'
       description: Bad request.
+    RateLimited:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/PublicApiErrorResponse'
+      description: Rate limit or quota exceeded.
   securitySchemes:
     AndoApiKey:
       description: Workspace API key. Current accepted keys use the ando_sk_ prefix.
