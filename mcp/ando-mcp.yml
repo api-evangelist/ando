@@ -162,3 +162,22 @@ deployment:
   probe: gated
   checked: '2026-08-12'
   source: catalog MCP census
+rfc9728:
+  endpoint: https://mcp.ando.so/mcp
+  metadata_url: https://mcp.ando.so/.well-known/oauth-protected-resource/mcp
+  discovered_via: WWW-Authenticate resource_metadata on an anonymous POST initialize
+  fetched: '2026-09-25'
+  http_status: 200
+  content_type: application/json
+  document:
+    resource: https://mcp.ando.so/mcp
+    authorization_servers:
+    - https://auth.ando.so
+    scopes_supported:
+    - openid
+    - profile
+    - email
+    - offline_access
+    bearer_methods_supported:
+    - header
+    resource_name: Ando MCP
