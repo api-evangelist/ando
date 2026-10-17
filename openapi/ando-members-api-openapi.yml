@@ -155,18 +155,6 @@ components:
       - error
       type: object
   responses:
-    Conflict:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/LegacyErrorResponse'
-      description: Conflict.
-    NotFound:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/LegacyErrorResponse'
-      description: Not found.
     InternalError:
       content:
         application/json:
@@ -179,6 +167,18 @@ components:
           schema:
             $ref: '#/components/schemas/LegacyErrorResponse'
       description: Forbidden.
+    NotFound:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Not found.
+    Conflict:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Conflict.
     Unauthorized:
       content:
         application/json:

@@ -131,6 +131,38 @@ paths:
       x-ando-target-runtime: convex_http
 components:
   schemas:
+    CallTranscriptResponse:
+      additionalProperties: false
+      description: Current call transcript compatibility response.
+      properties:
+        call_id:
+          description: Call identifier.
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+        conversation_name:
+          description: Conversation name.
+          type:
+          - string
+          - 'null'
+        duration_seconds:
+          description: Call duration in seconds.
+          type:
+          - number
+          - 'null'
+        pageInfo:
+          $ref: '#/components/schemas/LegacyPageInfo'
+        segments:
+          description: Transcript segments.
+          items:
+            $ref: '#/components/schemas/CallTranscriptSegment'
+          type: array
+      required:
+      - call_id
+      - conversation_name
+      - duration_seconds
+      - segments
+      - pageInfo
+      type: object
     PublicApiErrorResponse:
       additionalProperties: false
       description: Target public API error envelope.
@@ -154,27 +186,6 @@ components:
           - code
           - message
           type: object
-      required:
-      - error
-      type: object
-    LegacyErrorResponse:
-      additionalProperties: false
-      description: Current compatibility error envelope used by legacy /api/v1 routes.
-      properties:
-        error:
-          description: Error message.
-          type: string
-        error_code:
-          description: Optional machine-readable error code.
-          type:
-          - string
-          - 'null'
-        missing_scopes:
-          description: Missing scopes.
-          items:
-            description: Scope.
-            type: string
-          type: array
       required:
       - error
       type: object
@@ -242,6 +253,66 @@ components:
       - started_at
       - ended_at
       type: object
+    LegacyErrorResponse:
+      additionalProperties: false
+      description: Current compatibility error envelope used by legacy /api/v1 routes.
+      properties:
+        error:
+          description: Error message.
+          type: string
+        error_code:
+          description: Optional machine-readable error code.
+          type:
+          - string
+          - 'null'
+        missing_scopes:
+          description: Missing scopes.
+          items:
+            description: Scope.
+            type: string
+          type: array
+      required:
+      - error
+      type: object
+    CallParticipant:
+      additionalProperties: false
+      description: A participant in a call.
+      properties:
+        id:
+          description: Participant workspace member identifier.
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+        name:
+          description: Display name.
+          type:
+          - string
+          - 'null'
+      required:
+      - id
+      - name
+      type: object
+    CallTranscriptChapter:
+      additionalProperties: false
+      description: A summary chapter for a call transcript.
+      properties:
+        content:
+          description: Chapter content.
+          type: string
+        end_ms:
+          description: Chapter end offset in milliseconds.
+          type: integer
+        start_ms:
+          description: Chapter start offset in milliseconds.
+          type: integer
+        title:
+          description: Chapter title.
+          type: string
+      required:
+      - title
+      - content
+      - start_ms
+      - end_ms
+      type: object
     CallTranscriptSegment:
       additionalProperties: false
       description: A transcript segment.
@@ -290,90 +361,7 @@ components:
       - hasNextPage
       - hasPreviousPage
       type: object
-    CallTranscriptChapter:
-      additionalProperties: false
-      description: A summary chapter for a call transcript.
-      properties:
-        content:
-          description: Chapter content.
-          type: string
-        end_ms:
-          description: Chapter end offset in milliseconds.
-          type: integer
-        start_ms:
-          description: Chapter start offset in milliseconds.
-          type: integer
-        title:
-          description: Chapter title.
-          type: string
-      required:
-      - title
-      - content
-      - start_ms
-      - end_ms
-      type: object
-    CallTranscriptResponse:
-      additionalProperties: false
-      description: Current call transcript compatibility response.
-      properties:
-        call_id:
-          description: Call identifier.
-          type: string
-          example: 01jzn7e61x3a7v9h2r7t2m3q4p
-        conversation_name:
-          description: Conversation name.
-          type:
-          - string
-          - 'null'
-        duration_seconds:
-          description: Call duration in seconds.
-          type:
-          - number
-          - 'null'
-        pageInfo:
-          $ref: '#/components/schemas/LegacyPageInfo'
-        segments:
-          description: Transcript segments.
-          items:
-            $ref: '#/components/schemas/CallTranscriptSegment'
-          type: array
-      required:
-      - call_id
-      - conversation_name
-      - duration_seconds
-      - segments
-      - pageInfo
-      type: object
-    CallParticipant:
-      additionalProperties: false
-      description: A participant in a call.
-      properties:
-        id:
-          description: Participant workspace member identifier.
-          type: string
-          example: 01jzn7e61x3a7v9h2r7t2m3q4p
-        name:
-          description: Display name.
-          type:
-          - string
-          - 'null'
-      required:
-      - id
-      - name
-      type: object
   responses:
-    Conflict:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/LegacyErrorResponse'
-      description: Conflict.
-    NotFound:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/LegacyErrorResponse'
-      description: Not found.
     InternalError:
       content:
         application/json:
@@ -386,6 +374,18 @@ components:
           schema:
             $ref: '#/components/schemas/LegacyErrorResponse'
       description: Forbidden.
+    NotFound:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Not found.
+    Conflict:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Conflict.
     Unauthorized:
       content:
         application/json:
