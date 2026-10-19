@@ -1,0 +1,521 @@
+openapi: 3.2.0
+info:
+  description: Generated from Ando's accepted public API v1 contract metadata. Current routes preserve legacy /api/v1 response envelopes while converging on the public https://api.ando.so/v1 shape.
+  title: Ando Public Webhook sources API
+  version: v1
+servers:
+- description: Canonical public API host.
+  url: https://api.ando.so/v1
+tags:
+- name: Webhook sources
+paths:
+  /webhook-sources:
+    get:
+      description: Lists the workspace's active inbound webhook sources (external services delivering events into Ando).
+      operationId: listWebhookSources
+      parameters:
+      - description: Page size, 1-100. Defaults to 50.
+        in: query
+        name: limit
+        schema:
+          description: Page size, 1-100. Defaults to 50.
+          type: string
+      - description: Pagination cursor from the previous page's page_info.
+        in: query
+        name: cursor
+        schema:
+          description: Pagination cursor from the previous page's page_info.
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                sources:
+                  summary: Active inbound sources.
+                  value:
+                    data:
+                      items:
+                      - display_name: Sentry
+                        ingress_url: https://api.ando.so/webhooks/inbound/44444444-4444-4444-8444-444444444444
+                        provider: sentry
+                        source_id: 55555555-5555-4555-8555-555555555555
+                        status: active
+                      page_info:
+                        has_next_page: false
+                        next_cursor: null
+              schema:
+                $ref: '#/components/schemas/ListWebhookSourcesResponse'
+          description: Active inbound webhook sources.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      security:
+      - AndoApiKey: []
+      - BearerApiKey: []
+      summary: List webhook sources
+      tags:
+      - Webhook sources
+      x-ando-compatibility-mode: standard_public
+      x-ando-migration-target: standard_public
+      x-ando-rate-limit-policy: declared
+      x-ando-route-id: api.api_v1_webhook_sources.get
+      x-ando-canonical-host: api.ando.so
+      x-ando-documentation-owner: api_platform
+      x-ando-principal-kind: workspace_api_key
+      x-ando-public-api-route-class: public_data
+      x-ando-public-path: /v1/webhook-sources
+      x-ando-runtime-owner: convex_product
+      x-ando-status-probe-owner: none
+      x-ando-rollback-runtime: convex_http
+      x-ando-selected-runtime: convex_http
+      x-ando-target-runtime: convex_http
+    post:
+      description: Creates an inbound webhook source for a supported provider preset. Requires an API key bound to a live workspace admin or owner with webhooks:write. The ingress URL and signing secret response can be replayed with the same Idempotency-Key for 24 hours; after that the secret is not retrievable. Configure the URL and secret in the external service, then attach a route to deliver its events into a conversation.
+      operationId: createWebhookSource
+      parameters:
+      - description: Required key for safe retries. Reusing it with different parameters returns 409 idempotency_conflict. The original result can be replayed for 24 hours while the created source or route remains unchanged.
+        in: header
+        name: Idempotency-Key
+        required: true
+        schema:
+          description: Idempotency key.
+          type: string
+          maxLength: 255
+      requestBody:
+        content:
+          application/json:
+            examples:
+              sentry:
+                summary: Create a Sentry source.
+                value:
+                  provider: sentry
+            schema:
+              $ref: '#/components/schemas/CreateWebhookSourceBody'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                source:
+                  summary: Created source with its one-time signing secret.
+                  value:
+                    data:
+                      display_name: Sentry
+                      ingress_url: https://api.ando.so/webhooks/inbound/44444444-4444-4444-8444-444444444444
+                      provider: sentry
+                      signing_secret: whsec_example_secret_shown_once
+                      source_id: 55555555-5555-4555-8555-555555555555
+                      status: active
+              schema:
+                $ref: '#/components/schemas/CreateWebhookSourceResponse'
+          description: Created inbound webhook source.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      security:
+      - AndoApiKey: []
+      - BearerApiKey: []
+      summary: Create a webhook source
+      tags:
+      - Webhook sources
+      x-ando-compatibility-mode: standard_public
+      x-ando-migration-target: standard_public
+      x-ando-rate-limit-policy: declared
+      x-ando-route-id: api.api_v1_webhook_sources.post
+      x-ando-canonical-host: api.ando.so
+      x-ando-documentation-owner: api_platform
+      x-ando-principal-kind: workspace_api_key
+      x-ando-public-api-route-class: durable_ingress
+      x-ando-public-path: /v1/webhook-sources
+      x-ando-runtime-owner: convex_product
+      x-ando-status-probe-owner: none
+      x-ando-rollback-runtime: convex_http
+      x-ando-selected-runtime: convex_http
+      x-ando-target-runtime: convex_http
+  /webhook-sources/{sourceId}/routes:
+    post:
+      description: Routes a source's events into a conversation the authenticated member belongs to. Requires an API key bound to a live workspace admin or owner with webhooks:write. Omit events to route everything; pass provider preset event ids to filter. The result can be replayed with the same Idempotency-Key for 24 hours while the route remains unchanged.
+      operationId: createWebhookSourceRoute
+      parameters:
+      - description: Webhook source identifier.
+        in: path
+        name: sourceId
+        required: true
+        schema:
+          description: Webhook source identifier.
+          type: string
+      - description: Required key for safe retries. Reusing it with different parameters returns 409 idempotency_conflict. The original result can be replayed for 24 hours while the created source or route remains unchanged.
+        in: header
+        name: Idempotency-Key
+        required: true
+        schema:
+          description: Idempotency key.
+          type: string
+          maxLength: 255
+      requestBody:
+        content:
+          application/json:
+            examples:
+              route:
+                summary: Route Sentry issue events into a channel.
+                value:
+                  conversation_id: 66666666-6666-4666-8666-666666666666
+                  events:
+                  - issue_created
+                  - issue_resolved
+            schema:
+              $ref: '#/components/schemas/CreateWebhookSourceRouteBody'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                route:
+                  summary: Created route.
+                  value:
+                    data:
+                      conversation_id: 66666666-6666-4666-8666-666666666666
+                      route_id: 77777777-7777-4777-8777-777777777777
+              schema:
+                $ref: '#/components/schemas/CreateWebhookSourceRouteResponse'
+          description: Created event route.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      security:
+      - AndoApiKey: []
+      - BearerApiKey: []
+      summary: Route source events to a conversation
+      tags:
+      - Webhook sources
+      x-ando-compatibility-mode: standard_public
+      x-ando-migration-target: standard_public
+      x-ando-rate-limit-policy: declared
+      x-ando-route-id: api.api_v1_webhook_sources_by_sourceid_routes.post
+      x-ando-canonical-host: api.ando.so
+      x-ando-documentation-owner: api_platform
+      x-ando-principal-kind: workspace_api_key
+      x-ando-public-api-route-class: durable_ingress
+      x-ando-public-path: /v1/webhook-sources/:sourceId/routes
+      x-ando-runtime-owner: convex_product
+      x-ando-status-probe-owner: none
+      x-ando-rollback-runtime: convex_http
+      x-ando-selected-runtime: convex_http
+      x-ando-target-runtime: convex_http
+components:
+  schemas:
+    CreateWebhookSourceRouteBody:
+      additionalProperties: false
+      description: 'Route creation request: deliver a source''s events into a conversation.'
+      properties:
+        conversation_id:
+          description: Target conversation identifier.
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+        events:
+          description: Provider preset event ids to route. Omit to route every event.
+          items:
+            description: Preset event id.
+            type: string
+          type: array
+      required:
+      - conversation_id
+      type: object
+    LegacyErrorResponse:
+      additionalProperties: false
+      description: Current compatibility error envelope used by legacy /api/v1 routes.
+      properties:
+        error:
+          description: Error message.
+          type: string
+        error_code:
+          description: Optional machine-readable error code.
+          type:
+          - string
+          - 'null'
+        type:
+          description: 'Error class, one per HTTP status family. rate_limit_error, api_error, overloaded_error and timeout_error are worth retrying; the others need a different request. Retry a write only with the same Idempotency-Key: an api_error can mean it committed.'
+          enum:
+          - invalid_request_error
+          - authentication_error
+          - permission_error
+          - not_found_error
+          - conflict_error
+          - request_too_large
+          - rate_limit_error
+          - api_error
+          - overloaded_error
+          - timeout_error
+          type: string
+        request_id:
+          description: The request id, also sent as the x-request-id header. Quote it when reporting a problem.
+          type: string
+        missing_scopes:
+          description: Missing scopes.
+          items:
+            description: Scope.
+            type: string
+          type: array
+      required:
+      - error
+      type: object
+    CreateWebhookSourceRouteResponse:
+      additionalProperties: false
+      description: Created event route.
+      properties:
+        data:
+          additionalProperties: false
+          description: Created route.
+          properties:
+            conversation_id:
+              description: Target conversation identifier.
+              type: string
+              example: 01jzn7e61x3a7v9h2r7t2m3q4p
+            route_id:
+              description: Route identifier.
+              type: string
+              example: 01jzn7e61x3a7v9h2r7t2m3q4p
+          required:
+          - conversation_id
+          - route_id
+          type: object
+      required:
+      - data
+      type: object
+    CreateWebhookSourceResponse:
+      additionalProperties: false
+      description: Created inbound webhook source. The signing secret is returned exactly once.
+      properties:
+        data:
+          additionalProperties: false
+          description: Created source with its signing secret.
+          properties:
+            display_name:
+              description: Source display name.
+              type: string
+            ingress_url:
+              description: URL to configure in the external service's webhook settings.
+              type: string
+            provider:
+              description: Provider preset key.
+              type: string
+            signing_secret:
+              description: Signing secret — shown only in this response.
+              type: string
+            source_id:
+              description: Webhook source identifier.
+              type: string
+              example: 01jzn7e61x3a7v9h2r7t2m3q4p
+            status:
+              description: Source status.
+              type: string
+          required:
+          - display_name
+          - ingress_url
+          - provider
+          - signing_secret
+          - source_id
+          - status
+          type: object
+      required:
+      - data
+      type: object
+    CreateWebhookSourceBody:
+      additionalProperties: false
+      description: Inbound webhook source creation request. `provider` names a supported preset (sentry, linear, github, granola, notion, clickup, stripe, calendly, eas, app_store_connect); the preset supplies signature verification and event normalization.
+      properties:
+        display_name:
+          description: Optional label for the author identity events post as. The source itself keeps the provider's canonical name.
+          type:
+          - string
+          - 'null'
+        provider:
+          description: Inbound provider preset key.
+          type: string
+        signing_secret:
+          description: Signing secret the provider will use. Generated when omitted.
+          type:
+          - string
+          - 'null'
+      required:
+      - provider
+      type: object
+    WebhookSourceResult:
+      additionalProperties: false
+      description: Inbound webhook source projection.
+      properties:
+        display_name:
+          description: Source display name (provider canonical).
+          type: string
+        ingress_url:
+          description: URL to configure in the external service's webhook settings.
+          type: string
+        provider:
+          description: Provider preset key, or "custom".
+          type: string
+        source_id:
+          description: Webhook source identifier.
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+        status:
+          description: Source status.
+          type: string
+      required:
+      - display_name
+      - ingress_url
+      - provider
+      - source_id
+      - status
+      type: object
+    PublicApiErrorResponse:
+      additionalProperties: false
+      description: Target public API error envelope.
+      properties:
+        error:
+          additionalProperties: false
+          description: Error details.
+          properties:
+            code:
+              description: Machine-readable error code.
+              type: string
+            message:
+              description: Human-readable error message.
+              type: string
+            request_id:
+              description: Request identifier.
+              type:
+              - string
+              - 'null'
+          required:
+          - code
+          - message
+          type: object
+      required:
+      - error
+      type: object
+    ListWebhookSourcesResponse:
+      additionalProperties: false
+      description: Active inbound webhook sources for the workspace.
+      properties:
+        data:
+          additionalProperties: false
+          description: Source list.
+          properties:
+            items:
+              description: Sources.
+              items:
+                $ref: '#/components/schemas/WebhookSourceResult'
+              type: array
+            page_info:
+              additionalProperties: false
+              description: Pagination metadata.
+              properties:
+                has_next_page:
+                  description: Whether more sources exist past this page.
+                  type: boolean
+                next_cursor:
+                  description: Cursor for the next page; null on the last page.
+                  type:
+                  - string
+                  - 'null'
+              required:
+              - has_next_page
+              - next_cursor
+              type: object
+          required:
+          - items
+          - page_info
+          type: object
+      required:
+      - data
+      type: object
+  responses:
+    RateLimited:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/PublicApiErrorResponse'
+      description: Rate limit or quota exceeded.
+    InternalError:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Internal server error.
+    Unauthorized:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Missing or invalid API key.
+    Conflict:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Conflict.
+    Forbidden:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Forbidden.
+    NotFound:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Not found.
+    BadRequest:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Bad request.
+  securitySchemes:
+    AndoApiKey:
+      description: Workspace API key. Current accepted keys use the ando_sk_ prefix.
+      in: header
+      name: x-api-key
+      type: apiKey
+    BearerApiKey:
+      bearerFormat: ando_sk
+      description: Compatibility transport for workspace API keys.
+      scheme: bearer
+      type: http

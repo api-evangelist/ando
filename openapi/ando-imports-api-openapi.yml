@@ -1,0 +1,956 @@
+openapi: 3.2.0
+info:
+  description: Generated from Ando's accepted public API v1 contract metadata. Current routes preserve legacy /api/v1 response envelopes while converging on the public https://api.ando.so/v1 shape.
+  title: Ando Public Imports API
+  version: v1
+servers:
+- description: Canonical public API host.
+  url: https://api.ando.so/v1
+tags:
+- description: Move another chat tool's history into a workspace with original authors and timestamps. Requires an owner or admin API key with the imports:write scope.
+  name: Imports
+paths:
+  /slack/migration:
+    post:
+      description: Discover channels after Slack consent, prepare exact mappings, apply an immutable plan, and inspect or retry durable results. Requires a human owner/admin API key with slack_migration:read; begin_connection, plan, apply and retry additionally require slack_migration:write. Independently gated discovery/write rollout. Initial mapping pilot supports internal public channels only.
+      operationId: manageSlackMigration
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SlackMigrationRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SlackMigrationResponse'
+          description: Migration operation result.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      security:
+      - AndoApiKey: []
+      - BearerApiKey: []
+      summary: Manage a Slack migration
+      tags:
+      - Imports
+      x-ando-compatibility-mode: standard_public
+      x-ando-migration-target: standard_public
+      x-ando-rate-limit-policy: declared
+      x-ando-route-id: api.api_v1_slack_migration.post
+      x-ando-canonical-host: api.ando.so
+      x-ando-documentation-owner: api_platform
+      x-ando-principal-kind: workspace_api_key
+      x-ando-public-api-route-class: durable_ingress
+      x-ando-public-path: /v1/slack/migration
+      x-ando-runtime-owner: convex_product
+      x-ando-status-probe-owner: public_api_messaging
+      x-ando-rollback-runtime: convex_http
+      x-ando-selected-runtime: convex_http
+      x-ando-target-runtime: convex_http
+  /imports:
+    post:
+      description: Starts moving another chat tool's history into the workspace, or resumes the existing import for the same source workspace. Requires an API key with the imports:write scope owned by a workspace owner or admin.
+      operationId: createHistoryImport
+      requestBody:
+        content:
+          application/json:
+            examples:
+              buzz:
+                summary: Import a Buzz community.
+                value:
+                  source: buzz
+                  source_workspace_id: buzz.example.com
+                  source_workspace_name: Example
+              generic:
+                summary: Import another tool's history.
+                value:
+                  source: generic
+                  source_workspace_id: chat.example.com/team-42
+                  source_workspace_name: Example
+            schema:
+              $ref: '#/components/schemas/CreateHistoryImportBody'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HistoryImportResponse'
+          description: The open import.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      security:
+      - AndoApiKey: []
+      - BearerApiKey: []
+      summary: Start a history import
+      tags:
+      - Imports
+      x-ando-compatibility-mode: standard_public
+      x-ando-migration-target: standard_public
+      x-ando-rate-limit-policy: declared
+      x-ando-route-id: api.api_v1_imports.post
+      x-ando-canonical-host: api.ando.so
+      x-ando-documentation-owner: api_platform
+      x-ando-principal-kind: workspace_api_key
+      x-ando-public-api-route-class: durable_ingress
+      x-ando-public-path: /v1/imports
+      x-ando-runtime-owner: convex_product
+      x-ando-status-probe-owner: public_api_messaging
+      x-ando-rollback-runtime: convex_http
+      x-ando-selected-runtime: convex_http
+      x-ando-target-runtime: convex_http
+  /imports/{importId}/records:
+    post:
+      description: Writes a batch of members, conversations, messages, and reactions with their original authors and timestamps. Keyed by the source tool's ids, so re-sending a batch is safe. Imported messages create no notifications or unread state.
+      operationId: writeHistoryImportRecords
+      parameters:
+      - description: Import identifier.
+        in: path
+        name: importId
+        required: true
+        schema:
+          description: Import identifier.
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HistoryImportRecordsBody'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HistoryImportRecordsResponse'
+          description: What was written and what was skipped.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      security:
+      - AndoApiKey: []
+      - BearerApiKey: []
+      summary: Write history import records
+      tags:
+      - Imports
+      x-ando-compatibility-mode: standard_public
+      x-ando-migration-target: standard_public
+      x-ando-rate-limit-policy: declared
+      x-ando-route-id: api.api_v1_imports_by_importid_records.post
+      x-ando-canonical-host: api.ando.so
+      x-ando-documentation-owner: api_platform
+      x-ando-principal-kind: workspace_api_key
+      x-ando-public-api-route-class: durable_ingress
+      x-ando-public-path: /v1/imports/:importId/records
+      x-ando-runtime-owner: convex_product
+      x-ando-status-probe-owner: public_api_messaging
+      x-ando-rollback-runtime: convex_http
+      x-ando-selected-runtime: convex_http
+      x-ando-target-runtime: convex_http
+  /imports/{importId}/complete:
+    post:
+      description: Marks the import complete. Starting the same import again reopens it, e.g. to bring over messages sent since.
+      operationId: completeHistoryImport
+      parameters:
+      - description: Import identifier.
+        in: path
+        name: importId
+        required: true
+        schema:
+          description: Import identifier.
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HistoryImportCompleteResponse'
+          description: The completed import and its cumulative counts.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      security:
+      - AndoApiKey: []
+      - BearerApiKey: []
+      summary: Complete a history import
+      tags:
+      - Imports
+      x-ando-compatibility-mode: standard_public
+      x-ando-migration-target: standard_public
+      x-ando-rate-limit-policy: declared
+      x-ando-route-id: api.api_v1_imports_by_importid_complete.post
+      x-ando-canonical-host: api.ando.so
+      x-ando-documentation-owner: api_platform
+      x-ando-principal-kind: workspace_api_key
+      x-ando-public-api-route-class: durable_ingress
+      x-ando-public-path: /v1/imports/:importId/complete
+      x-ando-runtime-owner: convex_product
+      x-ando-status-probe-owner: public_api_messaging
+      x-ando-rollback-runtime: convex_http
+      x-ando-selected-runtime: convex_http
+      x-ando-target-runtime: convex_http
+  /imports/{importId}/files/lookup:
+    post:
+      description: Finds source files this import already uploaded and attached, so a re-run can reuse them instead of uploading again, even with a new API key.
+      operationId: lookupHistoryImportFiles
+      parameters:
+      - description: Import identifier.
+        in: path
+        name: importId
+        required: true
+        schema:
+          description: Import identifier.
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HistoryImportFileLookupBody'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HistoryImportFileLookupResponse'
+          description: Files already uploaded for this import.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      security:
+      - AndoApiKey: []
+      - BearerApiKey: []
+      summary: Look up uploaded history import files
+      tags:
+      - Imports
+      x-ando-compatibility-mode: standard_public
+      x-ando-migration-target: standard_public
+      x-ando-rate-limit-policy: declared
+      x-ando-route-id: api.api_v1_imports_by_importid_files_lookup.post
+      x-ando-canonical-host: api.ando.so
+      x-ando-documentation-owner: api_platform
+      x-ando-principal-kind: workspace_api_key
+      x-ando-public-api-route-class: durable_ingress
+      x-ando-public-path: /v1/imports/:importId/files/lookup
+      x-ando-runtime-owner: convex_product
+      x-ando-status-probe-owner: public_api_messaging
+      x-ando-rollback-runtime: convex_http
+      x-ando-selected-runtime: convex_http
+      x-ando-target-runtime: convex_http
+components:
+  schemas:
+    HistoryImportMessageFile:
+      additionalProperties: false
+      description: A file uploaded with POST /v1/files by the import's operator, attached to an imported message.
+      properties:
+        external_id:
+          description: The file's id in the source tool, used to find it again with files/lookup.
+          type: string
+        file_id:
+          description: The Ando file id returned by POST /v1/files.
+          type: string
+      required:
+      - external_id
+      - file_id
+      type: object
+    HistoryImportRecordsResponse:
+      additionalProperties: false
+      description: History import records response.
+      properties:
+        data:
+          $ref: '#/components/schemas/HistoryImportRecordsResult'
+      required:
+      - data
+      type: object
+    SlackMigrationRequest:
+      additionalProperties: false
+      description: Human-authorized native Slack migration. Read connection and directory before submitting exact selections. Apply requires plan_id, plan_version and idempotency_key. Retry requires operation_id, item_ids and idempotency_key.
+      properties:
+        action:
+          description: Operation to perform.
+          enum:
+          - connection
+          - begin_connection
+          - get_connection_attempt
+          - list_channels
+          - plan
+          - get_plan
+          - apply
+          - get_operation
+          - retry
+          type: string
+        expected_slack_team_id:
+          description: Verified Slack team ID. Required for planning.
+          type: string
+        connection_attempt_id:
+          description: Resumable connection reference.
+          type: string
+        plan_id:
+          description: Immutable plan reference.
+          type: string
+        plan_version:
+          type: integer
+          enum:
+          - 1
+        operation_id:
+          description: Durable operation reference.
+          type: string
+        idempotency_key:
+          type: string
+          minLength: 8
+          maxLength: 128
+        cursor:
+          type: string
+          maxLength: 200
+        limit:
+          type: integer
+          minimum: 1
+          maximum: 100
+        item_ids:
+          type: array
+          minItems: 1
+          maxItems: 50
+          items:
+            type: string
+        selections:
+          type: array
+          minItems: 1
+          maxItems: 50
+          items:
+            additionalProperties: false
+            description: Exact source, destination, and requested effects.
+            properties:
+              slack_channel_id:
+                type: string
+                minLength: 1
+                maxLength: 100
+              target:
+                oneOf:
+                - additionalProperties: false
+                  description: Create a new channel; an existing name is a blocker.
+                  properties:
+                    kind:
+                      type: string
+                      enum:
+                      - create_channel
+                    name:
+                      type: string
+                      minLength: 1
+                      maxLength: 80
+                  required:
+                  - kind
+                  - name
+                  type: object
+                - additionalProperties: false
+                  description: Reuse this exact public channel without retargeting an existing mapping.
+                  properties:
+                    kind:
+                      type: string
+                      enum:
+                      - existing_channel
+                    conversation_id:
+                      type: string
+                      minLength: 1
+                  required:
+                  - kind
+                  - conversation_id
+                  type: object
+              live_sync:
+                type: boolean
+              backfill_history:
+                type: boolean
+            required:
+            - slack_channel_id
+            - target
+            - live_sync
+            - backfill_history
+            type: object
+      required:
+      - action
+      type: object
+    LegacyErrorResponse:
+      additionalProperties: false
+      description: Current compatibility error envelope used by legacy /api/v1 routes.
+      properties:
+        error:
+          description: Error message.
+          type: string
+        error_code:
+          description: Optional machine-readable error code.
+          type:
+          - string
+          - 'null'
+        type:
+          description: 'Error class, one per HTTP status family. rate_limit_error, api_error, overloaded_error and timeout_error are worth retrying; the others need a different request. Retry a write only with the same Idempotency-Key: an api_error can mean it committed.'
+          enum:
+          - invalid_request_error
+          - authentication_error
+          - permission_error
+          - not_found_error
+          - conflict_error
+          - request_too_large
+          - rate_limit_error
+          - api_error
+          - overloaded_error
+          - timeout_error
+          type: string
+        request_id:
+          description: The request id, also sent as the x-request-id header. Quote it when reporting a problem.
+          type: string
+        missing_scopes:
+          description: Missing scopes.
+          items:
+            description: Scope.
+            type: string
+          type: array
+      required:
+      - error
+      type: object
+    HistoryImportResponse:
+      additionalProperties: false
+      description: History import response.
+      properties:
+        data:
+          $ref: '#/components/schemas/HistoryImportResult'
+      required:
+      - data
+      type: object
+    HistoryImportMessageRecord:
+      additionalProperties: false
+      description: A message with its original author and time. Send thread roots before their replies. Imported messages notify no one.
+      properties:
+        author_external_id:
+          description: External id of the author.
+          type: string
+        conversation_external_id:
+          description: External id of the conversation.
+          type: string
+        created_at:
+          description: When the message was sent at the source.
+          type: string
+          example: '2026-05-14T08:00:00.000Z'
+          format: date-time
+        edited_at:
+          description: When the message was last edited at the source.
+          type:
+          - string
+          - 'null'
+          example: '2026-05-14T08:00:00.000Z'
+          format: date-time
+        external_id:
+          description: The message's id in the source tool.
+          type: string
+        markdown:
+          description: Message body as Markdown, at most 40,000 characters.
+          type: string
+        thread_root_external_id:
+          description: External id of the thread's root message. Ando threads are one level deep.
+          type:
+          - string
+          - 'null'
+        files:
+          description: Attachments, at most 10. Upload each with POST /v1/files first. Omit to keep the message's current attachments; send an empty array to remove them. A message may have files and empty markdown.
+          items:
+            $ref: '#/components/schemas/HistoryImportMessageFile'
+          type: array
+      required:
+      - author_external_id
+      - conversation_external_id
+      - created_at
+      - edited_at
+      - external_id
+      - markdown
+      - thread_root_external_id
+      type: object
+    SlackMigrationResponse:
+      additionalProperties: false
+      description: Operation-specific result. Setup completion does not prove historical completeness. Private and Slack Connect sources are discoverable but blocked in this initial pilot.
+      properties:
+        data:
+          type: object
+          additionalProperties: true
+          description: Connection identity/attempt, paginated directory, immutable plan with per-item blockers, operation reference, or per-item mapping/sync/history readback. Directory completeness is explicit.
+      required:
+      - data
+      type: object
+    HistoryImportSkippedRecord:
+      additionalProperties: false
+      description: A record that was not written.
+      properties:
+        external_id:
+          description: External id of the record or reference.
+          type: string
+        reason:
+          description: Why, e.g. unknown_member, unknown_conversation, unknown_author, unknown_message, unsupported_emoji, message_too_long, empty_message, ando_member_not_found.
+          type: string
+      required:
+      - external_id
+      - reason
+      type: object
+    HistoryImportConversationRecord:
+      additionalProperties: false
+      description: 'A channel or direct message. Rosters accumulate: send the same record again with more member ids to add people. Re-sending a record also updates the conversation''s name, description, visibility, and archived state. A direct message always becomes its own imported conversation. An imported channel never takes a live channel''s name; it gets a source suffix instead.'
+      properties:
+        archived:
+          description: Whether the conversation was archived at the source.
+          type: boolean
+        created_at:
+          description: When the conversation was created at the source.
+          type: string
+          example: '2026-05-14T08:00:00.000Z'
+          format: date-time
+        description:
+          description: Channel description.
+          type:
+          - string
+          - 'null'
+        external_id:
+          description: The conversation's id in the source tool.
+          type: string
+        kind:
+          description: Conversation kind.
+          enum:
+          - channel
+          - direct_message
+          type: string
+        member_external_ids:
+          description: External ids of members imported earlier. At most 250 across one request; send a larger roster as repeated records.
+          items:
+            description: Member external id.
+            type: string
+          type: array
+        name:
+          description: Channel name. Required for channels; ignored for direct messages.
+          type:
+          - string
+          - 'null'
+        visibility:
+          description: Channel visibility. Direct messages are always private.
+          enum:
+          - public
+          - private
+          type: string
+      required:
+      - archived
+      - created_at
+      - description
+      - external_id
+      - kind
+      - member_external_ids
+      - name
+      - visibility
+      type: object
+    HistoryImportWrittenCount:
+      additionalProperties: false
+      description: Records written (or already present) in this request.
+      properties:
+        written:
+          description: Record count.
+          type: integer
+          minimum: 0
+      required:
+      - written
+      type: object
+    HistoryImportMemberRecord:
+      additionalProperties: false
+      description: A person from the source tool. Their history is attributed to ando_member_id when given, else to an Ando member with the same email, else to an imported placeholder that keeps their name and avatar.
+      properties:
+        ando_member_id:
+          description: Existing Ando workspace member this person already is.
+          type:
+          - string
+          - 'null'
+        avatar_url:
+          description: https avatar URL.
+          type:
+          - string
+          - 'null'
+        deactivated:
+          description: Whether the source tool had deactivated them.
+          type: boolean
+        display_name:
+          description: Display name in the source tool.
+          type: string
+        email:
+          description: Email address, when the source tool has one.
+          type:
+          - string
+          - 'null'
+        external_id:
+          description: The person's id in the source tool.
+          type: string
+        kind:
+          description: Person or bot.
+          enum:
+          - person
+          - bot
+          type: string
+      required:
+      - ando_member_id
+      - avatar_url
+      - deactivated
+      - display_name
+      - email
+      - external_id
+      - kind
+      type: object
+    HistoryImportCompleteResult:
+      additionalProperties: false
+      description: A completed import and the distinct records it has imported across all requests.
+      properties:
+        counts:
+          additionalProperties: false
+          description: Distinct records imported across all requests; re-sent records are not counted twice.
+          properties:
+            conversations:
+              description: Conversations.
+              type: integer
+              minimum: 0
+            members:
+              description: Members.
+              type: integer
+              minimum: 0
+            messages:
+              description: Messages.
+              type: integer
+              minimum: 0
+            reactions:
+              description: Reactions.
+              type: integer
+              minimum: 0
+          required:
+          - conversations
+          - members
+          - messages
+          - reactions
+          type: object
+        import_id:
+          description: Import identifier.
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+        status:
+          description: Import status.
+          enum:
+          - open
+          - completed
+          type: string
+      required:
+      - counts
+      - import_id
+      - status
+      type: object
+    HistoryImportRecordsResult:
+      additionalProperties: false
+      description: Outcome of one records request.
+      properties:
+        conversations:
+          $ref: '#/components/schemas/HistoryImportWrittenCount'
+        members:
+          $ref: '#/components/schemas/HistoryImportWrittenCount'
+        messages:
+          $ref: '#/components/schemas/HistoryImportWrittenCount'
+        reactions:
+          $ref: '#/components/schemas/HistoryImportWrittenCount'
+        skipped:
+          description: Records that were not written.
+          items:
+            $ref: '#/components/schemas/HistoryImportSkippedRecord'
+          type: array
+      required:
+      - conversations
+      - members
+      - messages
+      - reactions
+      - skipped
+      type: object
+    HistoryImportFileLookupResponse:
+      additionalProperties: false
+      description: The source files this import already uploaded that can still be attached. Ids not listed need uploading.
+      properties:
+        data:
+          additionalProperties: false
+          description: Lookup result.
+          properties:
+            files:
+              description: Uploaded files.
+              items:
+                $ref: '#/components/schemas/HistoryImportMessageFile'
+              type: array
+          required:
+          - files
+          type: object
+      required:
+      - data
+      type: object
+    HistoryImportRecordsBody:
+      additionalProperties: false
+      description: 'Any subset of records, keyed by the source tool''s ids so every request is idempotent. Per request: at most 100 members, 10 conversations, 100 messages, and 200 reactions. Records that reference something not yet imported are reported in skipped.'
+      properties:
+        conversations:
+          description: Conversations.
+          items:
+            $ref: '#/components/schemas/HistoryImportConversationRecord'
+          type: array
+        members:
+          description: People.
+          items:
+            $ref: '#/components/schemas/HistoryImportMemberRecord'
+          type: array
+        messages:
+          description: Messages.
+          items:
+            $ref: '#/components/schemas/HistoryImportMessageRecord'
+          type: array
+        reactions:
+          description: Reactions.
+          items:
+            $ref: '#/components/schemas/HistoryImportReactionRecord'
+          type: array
+      type: object
+    HistoryImportFileLookupBody:
+      additionalProperties: false
+      description: Source file ids to look up, at most 200.
+      properties:
+        external_ids:
+          description: Source file ids.
+          items:
+            description: A source file id.
+            type: string
+          type: array
+      required:
+      - external_ids
+      type: object
+    PublicApiErrorResponse:
+      additionalProperties: false
+      description: Target public API error envelope.
+      properties:
+        error:
+          additionalProperties: false
+          description: Error details.
+          properties:
+            code:
+              description: Machine-readable error code.
+              type: string
+            message:
+              description: Human-readable error message.
+              type: string
+            request_id:
+              description: Request identifier.
+              type:
+              - string
+              - 'null'
+          required:
+          - code
+          - message
+          type: object
+      required:
+      - error
+      type: object
+    HistoryImportResult:
+      additionalProperties: false
+      description: A history import.
+      properties:
+        created_at:
+          description: When the import was first started.
+          type: string
+          example: '2026-05-14T08:00:00.000Z'
+          format: date-time
+        import_id:
+          description: Import identifier.
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+        source:
+          description: The tool the history comes from.
+          enum:
+          - buzz
+          - discord
+          - generic
+          type: string
+        source_workspace_id:
+          description: Stable identifier of the source workspace.
+          type: string
+        started_by_member_id:
+          description: Workspace member who owns the API key that started the import.
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+        status:
+          description: Whether records can still be written.
+          enum:
+          - open
+          - completed
+          type: string
+      required:
+      - created_at
+      - import_id
+      - source
+      - source_workspace_id
+      - started_by_member_id
+      - status
+      type: object
+    CreateHistoryImportBody:
+      additionalProperties: false
+      description: Starts, or resumes, moving another chat tool's history into this workspace. One import exists per source workspace; calling this again returns it (reopening it if it was completed).
+      properties:
+        source:
+          description: The tool the history comes from. Use `generic` for a tool without its own value; the records are the same.
+          enum:
+          - buzz
+          - discord
+          - generic
+          type: string
+        source_workspace_id:
+          description: Stable identifier of the source workspace, e.g. the Buzz relay host. Calling again with the same source and id resumes the same import, so for `generic` make it unique to the tool as well, such as the tool's host followed by its workspace id.
+          type: string
+        source_workspace_name:
+          description: Display name of the source workspace.
+          type:
+          - string
+          - 'null'
+      required:
+      - source
+      - source_workspace_id
+      type: object
+    HistoryImportReactionRecord:
+      additionalProperties: false
+      description: A reaction on an imported message.
+      properties:
+        author_external_id:
+          description: External id of the person who reacted.
+          type: string
+        conversation_external_id:
+          description: External id of the conversation.
+          type: string
+        emoji:
+          description: Unicode emoji, or a workspace custom emoji name.
+          type: string
+        message_external_id:
+          description: External id of the message.
+          type: string
+      required:
+      - author_external_id
+      - conversation_external_id
+      - emoji
+      - message_external_id
+      type: object
+    HistoryImportCompleteResponse:
+      additionalProperties: false
+      description: History import completion response.
+      properties:
+        data:
+          $ref: '#/components/schemas/HistoryImportCompleteResult'
+      required:
+      - data
+      type: object
+  responses:
+    InternalError:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Internal server error.
+    Conflict:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Conflict.
+    Forbidden:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Forbidden.
+    BadRequest:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Bad request.
+    RateLimited:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/PublicApiErrorResponse'
+      description: Rate limit or quota exceeded.
+    NotFound:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Not found.
+    Unauthorized:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Missing or invalid API key.
+  securitySchemes:
+    AndoApiKey:
+      description: Workspace API key. Current accepted keys use the ando_sk_ prefix.
+      in: header
+      name: x-api-key
+      type: apiKey
+    BearerApiKey:
+      bearerFormat: ando_sk
+      description: Compatibility transport for workspace API keys.
+      scheme: bearer
+      type: http

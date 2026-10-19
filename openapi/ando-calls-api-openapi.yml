@@ -22,6 +22,12 @@ paths:
         schema:
           description: Call identifier.
           type: string
+      - description: Destination message containing a shared Jam forward. Grants only that call when the caller can read the message.
+        in: query
+        name: forwarded_message_id
+        schema:
+          description: Destination message containing a shared Jam forward. Grants only that call when the caller can read the message.
+          type: string
       responses:
         '200':
           content:
@@ -51,7 +57,7 @@ paths:
       - Calls
       x-ando-compatibility-mode: legacy_api_v1_compatibility
       x-ando-migration-target: standard_public
-      x-ando-rate-limit-policy: implicit_legacy
+      x-ando-rate-limit-policy: declared
       x-ando-route-id: api.api_v1_calls_by_callid.get
       x-ando-canonical-host: api.ando.so
       x-ando-documentation-owner: api_platform
@@ -61,7 +67,7 @@ paths:
       x-ando-runtime-owner: api_platform
       x-ando-status-probe-owner: none
       x-ando-rollback-runtime: express
-      x-ando-selected-runtime: express
+      x-ando-selected-runtime: convex_http
       x-ando-target-runtime: convex_http
   /calls/{callId}/transcript:
     get:
@@ -74,6 +80,12 @@ paths:
         required: true
         schema:
           description: Call identifier.
+          type: string
+      - description: Destination message containing a shared Jam forward. Include on every transcript page.
+        in: query
+        name: forwarded_message_id
+        schema:
+          description: Destination message containing a shared Jam forward. Include on every transcript page.
           type: string
       - description: Maximum number of records to return.
         in: query
@@ -117,7 +129,7 @@ paths:
       - Calls
       x-ando-compatibility-mode: legacy_api_v1_compatibility
       x-ando-migration-target: standard_public
-      x-ando-rate-limit-policy: implicit_legacy
+      x-ando-rate-limit-policy: declared
       x-ando-route-id: api.api_v1_calls_by_callid_transcript.get
       x-ando-canonical-host: api.ando.so
       x-ando-documentation-owner: api_platform
@@ -127,67 +139,26 @@ paths:
       x-ando-runtime-owner: api_platform
       x-ando-status-probe-owner: none
       x-ando-rollback-runtime: express
-      x-ando-selected-runtime: express
+      x-ando-selected-runtime: convex_http
       x-ando-target-runtime: convex_http
 components:
   schemas:
-    CallTranscriptResponse:
+    CallParticipant:
       additionalProperties: false
-      description: Current call transcript compatibility response.
+      description: A participant in a call.
       properties:
-        call_id:
-          description: Call identifier.
+        id:
+          description: Participant workspace member identifier.
           type: string
           example: 01jzn7e61x3a7v9h2r7t2m3q4p
-        conversation_name:
-          description: Conversation name.
+        name:
+          description: Display name.
           type:
           - string
           - 'null'
-        duration_seconds:
-          description: Call duration in seconds.
-          type:
-          - number
-          - 'null'
-        pageInfo:
-          $ref: '#/components/schemas/LegacyPageInfo'
-        segments:
-          description: Transcript segments.
-          items:
-            $ref: '#/components/schemas/CallTranscriptSegment'
-          type: array
       required:
-      - call_id
-      - conversation_name
-      - duration_seconds
-      - segments
-      - pageInfo
-      type: object
-    PublicApiErrorResponse:
-      additionalProperties: false
-      description: Target public API error envelope.
-      properties:
-        error:
-          additionalProperties: false
-          description: Error details.
-          properties:
-            code:
-              description: Machine-readable error code.
-              type: string
-            message:
-              description: Human-readable error message.
-              type: string
-            request_id:
-              description: Request identifier.
-              type:
-              - string
-              - 'null'
-          required:
-          - code
-          - message
-          type: object
-      required:
-      - error
+      - id
+      - name
       type: object
     CallResponse:
       additionalProperties: false
@@ -265,6 +236,23 @@ components:
           type:
           - string
           - 'null'
+        type:
+          description: 'Error class, one per HTTP status family. rate_limit_error, api_error, overloaded_error and timeout_error are worth retrying; the others need a different request. Retry a write only with the same Idempotency-Key: an api_error can mean it committed.'
+          enum:
+          - invalid_request_error
+          - authentication_error
+          - permission_error
+          - not_found_error
+          - conflict_error
+          - request_too_large
+          - rate_limit_error
+          - api_error
+          - overloaded_error
+          - timeout_error
+          type: string
+        request_id:
+          description: The request id, also sent as the x-request-id header. Quote it when reporting a problem.
+          type: string
         missing_scopes:
           description: Missing scopes.
           items:
@@ -273,69 +261,6 @@ components:
           type: array
       required:
       - error
-      type: object
-    CallParticipant:
-      additionalProperties: false
-      description: A participant in a call.
-      properties:
-        id:
-          description: Participant workspace member identifier.
-          type: string
-          example: 01jzn7e61x3a7v9h2r7t2m3q4p
-        name:
-          description: Display name.
-          type:
-          - string
-          - 'null'
-      required:
-      - id
-      - name
-      type: object
-    CallTranscriptChapter:
-      additionalProperties: false
-      description: A summary chapter for a call transcript.
-      properties:
-        content:
-          description: Chapter content.
-          type: string
-        end_ms:
-          description: Chapter end offset in milliseconds.
-          type: integer
-        start_ms:
-          description: Chapter start offset in milliseconds.
-          type: integer
-        title:
-          description: Chapter title.
-          type: string
-      required:
-      - title
-      - content
-      - start_ms
-      - end_ms
-      type: object
-    CallTranscriptSegment:
-      additionalProperties: false
-      description: A transcript segment.
-      properties:
-        content:
-          description: Transcript text.
-          type: string
-        end_ms:
-          description: Segment end offset in milliseconds.
-          type: integer
-        speaker_name:
-          description: Speaker display name.
-          type:
-          - string
-          - 'null'
-        start_ms:
-          description: Segment start offset in milliseconds.
-          type: integer
-      required:
-      - speaker_name
-      - content
-      - start_ms
-      - end_ms
       type: object
     LegacyPageInfo:
       additionalProperties: false
@@ -361,13 +286,135 @@ components:
       - hasNextPage
       - hasPreviousPage
       type: object
+    PublicApiErrorResponse:
+      additionalProperties: false
+      description: Target public API error envelope.
+      properties:
+        error:
+          additionalProperties: false
+          description: Error details.
+          properties:
+            code:
+              description: Machine-readable error code.
+              type: string
+            message:
+              description: Human-readable error message.
+              type: string
+            request_id:
+              description: Request identifier.
+              type:
+              - string
+              - 'null'
+          required:
+          - code
+          - message
+          type: object
+      required:
+      - error
+      type: object
+    CallTranscriptSegment:
+      additionalProperties: false
+      description: A transcript segment.
+      properties:
+        content:
+          description: Transcript text.
+          type: string
+        end_ms:
+          description: Segment end offset in milliseconds.
+          type: integer
+        speaker_name:
+          description: Speaker display name.
+          type:
+          - string
+          - 'null'
+        start_ms:
+          description: Segment start offset in milliseconds.
+          type: integer
+      required:
+      - speaker_name
+      - content
+      - start_ms
+      - end_ms
+      type: object
+    CallTranscriptChapter:
+      additionalProperties: false
+      description: A summary chapter for a call transcript.
+      properties:
+        content:
+          description: Chapter content.
+          type: string
+        end_ms:
+          description: Chapter end offset in milliseconds.
+          type: integer
+        start_ms:
+          description: Chapter start offset in milliseconds.
+          type: integer
+        title:
+          description: Chapter title.
+          type: string
+      required:
+      - title
+      - content
+      - start_ms
+      - end_ms
+      type: object
+    CallTranscriptResponse:
+      additionalProperties: false
+      description: Current call transcript compatibility response.
+      properties:
+        call_id:
+          description: Call identifier.
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+        conversation_name:
+          description: Conversation name.
+          type:
+          - string
+          - 'null'
+        duration_seconds:
+          description: Call duration in seconds.
+          type:
+          - number
+          - 'null'
+        pageInfo:
+          $ref: '#/components/schemas/LegacyPageInfo'
+        segments:
+          description: Transcript segments.
+          items:
+            $ref: '#/components/schemas/CallTranscriptSegment'
+          type: array
+      required:
+      - call_id
+      - conversation_name
+      - duration_seconds
+      - segments
+      - pageInfo
+      type: object
   responses:
+    RateLimited:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/PublicApiErrorResponse'
+      description: Rate limit or quota exceeded.
     InternalError:
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/LegacyErrorResponse'
       description: Internal server error.
+    Unauthorized:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Missing or invalid API key.
+    Conflict:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Conflict.
     Forbidden:
       content:
         application/json:
@@ -380,30 +427,12 @@ components:
           schema:
             $ref: '#/components/schemas/LegacyErrorResponse'
       description: Not found.
-    Conflict:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/LegacyErrorResponse'
-      description: Conflict.
-    Unauthorized:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/LegacyErrorResponse'
-      description: Missing or invalid API key.
     BadRequest:
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/LegacyErrorResponse'
       description: Bad request.
-    RateLimited:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/PublicApiErrorResponse'
-      description: Rate limit or quota exceeded.
   securitySchemes:
     AndoApiKey:
       description: Workspace API key. Current accepted keys use the ando_sk_ prefix.

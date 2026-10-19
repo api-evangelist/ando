@@ -477,12 +477,19 @@ paths:
         schema:
           description: Return deliveries created before this timestamp.
           type: string
+      - description: Opaque cursor returned by data.page_info.next_cursor. Reuse it with identical filters.
+        in: query
+        name: cursor
+        schema:
+          description: Opaque cursor returned by data.page_info.next_cursor. Reuse it with identical filters.
+          type: string
       - description: Maximum number of deliveries to return.
         in: query
         name: limit
         schema:
           description: Maximum number of deliveries to return.
           type: integer
+          maximum: 10
           minimum: 1
       responses:
         '200':
@@ -514,7 +521,7 @@ paths:
                         endpoint_signing_secret_prefix: example
                         event_id: whe_01jzn7e61x3a7v9h2r7t2m3q4p
                         event_type: webhook.test
-                        api_version: '2026-05-27'
+                        api_version: '2026-07-13'
                         status: scheduled
                         attempt_count: 0
                         max_attempts: 8
@@ -529,6 +536,9 @@ paths:
                         replayable: false
                         created_at: '2026-05-27T08:00:00.000Z'
                         updated_at: '2026-05-27T08:00:00.000Z'
+                      page_info:
+                        has_next_page: true
+                        next_cursor: opaque-webhook-delivery-cursor
                     items:
                     - object: webhook_delivery
                       id: whd_01jzn7e61x3a7v9h2r7t2m3q4p
@@ -550,7 +560,7 @@ paths:
                       endpoint_signing_secret_prefix: example
                       event_id: whe_01jzn7e61x3a7v9h2r7t2m3q4p
                       event_type: webhook.test
-                      api_version: '2026-05-27'
+                      api_version: '2026-07-13'
                       status: scheduled
                       attempt_count: 0
                       max_attempts: 8
@@ -659,294 +669,6 @@ paths:
       x-ando-target-runtime: convex_http
 components:
   schemas:
-    WebhookEndpointDeliveryScope:
-      description: Webhook endpoint runtime data recipient.
-      oneOf:
-      - additionalProperties: false
-        description: Member-targeted endpoint delivery scope.
-        properties:
-          actor_workspace_membership_id:
-            description: Workspace membership the endpoint acts as.
-            type: string
-            example: 01jzn7e61x3a7v9h2r7t2m3q4p
-          direct_message_delivery_enabled:
-            description: Whether direct-message events are delivered for conversations the actor belongs to.
-            type: boolean
-          type:
-            description: Delivery scope type.
-            enum:
-            - workspace_member
-            type: string
-        required:
-        - type
-        - actor_workspace_membership_id
-        - direct_message_delivery_enabled
-        type: object
-      - additionalProperties: false
-        description: Unsupported workspace export placeholder.
-        properties:
-          status:
-            description: Workspace export approval state.
-            enum:
-            - unsupported
-            - requires_approval
-            - approved
-            type: string
-          type:
-            description: Delivery scope type.
-            enum:
-            - workspace_export
-            type: string
-        required:
-        - type
-        - status
-        type: object
-    WebhookEndpointSecretResponse:
-      additionalProperties: false
-      description: Webhook endpoint response with one-time plaintext secret.
-      properties:
-        data:
-          $ref: '#/components/schemas/WebhookEndpointSecret'
-      required:
-      - data
-      type: object
-    WebhookReplayResponse:
-      additionalProperties: false
-      description: Webhook delivery replay response.
-      properties:
-        data:
-          additionalProperties: false
-          description: Replay delivery data.
-          properties:
-            delivery_id:
-              description: New webhook delivery identifier.
-              type: string
-              example: 01jzn7e61x3a7v9h2r7t2m3q4p
-          required:
-          - delivery_id
-          type: object
-      required:
-      - data
-      type: object
-    PublicApiErrorResponse:
-      additionalProperties: false
-      description: Target public API error envelope.
-      properties:
-        error:
-          additionalProperties: false
-          description: Error details.
-          properties:
-            code:
-              description: Machine-readable error code.
-              type: string
-            message:
-              description: Human-readable error message.
-              type: string
-            request_id:
-              description: Request identifier.
-              type:
-              - string
-              - 'null'
-          required:
-          - code
-          - message
-          type: object
-      required:
-      - error
-      type: object
-    WebhookTestEventResponse:
-      additionalProperties: false
-      description: Webhook test event response.
-      properties:
-        data:
-          additionalProperties: false
-          description: Webhook test event data.
-          properties:
-            delivery_ids:
-              description: Planned webhook delivery identifiers.
-              items:
-                description: Webhook delivery identifier.
-                type: string
-                example: 01jzn7e61x3a7v9h2r7t2m3q4p
-              type: array
-            event_id:
-              description: Webhook event identifier.
-              type: string
-              example: 01jzn7e61x3a7v9h2r7t2m3q4p
-          required:
-          - event_id
-          - delivery_ids
-          type: object
-      required:
-      - data
-      type: object
-    WebhookEndpointResponse:
-      additionalProperties: false
-      description: Webhook endpoint response.
-      properties:
-        data:
-          $ref: '#/components/schemas/WebhookEndpoint'
-      required:
-      - data
-      type: object
-    WebhookDeliveryListResponse:
-      additionalProperties: false
-      description: Webhook delivery list response.
-      properties:
-        data:
-          additionalProperties: false
-          description: Standard public response data. New clients should read data.items.
-          properties:
-            items:
-              description: Webhook deliveries.
-              items:
-                $ref: '#/components/schemas/WebhookDelivery'
-              type: array
-          required:
-          - items
-          type: object
-        items:
-          description: Compatibility alias for data.items. New clients should read data.items.
-          items:
-            $ref: '#/components/schemas/WebhookDelivery'
-          type: array
-          deprecated: true
-      required:
-      - data
-      - items
-      type: object
-    WebhookEndpointSecret:
-      additionalProperties: false
-      description: Webhook endpoint response with one-time plaintext secret.
-      properties:
-        created_at:
-          description: Endpoint creation timestamp.
-          type: string
-          example: '2026-05-14T08:00:00.000Z'
-          format: date-time
-        delivery_scope:
-          $ref: '#/components/schemas/WebhookEndpointDeliveryScope'
-        disabled_at:
-          description: Endpoint disabled timestamp.
-          type:
-          - string
-          - 'null'
-          format: date-time
-        enabled_events:
-          description: Product event types delivered to this endpoint.
-          items:
-            description: Webhook event type.
-            enum:
-            - message.created
-            - message.updated
-            - conversation.membership.created
-            - conversation.archived
-            - conversation.unarchived
-            - call.started
-            - call.ended
-            - call.updated
-            - call.transcript.updated
-            - webhook.test
-            type: string
-          type: array
-        id:
-          description: Webhook endpoint identifier.
-          type: string
-          example: 01jzn7e61x3a7v9h2r7t2m3q4p
-        name:
-          description: Endpoint label.
-          type:
-          - string
-          - 'null'
-        object:
-          description: Object type.
-          enum:
-          - webhook_endpoint
-          type: string
-        previous_signing_secret_expires_at:
-          description: Previous secret expiration timestamp.
-          type:
-          - string
-          - 'null'
-          format: date-time
-        signing_secret_prefix:
-          description: Display-safe prefix of the active signing secret.
-          type: string
-        status:
-          description: Endpoint status.
-          enum:
-          - active
-          - disabled
-          type: string
-        updated_at:
-          description: Last update timestamp.
-          type: string
-          example: '2026-05-14T08:00:00.000Z'
-          format: date-time
-        url:
-          description: Receiver URL.
-          type: string
-        workspace_id:
-          description: Workspace identifier.
-          type: string
-          example: 01jzn7e61x3a7v9h2r7t2m3q4p
-        signing_secret:
-          description: Plaintext webhook signing secret. Store it immediately.
-          type: string
-      required:
-      - object
-      - id
-      - workspace_id
-      - name
-      - url
-      - enabled_events
-      - delivery_scope
-      - status
-      - signing_secret_prefix
-      - previous_signing_secret_expires_at
-      - disabled_at
-      - created_at
-      - updated_at
-      - signing_secret
-      type: object
-    UpdateWebhookEndpointBody:
-      additionalProperties: false
-      description: Webhook endpoint update request.
-      properties:
-        enabled_events:
-          description: Product event types to deliver to this endpoint.
-          items:
-            description: Webhook event type.
-            enum:
-            - message.created
-            - message.updated
-            - conversation.membership.created
-            - conversation.archived
-            - conversation.unarchived
-            - call.started
-            - call.ended
-            - call.updated
-            - call.transcript.updated
-            - webhook.test
-            type: string
-          type: array
-        delivery_scope:
-          $ref: '#/components/schemas/WebhookEndpointDeliveryScopeInput'
-        name:
-          description: Optional endpoint label.
-          type:
-          - string
-          - 'null'
-        status:
-          description: Endpoint status.
-          enum:
-          - active
-          - disabled
-          type: string
-        url:
-          description: HTTPS receiver URL.
-          type: string
-      type: object
     WebhookDelivery:
       additionalProperties: false
       description: Webhook delivery state visible through the public API.
@@ -967,8 +689,12 @@ components:
           items:
             description: Webhook event type.
             enum:
+            - miniapp.question.answered
+            - miniapp.action.invoked
             - message.created
             - message.updated
+            - message.reaction.created
+            - message.reaction.deleted
             - conversation.membership.created
             - conversation.archived
             - conversation.unarchived
@@ -1008,8 +734,12 @@ components:
         event_type:
           description: Webhook event type.
           enum:
+          - miniapp.question.answered
+          - miniapp.action.invoked
           - message.created
           - message.updated
+          - message.reaction.created
+          - message.reaction.deleted
           - conversation.membership.created
           - conversation.archived
           - conversation.unarchived
@@ -1126,6 +856,53 @@ components:
       - created_at
       - updated_at
       type: object
+    WebhookEndpointResponse:
+      additionalProperties: false
+      description: Webhook endpoint response.
+      properties:
+        data:
+          $ref: '#/components/schemas/WebhookEndpoint'
+      required:
+      - data
+      type: object
+    LegacyErrorResponse:
+      additionalProperties: false
+      description: Current compatibility error envelope used by legacy /api/v1 routes.
+      properties:
+        error:
+          description: Error message.
+          type: string
+        error_code:
+          description: Optional machine-readable error code.
+          type:
+          - string
+          - 'null'
+        type:
+          description: 'Error class, one per HTTP status family. rate_limit_error, api_error, overloaded_error and timeout_error are worth retrying; the others need a different request. Retry a write only with the same Idempotency-Key: an api_error can mean it committed.'
+          enum:
+          - invalid_request_error
+          - authentication_error
+          - permission_error
+          - not_found_error
+          - conflict_error
+          - request_too_large
+          - rate_limit_error
+          - api_error
+          - overloaded_error
+          - timeout_error
+          type: string
+        request_id:
+          description: The request id, also sent as the x-request-id header. Quote it when reporting a problem.
+          type: string
+        missing_scopes:
+          description: Missing scopes.
+          items:
+            description: Scope.
+            type: string
+          type: array
+      required:
+      - error
+      type: object
     WebhookEndpointDeliveryScopeInput:
       additionalProperties: false
       description: Webhook endpoint delivery-scope update.
@@ -1140,6 +917,548 @@ components:
           type: string
       required:
       - type
+      type: object
+    WebhookTestEventResponse:
+      additionalProperties: false
+      description: Webhook test event response.
+      properties:
+        data:
+          additionalProperties: false
+          description: Webhook test event data.
+          properties:
+            delivery_ids:
+              description: Planned webhook delivery identifiers.
+              items:
+                description: Webhook delivery identifier.
+                type: string
+                example: 01jzn7e61x3a7v9h2r7t2m3q4p
+              type: array
+            event_id:
+              description: Webhook event identifier.
+              type: string
+              example: 01jzn7e61x3a7v9h2r7t2m3q4p
+          required:
+          - event_id
+          - delivery_ids
+          type: object
+      required:
+      - data
+      type: object
+    RotateWebhookEndpointSecretBody:
+      additionalProperties: false
+      description: Webhook endpoint secret rotation request.
+      properties:
+        previous_secret_ttl_seconds:
+          description: Seconds to keep the previous secret active. Maximum is 86400.
+          type: integer
+          minimum: 0
+      type: object
+    CreateWebhookEndpointBody:
+      additionalProperties: false
+      description: Webhook endpoint creation request.
+      properties:
+        enabled_events:
+          description: Product event types to deliver to this endpoint.
+          items:
+            description: Webhook event type.
+            enum:
+            - miniapp.question.answered
+            - miniapp.action.invoked
+            - message.created
+            - message.updated
+            - message.reaction.created
+            - message.reaction.deleted
+            - conversation.membership.created
+            - conversation.archived
+            - conversation.unarchived
+            - call.started
+            - call.ended
+            - call.updated
+            - call.transcript.updated
+            - webhook.test
+            type: string
+          type: array
+        delivery_scope:
+          $ref: '#/components/schemas/WebhookEndpointDeliveryScopeInput'
+        name:
+          description: Optional endpoint label.
+          type:
+          - string
+          - 'null'
+        url:
+          description: HTTPS receiver URL.
+          type: string
+      required:
+      - url
+      - enabled_events
+      type: object
+    WebhookEndpointDetail:
+      additionalProperties: false
+      description: Webhook endpoint detail.
+      properties:
+        created_at:
+          description: Endpoint creation timestamp.
+          type: string
+          example: '2026-05-14T08:00:00.000Z'
+          format: date-time
+        delivery_scope:
+          $ref: '#/components/schemas/WebhookEndpointDeliveryScope'
+        disabled_at:
+          description: Endpoint disabled timestamp.
+          type:
+          - string
+          - 'null'
+          format: date-time
+        enabled_events:
+          description: Product event types delivered to this endpoint.
+          items:
+            description: Webhook event type.
+            enum:
+            - miniapp.question.answered
+            - miniapp.action.invoked
+            - message.created
+            - message.updated
+            - message.reaction.created
+            - message.reaction.deleted
+            - conversation.membership.created
+            - conversation.archived
+            - conversation.unarchived
+            - call.started
+            - call.ended
+            - call.updated
+            - call.transcript.updated
+            - webhook.test
+            type: string
+          type: array
+        id:
+          description: Webhook endpoint identifier.
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+        name:
+          description: Endpoint label.
+          type:
+          - string
+          - 'null'
+        object:
+          description: Object type.
+          enum:
+          - webhook_endpoint
+          type: string
+        previous_signing_secret_expires_at:
+          description: Previous secret expiration timestamp.
+          type:
+          - string
+          - 'null'
+          format: date-time
+        signing_secret_prefix:
+          description: Display-safe prefix of the active signing secret.
+          type: string
+        status:
+          description: Endpoint status.
+          enum:
+          - active
+          - disabled
+          type: string
+        updated_at:
+          description: Last update timestamp.
+          type: string
+          example: '2026-05-14T08:00:00.000Z'
+          format: date-time
+        url:
+          description: Receiver URL.
+          type: string
+        workspace_id:
+          description: Workspace identifier.
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+        delivery_summary:
+          $ref: '#/components/schemas/WebhookEndpointDeliverySummary'
+      required:
+      - object
+      - id
+      - workspace_id
+      - name
+      - url
+      - enabled_events
+      - delivery_scope
+      - status
+      - signing_secret_prefix
+      - previous_signing_secret_expires_at
+      - disabled_at
+      - created_at
+      - updated_at
+      - delivery_summary
+      type: object
+    PublicApiPageInfo:
+      additionalProperties: false
+      description: Target public API pagination metadata with snake_case field names.
+      properties:
+        end_cursor:
+          description: Cursor for the last item.
+          type:
+          - string
+          - 'null'
+        has_next_page:
+          description: Whether another page exists after this page.
+          type: boolean
+        has_previous_page:
+          description: Whether another page exists before this page.
+          type: boolean
+        next_cursor:
+          description: Cursor for the next page.
+          type:
+          - string
+          - 'null'
+        previous_cursor:
+          description: Cursor for the previous page.
+          type:
+          - string
+          - 'null'
+        start_cursor:
+          description: Cursor for the first item.
+          type:
+          - string
+          - 'null'
+      required:
+      - has_next_page
+      type: object
+    WebhookEndpointSecretResponse:
+      additionalProperties: false
+      description: Webhook endpoint response with one-time plaintext secret.
+      properties:
+        data:
+          $ref: '#/components/schemas/WebhookEndpointSecret'
+      required:
+      - data
+      type: object
+    UpdateWebhookEndpointBody:
+      additionalProperties: false
+      description: Webhook endpoint update request.
+      properties:
+        enabled_events:
+          description: Product event types to deliver to this endpoint.
+          items:
+            description: Webhook event type.
+            enum:
+            - miniapp.question.answered
+            - miniapp.action.invoked
+            - message.created
+            - message.updated
+            - message.reaction.created
+            - message.reaction.deleted
+            - conversation.membership.created
+            - conversation.archived
+            - conversation.unarchived
+            - call.started
+            - call.ended
+            - call.updated
+            - call.transcript.updated
+            - webhook.test
+            type: string
+          type: array
+        delivery_scope:
+          $ref: '#/components/schemas/WebhookEndpointDeliveryScopeInput'
+        name:
+          description: Optional endpoint label.
+          type:
+          - string
+          - 'null'
+        status:
+          description: Endpoint status.
+          enum:
+          - active
+          - disabled
+          type: string
+        url:
+          description: HTTPS receiver URL.
+          type: string
+      type: object
+    WebhookEndpoint:
+      additionalProperties: false
+      description: Webhook endpoint metadata. Signing secret plaintext is never returned here.
+      properties:
+        created_at:
+          description: Endpoint creation timestamp.
+          type: string
+          example: '2026-05-14T08:00:00.000Z'
+          format: date-time
+        delivery_scope:
+          $ref: '#/components/schemas/WebhookEndpointDeliveryScope'
+        disabled_at:
+          description: Endpoint disabled timestamp.
+          type:
+          - string
+          - 'null'
+          format: date-time
+        enabled_events:
+          description: Product event types delivered to this endpoint.
+          items:
+            description: Webhook event type.
+            enum:
+            - miniapp.question.answered
+            - miniapp.action.invoked
+            - message.created
+            - message.updated
+            - message.reaction.created
+            - message.reaction.deleted
+            - conversation.membership.created
+            - conversation.archived
+            - conversation.unarchived
+            - call.started
+            - call.ended
+            - call.updated
+            - call.transcript.updated
+            - webhook.test
+            type: string
+          type: array
+        id:
+          description: Webhook endpoint identifier.
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+        name:
+          description: Endpoint label.
+          type:
+          - string
+          - 'null'
+        object:
+          description: Object type.
+          enum:
+          - webhook_endpoint
+          type: string
+        previous_signing_secret_expires_at:
+          description: Previous secret expiration timestamp.
+          type:
+          - string
+          - 'null'
+          format: date-time
+        signing_secret_prefix:
+          description: Display-safe prefix of the active signing secret.
+          type: string
+        status:
+          description: Endpoint status.
+          enum:
+          - active
+          - disabled
+          type: string
+        updated_at:
+          description: Last update timestamp.
+          type: string
+          example: '2026-05-14T08:00:00.000Z'
+          format: date-time
+        url:
+          description: Receiver URL.
+          type: string
+        workspace_id:
+          description: Workspace identifier.
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+      required:
+      - object
+      - id
+      - workspace_id
+      - name
+      - url
+      - enabled_events
+      - delivery_scope
+      - status
+      - signing_secret_prefix
+      - previous_signing_secret_expires_at
+      - disabled_at
+      - created_at
+      - updated_at
+      type: object
+    WebhookEndpointDetailResponse:
+      additionalProperties: false
+      description: Webhook endpoint detail response.
+      properties:
+        data:
+          $ref: '#/components/schemas/WebhookEndpointDetail'
+      required:
+      - data
+      type: object
+    WebhookEndpointDeliveryScope:
+      description: Webhook endpoint runtime data recipient.
+      oneOf:
+      - additionalProperties: false
+        description: Member-targeted endpoint delivery scope.
+        properties:
+          actor_workspace_membership_id:
+            description: Workspace membership the endpoint acts as.
+            type: string
+            example: 01jzn7e61x3a7v9h2r7t2m3q4p
+          direct_message_delivery_enabled:
+            description: Whether direct-message events are delivered for conversations the actor belongs to.
+            type: boolean
+          type:
+            description: Delivery scope type.
+            enum:
+            - workspace_member
+            type: string
+        required:
+        - type
+        - actor_workspace_membership_id
+        - direct_message_delivery_enabled
+        type: object
+      - additionalProperties: false
+        description: Unsupported workspace export placeholder.
+        properties:
+          status:
+            description: Workspace export approval state.
+            enum:
+            - unsupported
+            - requires_approval
+            - approved
+            type: string
+          type:
+            description: Delivery scope type.
+            enum:
+            - workspace_export
+            type: string
+        required:
+        - type
+        - status
+        type: object
+    PublicApiErrorResponse:
+      additionalProperties: false
+      description: Target public API error envelope.
+      properties:
+        error:
+          additionalProperties: false
+          description: Error details.
+          properties:
+            code:
+              description: Machine-readable error code.
+              type: string
+            message:
+              description: Human-readable error message.
+              type: string
+            request_id:
+              description: Request identifier.
+              type:
+              - string
+              - 'null'
+          required:
+          - code
+          - message
+          type: object
+      required:
+      - error
+      type: object
+    WebhookEndpointSecret:
+      additionalProperties: false
+      description: Webhook endpoint response with one-time plaintext secret.
+      properties:
+        created_at:
+          description: Endpoint creation timestamp.
+          type: string
+          example: '2026-05-14T08:00:00.000Z'
+          format: date-time
+        delivery_scope:
+          $ref: '#/components/schemas/WebhookEndpointDeliveryScope'
+        disabled_at:
+          description: Endpoint disabled timestamp.
+          type:
+          - string
+          - 'null'
+          format: date-time
+        enabled_events:
+          description: Product event types delivered to this endpoint.
+          items:
+            description: Webhook event type.
+            enum:
+            - miniapp.question.answered
+            - miniapp.action.invoked
+            - message.created
+            - message.updated
+            - message.reaction.created
+            - message.reaction.deleted
+            - conversation.membership.created
+            - conversation.archived
+            - conversation.unarchived
+            - call.started
+            - call.ended
+            - call.updated
+            - call.transcript.updated
+            - webhook.test
+            type: string
+          type: array
+        id:
+          description: Webhook endpoint identifier.
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+        name:
+          description: Endpoint label.
+          type:
+          - string
+          - 'null'
+        object:
+          description: Object type.
+          enum:
+          - webhook_endpoint
+          type: string
+        previous_signing_secret_expires_at:
+          description: Previous secret expiration timestamp.
+          type:
+          - string
+          - 'null'
+          format: date-time
+        signing_secret_prefix:
+          description: Display-safe prefix of the active signing secret.
+          type: string
+        status:
+          description: Endpoint status.
+          enum:
+          - active
+          - disabled
+          type: string
+        updated_at:
+          description: Last update timestamp.
+          type: string
+          example: '2026-05-14T08:00:00.000Z'
+          format: date-time
+        url:
+          description: Receiver URL.
+          type: string
+        workspace_id:
+          description: Workspace identifier.
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+        signing_secret:
+          description: Plaintext webhook signing secret. Store it immediately.
+          type: string
+      required:
+      - object
+      - id
+      - workspace_id
+      - name
+      - url
+      - enabled_events
+      - delivery_scope
+      - status
+      - signing_secret_prefix
+      - previous_signing_secret_expires_at
+      - disabled_at
+      - created_at
+      - updated_at
+      - signing_secret
+      type: object
+    WebhookReplayResponse:
+      additionalProperties: false
+      description: Webhook delivery replay response.
+      properties:
+        data:
+          additionalProperties: false
+          description: Replay delivery data.
+          properties:
+            delivery_id:
+              description: New webhook delivery identifier.
+              type: string
+              example: 01jzn7e61x3a7v9h2r7t2m3q4p
+          required:
+          - delivery_id
+          type: object
+      required:
+      - data
       type: object
     WebhookEndpointListResponse:
       additionalProperties: false
@@ -1167,14 +1486,34 @@ components:
       - data
       - items
       type: object
-    WebhookEndpointDetailResponse:
+    WebhookDeliveryListResponse:
       additionalProperties: false
-      description: Webhook endpoint detail response.
+      description: Webhook delivery list response.
       properties:
         data:
-          $ref: '#/components/schemas/WebhookEndpointDetail'
+          additionalProperties: false
+          description: Standard paginated public response data.
+          properties:
+            items:
+              description: Webhook deliveries.
+              items:
+                $ref: '#/components/schemas/WebhookDelivery'
+              type: array
+            page_info:
+              $ref: '#/components/schemas/PublicApiPageInfo'
+          required:
+          - items
+          - page_info
+          type: object
+        items:
+          description: Compatibility alias for data.items. New clients should read data.items.
+          items:
+            $ref: '#/components/schemas/WebhookDelivery'
+          type: array
+          deprecated: true
       required:
       - data
+      - items
       type: object
     WebhookEndpointDeliverySummary:
       additionalProperties: false
@@ -1255,297 +1594,49 @@ components:
       - latest_succeeded_at
       - latest_failed_at
       type: object
-    WebhookEndpoint:
-      additionalProperties: false
-      description: Webhook endpoint metadata. Signing secret plaintext is never returned here.
-      properties:
-        created_at:
-          description: Endpoint creation timestamp.
-          type: string
-          example: '2026-05-14T08:00:00.000Z'
-          format: date-time
-        delivery_scope:
-          $ref: '#/components/schemas/WebhookEndpointDeliveryScope'
-        disabled_at:
-          description: Endpoint disabled timestamp.
-          type:
-          - string
-          - 'null'
-          format: date-time
-        enabled_events:
-          description: Product event types delivered to this endpoint.
-          items:
-            description: Webhook event type.
-            enum:
-            - message.created
-            - message.updated
-            - conversation.membership.created
-            - conversation.archived
-            - conversation.unarchived
-            - call.started
-            - call.ended
-            - call.updated
-            - call.transcript.updated
-            - webhook.test
-            type: string
-          type: array
-        id:
-          description: Webhook endpoint identifier.
-          type: string
-          example: 01jzn7e61x3a7v9h2r7t2m3q4p
-        name:
-          description: Endpoint label.
-          type:
-          - string
-          - 'null'
-        object:
-          description: Object type.
-          enum:
-          - webhook_endpoint
-          type: string
-        previous_signing_secret_expires_at:
-          description: Previous secret expiration timestamp.
-          type:
-          - string
-          - 'null'
-          format: date-time
-        signing_secret_prefix:
-          description: Display-safe prefix of the active signing secret.
-          type: string
-        status:
-          description: Endpoint status.
-          enum:
-          - active
-          - disabled
-          type: string
-        updated_at:
-          description: Last update timestamp.
-          type: string
-          example: '2026-05-14T08:00:00.000Z'
-          format: date-time
-        url:
-          description: Receiver URL.
-          type: string
-        workspace_id:
-          description: Workspace identifier.
-          type: string
-          example: 01jzn7e61x3a7v9h2r7t2m3q4p
-      required:
-      - object
-      - id
-      - workspace_id
-      - name
-      - url
-      - enabled_events
-      - delivery_scope
-      - status
-      - signing_secret_prefix
-      - previous_signing_secret_expires_at
-      - disabled_at
-      - created_at
-      - updated_at
-      type: object
-    LegacyErrorResponse:
-      additionalProperties: false
-      description: Current compatibility error envelope used by legacy /api/v1 routes.
-      properties:
-        error:
-          description: Error message.
-          type: string
-        error_code:
-          description: Optional machine-readable error code.
-          type:
-          - string
-          - 'null'
-        missing_scopes:
-          description: Missing scopes.
-          items:
-            description: Scope.
-            type: string
-          type: array
-      required:
-      - error
-      type: object
-    RotateWebhookEndpointSecretBody:
-      additionalProperties: false
-      description: Webhook endpoint secret rotation request.
-      properties:
-        previous_secret_ttl_seconds:
-          description: Seconds to keep the previous secret active. Maximum is 86400.
-          type: integer
-          minimum: 0
-      type: object
-    CreateWebhookEndpointBody:
-      additionalProperties: false
-      description: Webhook endpoint creation request.
-      properties:
-        enabled_events:
-          description: Product event types to deliver to this endpoint.
-          items:
-            description: Webhook event type.
-            enum:
-            - message.created
-            - message.updated
-            - conversation.membership.created
-            - conversation.archived
-            - conversation.unarchived
-            - call.started
-            - call.ended
-            - call.updated
-            - call.transcript.updated
-            - webhook.test
-            type: string
-          type: array
-        delivery_scope:
-          $ref: '#/components/schemas/WebhookEndpointDeliveryScopeInput'
-        name:
-          description: Optional endpoint label.
-          type:
-          - string
-          - 'null'
-        url:
-          description: HTTPS receiver URL.
-          type: string
-      required:
-      - url
-      - enabled_events
-      type: object
-    WebhookEndpointDetail:
-      additionalProperties: false
-      description: Webhook endpoint detail.
-      properties:
-        created_at:
-          description: Endpoint creation timestamp.
-          type: string
-          example: '2026-05-14T08:00:00.000Z'
-          format: date-time
-        delivery_scope:
-          $ref: '#/components/schemas/WebhookEndpointDeliveryScope'
-        disabled_at:
-          description: Endpoint disabled timestamp.
-          type:
-          - string
-          - 'null'
-          format: date-time
-        enabled_events:
-          description: Product event types delivered to this endpoint.
-          items:
-            description: Webhook event type.
-            enum:
-            - message.created
-            - message.updated
-            - conversation.membership.created
-            - conversation.archived
-            - conversation.unarchived
-            - call.started
-            - call.ended
-            - call.updated
-            - call.transcript.updated
-            - webhook.test
-            type: string
-          type: array
-        id:
-          description: Webhook endpoint identifier.
-          type: string
-          example: 01jzn7e61x3a7v9h2r7t2m3q4p
-        name:
-          description: Endpoint label.
-          type:
-          - string
-          - 'null'
-        object:
-          description: Object type.
-          enum:
-          - webhook_endpoint
-          type: string
-        previous_signing_secret_expires_at:
-          description: Previous secret expiration timestamp.
-          type:
-          - string
-          - 'null'
-          format: date-time
-        signing_secret_prefix:
-          description: Display-safe prefix of the active signing secret.
-          type: string
-        status:
-          description: Endpoint status.
-          enum:
-          - active
-          - disabled
-          type: string
-        updated_at:
-          description: Last update timestamp.
-          type: string
-          example: '2026-05-14T08:00:00.000Z'
-          format: date-time
-        url:
-          description: Receiver URL.
-          type: string
-        workspace_id:
-          description: Workspace identifier.
-          type: string
-          example: 01jzn7e61x3a7v9h2r7t2m3q4p
-        delivery_summary:
-          $ref: '#/components/schemas/WebhookEndpointDeliverySummary'
-      required:
-      - object
-      - id
-      - workspace_id
-      - name
-      - url
-      - enabled_events
-      - delivery_scope
-      - status
-      - signing_secret_prefix
-      - previous_signing_secret_expires_at
-      - disabled_at
-      - created_at
-      - updated_at
-      - delivery_summary
-      type: object
   responses:
-    Unauthorized:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/LegacyErrorResponse'
-      description: Missing or invalid API key.
-    RateLimited:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/PublicApiErrorResponse'
-      description: Rate limit or quota exceeded.
-    Conflict:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/LegacyErrorResponse'
-      description: Conflict.
     InternalError:
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/LegacyErrorResponse'
       description: Internal server error.
+    Conflict:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Conflict.
     Forbidden:
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/LegacyErrorResponse'
       description: Forbidden.
-    NotFound:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/LegacyErrorResponse'
-      description: Not found.
     BadRequest:
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/LegacyErrorResponse'
       description: Bad request.
+    RateLimited:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/PublicApiErrorResponse'
+      description: Rate limit or quota exceeded.
+    NotFound:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Not found.
+    Unauthorized:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Missing or invalid API key.
   securitySchemes:
     AndoApiKey:
       description: Workspace API key. Current accepted keys use the ando_sk_ prefix.

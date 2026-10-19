@@ -51,7 +51,7 @@ paths:
       - Members
       x-ando-compatibility-mode: legacy_api_v1_compatibility
       x-ando-migration-target: standard_public
-      x-ando-rate-limit-policy: implicit_legacy
+      x-ando-rate-limit-policy: declared
       x-ando-route-id: api.api_v1_members_by_memberid.get
       x-ando-canonical-host: api.ando.so
       x-ando-documentation-owner: api_platform
@@ -61,10 +61,186 @@ paths:
       x-ando-runtime-owner: api_platform
       x-ando-status-probe-owner: none
       x-ando-rollback-runtime: express
-      x-ando-selected-runtime: express
+      x-ando-selected-runtime: convex_http
       x-ando-target-runtime: convex_http
 components:
+  responses:
+    RateLimited:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/PublicApiErrorResponse'
+      description: Rate limit or quota exceeded.
+    InternalError:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Internal server error.
+    Unauthorized:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Missing or invalid API key.
+    Conflict:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Conflict.
+    Forbidden:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Forbidden.
+    NotFound:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Not found.
+    BadRequest:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Bad request.
   schemas:
+    LegacyErrorResponse:
+      additionalProperties: false
+      description: Current compatibility error envelope used by legacy /api/v1 routes.
+      properties:
+        error:
+          description: Error message.
+          type: string
+        error_code:
+          description: Optional machine-readable error code.
+          type:
+          - string
+          - 'null'
+        type:
+          description: 'Error class, one per HTTP status family. rate_limit_error, api_error, overloaded_error and timeout_error are worth retrying; the others need a different request. Retry a write only with the same Idempotency-Key: an api_error can mean it committed.'
+          enum:
+          - invalid_request_error
+          - authentication_error
+          - permission_error
+          - not_found_error
+          - conflict_error
+          - request_too_large
+          - rate_limit_error
+          - api_error
+          - overloaded_error
+          - timeout_error
+          type: string
+        request_id:
+          description: The request id, also sent as the x-request-id header. Quote it when reporting a problem.
+          type: string
+        missing_scopes:
+          description: Missing scopes.
+          items:
+            description: Scope.
+            type: string
+          type: array
+      required:
+      - error
+      type: object
+    MemberResult:
+      additionalProperties: false
+      description: Workspace member result visible to the authenticated API key. The v1 schema name is a compatibility spelling for this resource.
+      properties:
+        display_name:
+          description: Display name.
+          type:
+          - string
+          - 'null'
+        email:
+          description: Email address.
+          type:
+          - string
+          - 'null'
+          format: email
+        id:
+          description: 'Workspace member identifier. Deprecated: read membership_id instead.'
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+          deprecated: true
+        membership_id:
+          description: Canonical RFC 144 workspace membership identifier.
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+        workspace_membership_id:
+          description: 'Snake-case workspace membership identifier. Deprecated: read membership_id instead.'
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+          deprecated: true
+        handle:
+          description: Stable workspace handle.
+          type: string
+        principal_type:
+          description: Workspace principal type.
+          enum:
+          - user
+          - agent
+          type: string
+        workspace_role:
+          description: Canonical workspace role.
+          enum:
+          - guest
+          - member
+          - admin
+          - owner
+          type: string
+        joined_at:
+          description: Membership join time in epoch milliseconds.
+          type: number
+        management_kind:
+          description: Agent management kind; null for human members.
+          enum:
+          - managed_agent
+          - connected_agent
+          - unavailable
+          type:
+          - string
+          - 'null'
+        role_name:
+          description: Authorized agent role name; null for humans or unavailable roles.
+          type:
+          - string
+          - 'null'
+        profile_image_url:
+          description: Profile image URL.
+          type:
+          - string
+          - 'null'
+          format: uri
+        title:
+          description: Workspace member title.
+          type:
+          - string
+          - 'null'
+        workspaceMembershipId:
+          description: 'CamelCase workspace membership identifier. Deprecated: read membership_id instead.'
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+          deprecated: true
+      required:
+      - id
+      - workspaceMembershipId
+      - membership_id
+      - workspace_membership_id
+      - display_name
+      - email
+      - title
+      - profile_image_url
+      - handle
+      - principal_type
+      - workspace_role
+      - joined_at
+      - management_kind
+      - role_name
+      type: object
     PublicApiErrorResponse:
       additionalProperties: false
       description: Target public API error envelope.
@@ -91,112 +267,6 @@ components:
       required:
       - error
       type: object
-    MemberResult:
-      additionalProperties: false
-      description: Workspace member result visible to the authenticated API key. The v1 schema name is a compatibility spelling for this resource.
-      properties:
-        display_name:
-          description: Display name.
-          type:
-          - string
-          - 'null'
-        email:
-          description: Email address.
-          type:
-          - string
-          - 'null'
-          format: email
-        id:
-          description: Workspace member identifier.
-          type: string
-          example: 01jzn7e61x3a7v9h2r7t2m3q4p
-        profile_image_url:
-          description: Profile image URL.
-          type:
-          - string
-          - 'null'
-          format: uri
-        title:
-          description: Workspace member title.
-          type:
-          - string
-          - 'null'
-        workspaceMembershipId:
-          description: Canonical workspace membership identifier. Matches legacy id during the compatibility window.
-          type: string
-          example: 01jzn7e61x3a7v9h2r7t2m3q4p
-      required:
-      - id
-      - workspaceMembershipId
-      - display_name
-      - email
-      - title
-      - profile_image_url
-      type: object
-    LegacyErrorResponse:
-      additionalProperties: false
-      description: Current compatibility error envelope used by legacy /api/v1 routes.
-      properties:
-        error:
-          description: Error message.
-          type: string
-        error_code:
-          description: Optional machine-readable error code.
-          type:
-          - string
-          - 'null'
-        missing_scopes:
-          description: Missing scopes.
-          items:
-            description: Scope.
-            type: string
-          type: array
-      required:
-      - error
-      type: object
-  responses:
-    InternalError:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/LegacyErrorResponse'
-      description: Internal server error.
-    Forbidden:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/LegacyErrorResponse'
-      description: Forbidden.
-    NotFound:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/LegacyErrorResponse'
-      description: Not found.
-    Conflict:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/LegacyErrorResponse'
-      description: Conflict.
-    Unauthorized:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/LegacyErrorResponse'
-      description: Missing or invalid API key.
-    BadRequest:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/LegacyErrorResponse'
-      description: Bad request.
-    RateLimited:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/PublicApiErrorResponse'
-      description: Rate limit or quota exceeded.
   securitySchemes:
     AndoApiKey:
       description: Workspace API key. Current accepted keys use the ando_sk_ prefix.

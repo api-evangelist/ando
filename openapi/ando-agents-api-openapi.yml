@@ -1,0 +1,712 @@
+openapi: 3.2.0
+info:
+  description: Generated from Ando's accepted public API v1 contract metadata. Current routes preserve legacy /api/v1 response envelopes while converging on the public https://api.ando.so/v1 shape.
+  title: Ando Public Agents API
+  version: v1
+servers:
+- description: Canonical public API host.
+  url: https://api.ando.so/v1
+tags:
+- description: Workspace agent lifecycle routes.
+  name: Agents
+paths:
+  /agents:
+    post:
+      description: Creates a workspace agent. Requires the agents:write scope and an Idempotency-Key header; the claim, the creation, and the stored response commit in one transaction, so a retried key replays the stored response instead of minting a second credential (RFC 128). The agent's own credential is never returned.
+      operationId: createAgent
+      parameters:
+      - description: Unique key for safe retries. Reusing a key with a different body returns 409 idempotency_conflict.
+        in: header
+        name: Idempotency-Key
+        required: true
+        schema:
+          description: Idempotency key.
+          type: string
+          maxLength: 255
+      requestBody:
+        content:
+          application/json:
+            examples:
+              agent:
+                summary: Create a workspace agent.
+                value:
+                  display_name: Release Bot
+                  system_prompt: You watch the release channel and summarize failures.
+                  model_id: claude-sonnet-4-6
+                  role_name: Release manager
+                  response_scope: workspace
+                  avatar_file_id: null
+            schema:
+              $ref: '#/components/schemas/CreateAgentBody'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              examples:
+                created:
+                  summary: Created agent.
+                  value:
+                    data:
+                      object: agent
+                      id: mem_01jzn7e61x3a7v9h2r7t2m3q4p
+                      display_name: Release Bot
+                      role_name: Release manager
+                      model_id: claude-sonnet-4-6
+                      response_scope: workspace
+                      status: active
+                      is_workspace_agent: false
+                      avatar_url: null
+                      created_by:
+                        id: mem_01jzn7e61x3a7v9h2r7t2m3q4q
+                        display_name: Alex Kim
+                      created_at: '2026-08-18T08:00:00.000Z'
+                      updated_at: '2026-08-18T08:00:00.000Z'
+              schema:
+                $ref: '#/components/schemas/AgentResponse'
+          description: Created agent.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      security:
+      - AndoApiKey: []
+      - BearerApiKey: []
+      summary: Create an agent
+      tags:
+      - Agents
+      x-ando-compatibility-mode: standard_public
+      x-ando-migration-target: standard_public
+      x-ando-rate-limit-policy: declared
+      x-ando-route-id: api.api_v1_agents.post
+      x-ando-canonical-host: api.ando.so
+      x-ando-documentation-owner: api_platform
+      x-ando-principal-kind: workspace_api_key
+      x-ando-public-api-route-class: durable_ingress
+      x-ando-public-path: /v1/agents
+      x-ando-runtime-owner: convex_product
+      x-ando-status-probe-owner: none
+      x-ando-rollback-runtime: convex_http
+      x-ando-selected-runtime: convex_http
+      x-ando-target-runtime: convex_http
+    get:
+      description: Lists workspace agents. Requires the agents:read scope. Filter with status=active|paused|archived|all (default active).
+      operationId: listAgents
+      parameters:
+      - description: Lifecycle status filter. Defaults to active.
+        in: query
+        name: status
+        schema:
+          description: Agent status filter.
+          enum:
+          - active
+          - paused
+          - archived
+          - all
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                agents:
+                  summary: Workspace agents.
+                  value:
+                    data:
+                      items:
+                      - object: agent
+                        id: mem_01jzn7e61x3a7v9h2r7t2m3q4p
+                        display_name: Release Bot
+                        role_name: Release manager
+                        model_id: claude-sonnet-4-6
+                        response_scope: workspace
+                        status: active
+                        is_workspace_agent: false
+                        avatar_url: null
+                        created_by:
+                          id: mem_01jzn7e61x3a7v9h2r7t2m3q4q
+                          display_name: Alex Kim
+                        created_at: '2026-08-18T08:00:00.000Z'
+                        updated_at: '2026-08-18T08:00:00.000Z'
+              schema:
+                $ref: '#/components/schemas/AgentListResponse'
+          description: Workspace agents.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      security:
+      - AndoApiKey: []
+      - BearerApiKey: []
+      summary: List agents
+      tags:
+      - Agents
+      x-ando-compatibility-mode: standard_public
+      x-ando-migration-target: standard_public
+      x-ando-rate-limit-policy: declared
+      x-ando-route-id: api.api_v1_agents.get
+      x-ando-canonical-host: api.ando.so
+      x-ando-documentation-owner: api_platform
+      x-ando-principal-kind: workspace_api_key
+      x-ando-public-api-route-class: public_data
+      x-ando-public-path: /v1/agents
+      x-ando-runtime-owner: convex_product
+      x-ando-status-probe-owner: none
+      x-ando-rollback-runtime: convex_http
+      x-ando-selected-runtime: convex_http
+      x-ando-target-runtime: convex_http
+  /agents/{agentId}:
+    get:
+      description: Returns one workspace agent. Requires the agents:read scope.
+      operationId: getAgent
+      parameters:
+      - description: Agent membership identifier.
+        in: path
+        name: agentId
+        required: true
+        schema:
+          description: Agent membership identifier.
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentResponse'
+          description: Agent details.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      security:
+      - AndoApiKey: []
+      - BearerApiKey: []
+      summary: Get an agent
+      tags:
+      - Agents
+      x-ando-compatibility-mode: standard_public
+      x-ando-migration-target: standard_public
+      x-ando-rate-limit-policy: declared
+      x-ando-route-id: api.api_v1_agents_by_agentid.get
+      x-ando-canonical-host: api.ando.so
+      x-ando-documentation-owner: api_platform
+      x-ando-principal-kind: workspace_api_key
+      x-ando-public-api-route-class: public_data
+      x-ando-public-path: /v1/agents/:agentId
+      x-ando-runtime-owner: convex_product
+      x-ando-status-probe-owner: none
+      x-ando-rollback-runtime: convex_http
+      x-ando-selected-runtime: convex_http
+      x-ando-target-runtime: convex_http
+  /agents/{agentId}/retire:
+    post:
+      description: 'Retires (archives) an agent: revokes its credential, deletes its bound API keys, releases its display name, and archives its membership. Requires the agents:write scope. A personal-scope agent can only be retired by its creator.'
+      operationId: retireAgent
+      parameters:
+      - description: Agent membership identifier.
+        in: path
+        name: agentId
+        required: true
+        schema:
+          description: Agent membership identifier.
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentResponse'
+          description: Retired agent.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      security:
+      - AndoApiKey: []
+      - BearerApiKey: []
+      summary: Retire an agent
+      tags:
+      - Agents
+      x-ando-compatibility-mode: standard_public
+      x-ando-migration-target: standard_public
+      x-ando-rate-limit-policy: declared
+      x-ando-route-id: api.api_v1_agents_by_agentid_retire.post
+      x-ando-canonical-host: api.ando.so
+      x-ando-documentation-owner: api_platform
+      x-ando-principal-kind: workspace_api_key
+      x-ando-public-api-route-class: durable_ingress
+      x-ando-public-path: /v1/agents/:agentId/retire
+      x-ando-runtime-owner: convex_product
+      x-ando-status-probe-owner: none
+      x-ando-rollback-runtime: convex_http
+      x-ando-selected-runtime: convex_http
+      x-ando-target-runtime: convex_http
+  /agents/{agentId}/restore:
+    post:
+      description: Restores a retired agent. The agent comes back paused; resume it to mint a fresh credential (the retired credential is never revived). Requires the agents:write scope.
+      operationId: restoreAgent
+      parameters:
+      - description: Agent membership identifier.
+        in: path
+        name: agentId
+        required: true
+        schema:
+          description: Agent membership identifier.
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentResponse'
+          description: Restored agent.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      security:
+      - AndoApiKey: []
+      - BearerApiKey: []
+      summary: Restore an agent
+      tags:
+      - Agents
+      x-ando-compatibility-mode: standard_public
+      x-ando-migration-target: standard_public
+      x-ando-rate-limit-policy: declared
+      x-ando-route-id: api.api_v1_agents_by_agentid_restore.post
+      x-ando-canonical-host: api.ando.so
+      x-ando-documentation-owner: api_platform
+      x-ando-principal-kind: workspace_api_key
+      x-ando-public-api-route-class: durable_ingress
+      x-ando-public-path: /v1/agents/:agentId/restore
+      x-ando-runtime-owner: convex_product
+      x-ando-status-probe-owner: none
+      x-ando-rollback-runtime: convex_http
+      x-ando-selected-runtime: convex_http
+      x-ando-target-runtime: convex_http
+  /agents/{agentId}/pause:
+    post:
+      description: 'Pauses an agent: deactivates it and revokes its runtime credential. Requires the agents:write scope.'
+      operationId: pauseAgent
+      parameters:
+      - description: Agent membership identifier.
+        in: path
+        name: agentId
+        required: true
+        schema:
+          description: Agent membership identifier.
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentResponse'
+          description: Paused agent.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      security:
+      - AndoApiKey: []
+      - BearerApiKey: []
+      summary: Pause an agent
+      tags:
+      - Agents
+      x-ando-compatibility-mode: standard_public
+      x-ando-migration-target: standard_public
+      x-ando-rate-limit-policy: declared
+      x-ando-route-id: api.api_v1_agents_by_agentid_pause.post
+      x-ando-canonical-host: api.ando.so
+      x-ando-documentation-owner: api_platform
+      x-ando-principal-kind: workspace_api_key
+      x-ando-public-api-route-class: durable_ingress
+      x-ando-public-path: /v1/agents/:agentId/pause
+      x-ando-runtime-owner: convex_product
+      x-ando-status-probe-owner: none
+      x-ando-rollback-runtime: convex_http
+      x-ando-selected-runtime: convex_http
+      x-ando-target-runtime: convex_http
+  /agents/{agentId}/resume:
+    post:
+      description: Resumes a paused agent, minting a fresh runtime credential. Requires the agents:write scope.
+      operationId: resumeAgent
+      parameters:
+      - description: Agent membership identifier.
+        in: path
+        name: agentId
+        required: true
+        schema:
+          description: Agent membership identifier.
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentResponse'
+          description: Resumed agent.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      security:
+      - AndoApiKey: []
+      - BearerApiKey: []
+      summary: Resume an agent
+      tags:
+      - Agents
+      x-ando-compatibility-mode: standard_public
+      x-ando-migration-target: standard_public
+      x-ando-rate-limit-policy: declared
+      x-ando-route-id: api.api_v1_agents_by_agentid_resume.post
+      x-ando-canonical-host: api.ando.so
+      x-ando-documentation-owner: api_platform
+      x-ando-principal-kind: workspace_api_key
+      x-ando-public-api-route-class: durable_ingress
+      x-ando-public-path: /v1/agents/:agentId/resume
+      x-ando-runtime-owner: convex_product
+      x-ando-status-probe-owner: none
+      x-ando-rollback-runtime: convex_http
+      x-ando-selected-runtime: convex_http
+      x-ando-target-runtime: convex_http
+components:
+  schemas:
+    AgentResponse:
+      additionalProperties: false
+      description: Agent response.
+      properties:
+        data:
+          $ref: '#/components/schemas/Agent'
+      required:
+      - data
+      type: object
+    LegacyErrorResponse:
+      additionalProperties: false
+      description: Current compatibility error envelope used by legacy /api/v1 routes.
+      properties:
+        error:
+          description: Error message.
+          type: string
+        error_code:
+          description: Optional machine-readable error code.
+          type:
+          - string
+          - 'null'
+        type:
+          description: 'Error class, one per HTTP status family. rate_limit_error, api_error, overloaded_error and timeout_error are worth retrying; the others need a different request. Retry a write only with the same Idempotency-Key: an api_error can mean it committed.'
+          enum:
+          - invalid_request_error
+          - authentication_error
+          - permission_error
+          - not_found_error
+          - conflict_error
+          - request_too_large
+          - rate_limit_error
+          - api_error
+          - overloaded_error
+          - timeout_error
+          type: string
+        request_id:
+          description: The request id, also sent as the x-request-id header. Quote it when reporting a problem.
+          type: string
+        missing_scopes:
+          description: Missing scopes.
+          items:
+            description: Scope.
+            type: string
+          type: array
+      required:
+      - error
+      type: object
+    AgentListResponse:
+      additionalProperties: false
+      description: Agent list response.
+      properties:
+        data:
+          additionalProperties: false
+          description: Agent list data.
+          properties:
+            items:
+              description: Agents.
+              items:
+                $ref: '#/components/schemas/Agent'
+              type: array
+          required:
+          - items
+          type: object
+      required:
+      - data
+      type: object
+    PublicApiErrorResponse:
+      additionalProperties: false
+      description: Target public API error envelope.
+      properties:
+        error:
+          additionalProperties: false
+          description: Error details.
+          properties:
+            code:
+              description: Machine-readable error code.
+              type: string
+            message:
+              description: Human-readable error message.
+              type: string
+            request_id:
+              description: Request identifier.
+              type:
+              - string
+              - 'null'
+          required:
+          - code
+          - message
+          type: object
+      required:
+      - error
+      type: object
+    CreateAgentBody:
+      additionalProperties: false
+      description: Agent creation request. Requires an Idempotency-Key header; a retried key replays the stored response instead of minting a second credential.
+      properties:
+        display_name:
+          description: Agent display name. Must be unique within the workspace.
+          type: string
+        system_prompt:
+          description: Agent system prompt.
+          type: string
+        model_id:
+          description: Model identifier the agent runs on.
+          type: string
+        role_name:
+          description: Optional role label.
+          type:
+          - string
+          - 'null'
+        response_scope:
+          description: Whether the agent responds workspace-wide or only to its creator. Defaults to workspace.
+          enum:
+          - workspace
+          - personal
+          type: string
+        avatar_file_id:
+          description: Workspace file identifier for the avatar image, or null for no avatar.
+          type:
+          - string
+          - 'null'
+      required:
+      - display_name
+      - system_prompt
+      - model_id
+      type: object
+    Agent:
+      additionalProperties: false
+      description: A workspace agent's lifecycle projection. The agent's own credential is never returned.
+      properties:
+        object:
+          description: Always "agent".
+          type: string
+          enum:
+          - agent
+        id:
+          description: Agent workspace membership identifier.
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+        display_name:
+          description: Agent display name.
+          type: string
+        role_name:
+          description: Optional role label.
+          type:
+          - string
+          - 'null'
+        model_id:
+          description: Model identifier the agent runs on.
+          type: string
+        response_scope:
+          description: Whether the agent responds workspace-wide or only to its creator.
+          enum:
+          - workspace
+          - personal
+          type: string
+        status:
+          description: Derived lifecycle status over activation and archival.
+          enum:
+          - active
+          - paused
+          - archived
+          type: string
+        is_workspace_agent:
+          description: Whether this is the workspace's built-in agent.
+          type: boolean
+        avatar_url:
+          description: Avatar URL, or null when unset.
+          type:
+          - string
+          - 'null'
+        created_by:
+          additionalProperties: false
+          description: The member who created the agent.
+          properties:
+            id:
+              description: Creator workspace membership identifier.
+              type: string
+              example: 01jzn7e61x3a7v9h2r7t2m3q4p
+            display_name:
+              description: Creator display name.
+              type:
+              - string
+              - 'null'
+          required:
+          - id
+          - display_name
+          type:
+          - object
+          - 'null'
+        created_at:
+          description: Creation timestamp.
+          type: string
+          example: '2026-05-14T08:00:00.000Z'
+          format: date-time
+        updated_at:
+          description: Last update timestamp.
+          type: string
+          example: '2026-05-14T08:00:00.000Z'
+          format: date-time
+      required:
+      - object
+      - id
+      - display_name
+      - role_name
+      - model_id
+      - response_scope
+      - status
+      - is_workspace_agent
+      - avatar_url
+      - created_by
+      - created_at
+      - updated_at
+      type: object
+  responses:
+    RateLimited:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/PublicApiErrorResponse'
+      description: Rate limit or quota exceeded.
+    InternalError:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Internal server error.
+    Unauthorized:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Missing or invalid API key.
+    Conflict:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Conflict.
+    Forbidden:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Forbidden.
+    NotFound:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Not found.
+    BadRequest:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Bad request.
+  securitySchemes:
+    AndoApiKey:
+      description: Workspace API key. Current accepted keys use the ando_sk_ prefix.
+      in: header
+      name: x-api-key
+      type: apiKey
+    BearerApiKey:
+      bearerFormat: ando_sk
+      description: Compatibility transport for workspace API keys.
+      scheme: bearer
+      type: http

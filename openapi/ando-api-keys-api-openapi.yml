@@ -1,0 +1,735 @@
+openapi: 3.2.0
+info:
+  description: Generated from Ando's accepted public API v1 contract metadata. Current routes preserve legacy /api/v1 response envelopes while converging on the public https://api.ando.so/v1 shape.
+  title: Ando Public API Keys API
+  version: v1
+servers:
+- description: Canonical public API host.
+  url: https://api.ando.so/v1
+tags:
+- description: Programmatic API key issuance and lifecycle routes.
+  name: API Keys
+paths:
+  /api-keys:
+    post:
+      description: Issues an exact-scope credential for an existing workspace member or a new named agent. Requires api_keys:write, a live admin/owner membership, and an Idempotency-Key. The encrypted secret response is replayable for 24 hours; after that it cannot be recovered. Credential-management scopes cannot be delegated.
+      operationId: issueApiKey
+      parameters:
+      - description: Required key for safe retries. Reusing it with different parameters returns 409 idempotency_conflict. The encrypted secret response can be replayed for 24 hours.
+        in: header
+        name: Idempotency-Key
+        required: true
+        schema:
+          description: Idempotency key.
+          type: string
+          maxLength: 255
+      requestBody:
+        content:
+          application/json:
+            examples:
+              namedAgent:
+                summary: Provision a scoped named-agent credential.
+                value:
+                  name: release-operator-production
+                  scopes:
+                  - messages:read
+                  - webhooks:read
+                  subject:
+                    display_name: Release operator
+                    kind: new_agent
+                    role_name: Release automation
+            schema:
+              $ref: '#/components/schemas/ApiKeyIssueBody'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              examples:
+                issued:
+                  summary: Issued credential. The secret is returned once.
+                  value:
+                    data:
+                      key:
+                        id: key_01jzn7e61x3a7v9h2r7t2m3q4p
+                        key_prefix: example-key-prefix
+                        name: release-operator-production
+                        scopes:
+                        - messages:read
+                        - webhooks:read
+                        status: active
+                        subject:
+                          display_name: Release operator
+                          principal_type: agent
+                          workspace_membership_id: mem_01jzn7e61x3a7v9h2r7t2m3q4p
+                      secret: example-key-secret-store-immediately
+              schema:
+                $ref: '#/components/schemas/ApiKeySecretResponse'
+          description: Issued API key.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      security:
+      - AndoApiKey: []
+      - BearerApiKey: []
+      summary: Issue an API key
+      tags:
+      - API Keys
+      x-ando-compatibility-mode: standard_public
+      x-ando-migration-target: standard_public
+      x-ando-rate-limit-policy: declared
+      x-ando-route-id: api.api_v1_api_keys.post
+      x-ando-canonical-host: api.ando.so
+      x-ando-documentation-owner: api_platform
+      x-ando-principal-kind: workspace_api_key
+      x-ando-public-api-route-class: durable_ingress
+      x-ando-public-path: /v1/api-keys
+      x-ando-runtime-owner: convex_product
+      x-ando-status-probe-owner: none
+      x-ando-rollback-runtime: convex_http
+      x-ando-selected-runtime: convex_http
+      x-ando-target-runtime: convex_http
+    get:
+      description: Lists reveal-safe API key metadata for the workspace. Requires api_keys:read on the calling key and a live admin/owner membership. Secrets are never returned.
+      operationId: listApiKeys
+      parameters:
+      - description: Opaque cursor returned by data.page_info.next_cursor. Omit for the first page.
+        in: query
+        name: cursor
+        schema:
+          description: Opaque cursor returned by data.page_info.next_cursor. Omit for the first page.
+          type: string
+      - description: Maximum API keys to return. Defaults to 50.
+        in: query
+        name: limit
+        schema:
+          description: Maximum API keys to return. Defaults to 50.
+          type: integer
+          maximum: 100
+          minimum: 1
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                keys:
+                  summary: Workspace API key metadata.
+                  value:
+                    data:
+                      items:
+                      - id: key_01jzn7e61x3a7v9h2r7t2m3q4p
+                        key_prefix: example-key-prefix
+                        name: release-operator-production
+                        scopes:
+                        - messages:read
+                        - webhooks:read
+                        status: active
+                        subject:
+                          display_name: Release operator
+                          principal_type: agent
+                          workspace_membership_id: mem_01jzn7e61x3a7v9h2r7t2m3q4p
+                      page_info:
+                        has_next_page: false
+                        next_cursor: null
+              schema:
+                $ref: '#/components/schemas/ApiKeyListResponse'
+          description: Workspace API keys.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      security:
+      - AndoApiKey: []
+      - BearerApiKey: []
+      summary: List API keys
+      tags:
+      - API Keys
+      x-ando-compatibility-mode: standard_public
+      x-ando-migration-target: standard_public
+      x-ando-rate-limit-policy: declared
+      x-ando-route-id: api.api_v1_api_keys.get
+      x-ando-canonical-host: api.ando.so
+      x-ando-documentation-owner: api_platform
+      x-ando-principal-kind: workspace_api_key
+      x-ando-public-api-route-class: public_data
+      x-ando-public-path: /v1/api-keys
+      x-ando-runtime-owner: convex_product
+      x-ando-status-probe-owner: none
+      x-ando-rollback-runtime: convex_http
+      x-ando-selected-runtime: convex_http
+      x-ando-target-runtime: convex_http
+  /api-keys/{apiKeyId}/rotate:
+    post:
+      description: Atomically replaces an API key secret while preserving its stable id; omitted label and scope fields keep their current values. Requires api_keys:write, a live admin/owner membership, an Idempotency-Key, and a different administrator key than the target. The old secret stops authenticating immediately. The encrypted replacement response is replayable for 24 hours through the same administrator key.
+      operationId: rotateApiKey
+      parameters:
+      - description: Stable API key identifier.
+        in: path
+        name: apiKeyId
+        required: true
+        schema:
+          description: Stable API key identifier.
+          type: string
+      - description: Required key for safe retries. Reusing it with different parameters returns 409 idempotency_conflict. The encrypted secret response can be replayed for 24 hours.
+        in: header
+        name: Idempotency-Key
+        required: true
+        schema:
+          description: Idempotency key.
+          type: string
+          maxLength: 255
+      requestBody:
+        content:
+          application/json:
+            examples:
+              rotate:
+                summary: Rotate and narrow an API key.
+                value:
+                  scopes:
+                  - messages:read
+            schema:
+              $ref: '#/components/schemas/ApiKeyRotateBody'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiKeySecretResponse'
+          description: Rotated API key.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      security:
+      - AndoApiKey: []
+      - BearerApiKey: []
+      summary: Rotate an API key
+      tags:
+      - API Keys
+      x-ando-compatibility-mode: standard_public
+      x-ando-migration-target: standard_public
+      x-ando-rate-limit-policy: declared
+      x-ando-route-id: api.api_v1_api_keys_by_apikeyid_rotate.post
+      x-ando-canonical-host: api.ando.so
+      x-ando-documentation-owner: api_platform
+      x-ando-principal-kind: workspace_api_key
+      x-ando-public-api-route-class: durable_ingress
+      x-ando-public-path: /v1/api-keys/:apiKeyId/rotate
+      x-ando-runtime-owner: convex_product
+      x-ando-status-probe-owner: none
+      x-ando-rollback-runtime: convex_http
+      x-ando-selected-runtime: convex_http
+      x-ando-target-runtime: convex_http
+  /api-keys/{apiKeyId}:
+    delete:
+      description: Permanently revokes an API key while retaining reveal-safe lifecycle and audit metadata. Requires api_keys:write and a live admin/owner membership. Repeating the request is safe.
+      operationId: revokeApiKey
+      parameters:
+      - description: Stable API key identifier.
+        in: path
+        name: apiKeyId
+        required: true
+        schema:
+          description: Stable API key identifier.
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiKeyResponse'
+          description: Revoked API key.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      security:
+      - AndoApiKey: []
+      - BearerApiKey: []
+      summary: Revoke an API key
+      tags:
+      - API Keys
+      x-ando-compatibility-mode: standard_public
+      x-ando-migration-target: standard_public
+      x-ando-rate-limit-policy: declared
+      x-ando-route-id: api.api_v1_api_keys_by_apikeyid.delete
+      x-ando-canonical-host: api.ando.so
+      x-ando-documentation-owner: api_platform
+      x-ando-principal-kind: workspace_api_key
+      x-ando-public-api-route-class: durable_ingress
+      x-ando-public-path: /v1/api-keys/:apiKeyId
+      x-ando-runtime-owner: convex_product
+      x-ando-status-probe-owner: none
+      x-ando-rollback-runtime: convex_http
+      x-ando-selected-runtime: convex_http
+      x-ando-target-runtime: convex_http
+components:
+  schemas:
+    ApiKey:
+      additionalProperties: false
+      description: Reveal-safe API key metadata. The secret is only returned by issue and rotate responses.
+      properties:
+        id:
+          description: Stable API key identifier.
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+        key_prefix:
+          description: Non-secret prefix for operator recognition.
+          type: string
+        name:
+          description: Optional operator-facing key label.
+          type:
+          - string
+          - 'null'
+        scopes:
+          description: Exact scopes granted to the key.
+          items:
+            type: string
+            enum:
+            - calls:read
+            - conversations:create
+            - conversation_memberships:write
+            - files:read
+            - files:write
+            - profile:write
+            - context:self-introduction
+            - inbox:read
+            - inbox:write
+            - connections:read
+            - connections:write
+            - connections:execute
+            - miniapps:read
+            - miniapps:write
+            - documents:read
+            - documents:write
+            - automations:read
+            - automations:write
+            - members:invite
+            - tasks:read
+            - tasks:contribute
+            - tasks:coordinate
+            - tasks:complete
+            - agents:read
+            - agents:write
+            - messages:read
+            - messages:write
+            - realtime:read
+            - webhooks:read
+            - webhooks:write
+            - api_keys:read
+            - api_keys:write
+            - imports:write
+            - slack_migration:read
+            - slack_migration:write
+          type: array
+        status:
+          description: Credential lifecycle status.
+          enum:
+          - active
+          - disabled
+          - revoked
+          type: string
+        subject:
+          $ref: '#/components/schemas/ApiKeySubject'
+      required:
+      - id
+      - key_prefix
+      - name
+      - scopes
+      - status
+      - subject
+      type: object
+    ApiKeyRotateBody:
+      additionalProperties: false
+      description: Atomically replaces an API key secret. Omitted label and scope fields retain their current values.
+      properties:
+        name:
+          description: Replacement operator-facing key label.
+          type:
+          - string
+          - 'null'
+        scopes:
+          description: Exact replacement non-administrative scopes.
+          items:
+            type: string
+            enum:
+            - calls:read
+            - conversations:create
+            - conversation_memberships:write
+            - files:read
+            - files:write
+            - profile:write
+            - context:self-introduction
+            - inbox:read
+            - inbox:write
+            - connections:read
+            - connections:write
+            - connections:execute
+            - miniapps:read
+            - miniapps:write
+            - documents:read
+            - documents:write
+            - automations:read
+            - automations:write
+            - members:invite
+            - tasks:read
+            - tasks:contribute
+            - tasks:coordinate
+            - tasks:complete
+            - agents:read
+            - agents:write
+            - messages:read
+            - messages:write
+            - realtime:read
+            - webhooks:read
+            - webhooks:write
+          type: array
+      type: object
+    LegacyErrorResponse:
+      additionalProperties: false
+      description: Current compatibility error envelope used by legacy /api/v1 routes.
+      properties:
+        error:
+          description: Error message.
+          type: string
+        error_code:
+          description: Optional machine-readable error code.
+          type:
+          - string
+          - 'null'
+        type:
+          description: 'Error class, one per HTTP status family. rate_limit_error, api_error, overloaded_error and timeout_error are worth retrying; the others need a different request. Retry a write only with the same Idempotency-Key: an api_error can mean it committed.'
+          enum:
+          - invalid_request_error
+          - authentication_error
+          - permission_error
+          - not_found_error
+          - conflict_error
+          - request_too_large
+          - rate_limit_error
+          - api_error
+          - overloaded_error
+          - timeout_error
+          type: string
+        request_id:
+          description: The request id, also sent as the x-request-id header. Quote it when reporting a problem.
+          type: string
+        missing_scopes:
+          description: Missing scopes.
+          items:
+            description: Scope.
+            type: string
+          type: array
+      required:
+      - error
+      type: object
+    ApiKeyIssueBody:
+      additionalProperties: false
+      description: Issues an exact-scope credential for a new named agent or an existing workspace member. api_keys administration scopes cannot be delegated.
+      properties:
+        name:
+          description: Optional operator-facing key label.
+          type:
+          - string
+          - 'null'
+        scopes:
+          description: Exact non-administrative scopes to grant.
+          items:
+            type: string
+            enum:
+            - calls:read
+            - conversations:create
+            - conversation_memberships:write
+            - files:read
+            - files:write
+            - profile:write
+            - context:self-introduction
+            - inbox:read
+            - inbox:write
+            - connections:read
+            - connections:write
+            - connections:execute
+            - miniapps:read
+            - miniapps:write
+            - documents:read
+            - documents:write
+            - automations:read
+            - automations:write
+            - members:invite
+            - tasks:read
+            - tasks:contribute
+            - tasks:coordinate
+            - tasks:complete
+            - agents:read
+            - agents:write
+            - messages:read
+            - messages:write
+            - realtime:read
+            - webhooks:read
+            - webhooks:write
+          type: array
+        subject:
+          description: Identity the new credential will act as.
+          discriminator:
+            propertyName: kind
+          oneOf:
+          - additionalProperties: false
+            description: Create a new named agent identity.
+            properties:
+              display_name:
+                description: Unique agent display name.
+                type: string
+              kind:
+                description: Subject kind.
+                enum:
+                - new_agent
+                type: string
+              role_name:
+                description: Optional role label.
+                type:
+                - string
+                - 'null'
+            required:
+            - display_name
+            - kind
+            - role_name
+            type: object
+          - additionalProperties: false
+            description: Bind the credential to an existing workspace member.
+            properties:
+              kind:
+                description: Subject kind.
+                enum:
+                - workspace_member
+                type: string
+              workspace_membership_id:
+                description: Existing workspace membership identifier.
+                type: string
+                example: 01jzn7e61x3a7v9h2r7t2m3q4p
+            required:
+            - kind
+            - workspace_membership_id
+            type: object
+      required:
+      - name
+      - scopes
+      - subject
+      type: object
+    ApiKeySecretResponse:
+      additionalProperties: false
+      description: API key response that reveals the new secret exactly once.
+      properties:
+        data:
+          additionalProperties: false
+          description: New credential data.
+          properties:
+            key:
+              $ref: '#/components/schemas/ApiKey'
+            secret:
+              description: New API key secret. Store it immediately; it cannot be read later.
+              type: string
+          required:
+          - key
+          - secret
+          type: object
+      required:
+      - data
+      type: object
+    PublicApiErrorResponse:
+      additionalProperties: false
+      description: Target public API error envelope.
+      properties:
+        error:
+          additionalProperties: false
+          description: Error details.
+          properties:
+            code:
+              description: Machine-readable error code.
+              type: string
+            message:
+              description: Human-readable error message.
+              type: string
+            request_id:
+              description: Request identifier.
+              type:
+              - string
+              - 'null'
+          required:
+          - code
+          - message
+          type: object
+      required:
+      - error
+      type: object
+    ApiKeySubject:
+      additionalProperties: false
+      description: Workspace identity the credential acts as.
+      properties:
+        display_name:
+          description: Current subject display name.
+          type:
+          - string
+          - 'null'
+        principal_type:
+          description: Subject principal type.
+          enum:
+          - agent
+          - user
+          type: string
+        workspace_membership_id:
+          description: Subject workspace membership identifier.
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+      required:
+      - display_name
+      - principal_type
+      - workspace_membership_id
+      type: object
+    ApiKeyResponse:
+      additionalProperties: false
+      description: API key metadata response.
+      properties:
+        data:
+          additionalProperties: false
+          description: API key data.
+          properties:
+            key:
+              $ref: '#/components/schemas/ApiKey'
+          required:
+          - key
+          type: object
+      required:
+      - data
+      type: object
+    ApiKeyListResponse:
+      additionalProperties: false
+      description: Workspace API key metadata response. Secrets are never included.
+      properties:
+        data:
+          additionalProperties: false
+          description: API key list data.
+          properties:
+            items:
+              description: API keys.
+              items:
+                $ref: '#/components/schemas/ApiKey'
+              type: array
+            page_info:
+              additionalProperties: false
+              description: Opaque cursor pagination metadata.
+              properties:
+                has_next_page:
+                  description: Whether another page of API keys is available.
+                  type: boolean
+                next_cursor:
+                  description: Opaque cursor for the next page, or null when complete.
+                  type:
+                  - string
+                  - 'null'
+              required:
+              - has_next_page
+              - next_cursor
+              type: object
+          required:
+          - items
+          - page_info
+          type: object
+      required:
+      - data
+      type: object
+  responses:
+    RateLimited:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/PublicApiErrorResponse'
+      description: Rate limit or quota exceeded.
+    InternalError:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Internal server error.
+    Unauthorized:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Missing or invalid API key.
+    Conflict:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Conflict.
+    Forbidden:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Forbidden.
+    NotFound:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Not found.
+    BadRequest:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Bad request.
+  securitySchemes:
+    AndoApiKey:
+      description: Workspace API key. Current accepted keys use the ando_sk_ prefix.
+      in: header
+      name: x-api-key
+      type: apiKey
+    BearerApiKey:
+      bearerFormat: ando_sk
+      description: Compatibility transport for workspace API keys.
+      scheme: bearer
+      type: http

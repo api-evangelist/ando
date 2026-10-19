@@ -7,7 +7,8 @@ servers:
 - description: Canonical public API host.
   url: https://api.ando.so/v1
 tags:
-- name: Realtime
+- description: Public realtime connection and protocol routes.
+  name: Realtime
 paths:
   /realtime/connections:
     post:
@@ -44,6 +45,9 @@ paths:
                     heartbeat_interval_seconds: 30
                     approximate_connection_time_seconds: null
                     resume_supported: true
+                    resume_cursor: rtcur_v2_initial_01jzn7e61x3a7v9h2r7t2m3q4p
+                    subscription_source: explicit
+                    effective_wake_policy: null
                     subscriptions:
                     - id: rtsub_01jzn7e61x3a7v9h2r7t2m3q4p
                       target:
@@ -104,150 +108,50 @@ paths:
       x-ando-selected-runtime: express
       x-ando-target-runtime: express
 components:
+  responses:
+    RateLimited:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/PublicApiErrorResponse'
+      description: Rate limit or quota exceeded.
+    InternalError:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Internal server error.
+    Unauthorized:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Missing or invalid API key.
+    Conflict:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Conflict.
+    Forbidden:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Forbidden.
+    NotFound:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Not found.
+    BadRequest:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Bad request.
   schemas:
-    RealtimeEventType:
-      description: ProductEvent type available on public realtime sockets.
-      enum:
-      - message.created
-      type: string
-    OpenRealtimeConnectionRequest:
-      additionalProperties: false
-      description: Public realtime connection-opening request.
-      properties:
-        resume_from:
-          $ref: '#/components/schemas/RealtimeResumeRequest'
-        subscriptions:
-          description: Realtime subscriptions to authorize for this connection.
-          items:
-            $ref: '#/components/schemas/RealtimeConnectionSubscriptionRequest'
-          type: array
-          minItems: 1
-      required:
-      - subscriptions
-      type: object
-    RealtimeTarget:
-      description: Realtime target requested while opening a connection. The initial release supports self or an explicit workspace membership target.
-      oneOf:
-      - description: Authenticated principal shorthand.
-        enum:
-        - self
-        type: string
-      - additionalProperties: false
-        description: Workspace membership realtime target.
-        properties:
-          id:
-            description: Workspace membership identifier.
-            type: string
-            example: 01jzn7e61x3a7v9h2r7t2m3q4p
-          type:
-            description: Target type.
-            enum:
-            - workspace_membership
-            type: string
-        required:
-        - type
-        - id
-        type: object
-    PublicApiErrorResponse:
-      additionalProperties: false
-      description: Target public API error envelope.
-      properties:
-        error:
-          additionalProperties: false
-          description: Error details.
-          properties:
-            code:
-              description: Machine-readable error code.
-              type: string
-            message:
-              description: Human-readable error message.
-              type: string
-            request_id:
-              description: Request identifier.
-              type:
-              - string
-              - 'null'
-          required:
-          - code
-          - message
-          type: object
-      required:
-      - error
-      type: object
-    RealtimeDelivery:
-      description: Realtime delivery filter. Use "messages" for readable message.created delivery; use "mentions" for explicit mention-only delivery capped at 100 explicit targets per message.
-      enum:
-      - messages
-      - mentions
-      type: string
-    OpenRealtimeConnectionResponse:
-      additionalProperties: false
-      description: Temporary public realtime websocket connection details.
-      properties:
-        approximate_connection_time_seconds:
-          description: Approximate expected connection lifetime in seconds when the server advertises one.
-          type:
-          - number
-          - 'null'
-        connection_id:
-          description: Realtime connection identifier.
-          type: string
-          example: 01jzn7e61x3a7v9h2r7t2m3q4p
-        expires_at:
-          description: Timestamp when the returned connection URL expires if it has not been used.
-          type: string
-          example: '2026-05-14T08:00:00.000Z'
-          format: date-time
-        expires_in_seconds:
-          description: Seconds until the returned connection URL expires if it has not been used.
-          type: integer
-          minimum: 1
-        heartbeat_interval_seconds:
-          description: Recommended heartbeat interval for the socket.
-          type: integer
-          minimum: 1
-        protocol:
-          description: Required websocket subprotocol.
-          enum:
-          - ando.realtime.v1
-          type: string
-        resume_supported:
-          description: Whether bounded resume is supported for this connection.
-          type: boolean
-        subscriptions:
-          description: Canonical subscriptions authorized for the socket.
-          items:
-            $ref: '#/components/schemas/RealtimeConnectionSubscription'
-          type: array
-        url:
-          description: Temporary pre-authorized websocket URL. Treat the ticket query parameter as secret.
-          type: string
-        warnings:
-          description: Non-fatal connection-opening warnings.
-          items:
-            $ref: '#/components/schemas/RealtimeConnectionWarning'
-          type: array
-      required:
-      - url
-      - expires_at
-      - expires_in_seconds
-      - connection_id
-      - protocol
-      - heartbeat_interval_seconds
-      - approximate_connection_time_seconds
-      - resume_supported
-      - subscriptions
-      type: object
-    RealtimeResumeRequest:
-      additionalProperties: false
-      description: Bounded realtime resume request.
-      properties:
-        cursor:
-          description: Last acknowledged realtime cursor.
-          type: string
-      required:
-      - cursor
-      type: object
     LegacyErrorResponse:
       additionalProperties: false
       description: Current compatibility error envelope used by legacy /api/v1 routes.
@@ -260,6 +164,23 @@ components:
           type:
           - string
           - 'null'
+        type:
+          description: 'Error class, one per HTTP status family. rate_limit_error, api_error, overloaded_error and timeout_error are worth retrying; the others need a different request. Retry a write only with the same Idempotency-Key: an api_error can mean it committed.'
+          enum:
+          - invalid_request_error
+          - authentication_error
+          - permission_error
+          - not_found_error
+          - conflict_error
+          - request_too_large
+          - rate_limit_error
+          - api_error
+          - overloaded_error
+          - timeout_error
+          type: string
+        request_id:
+          description: The request id, also sent as the x-request-id header. Quote it when reporting a problem.
+          type: string
         missing_scopes:
           description: Missing scopes.
           items:
@@ -286,6 +207,13 @@ components:
       - type
       - id
       type: object
+    RealtimeEventType:
+      description: ProductEvent type available on public realtime sockets.
+      enum:
+      - message.created
+      - message.updated
+      - message.reaction.created
+      type: string
     RealtimeConnectionSubscriptionRequest:
       additionalProperties: false
       description: Realtime subscription requested while opening a connection.
@@ -297,7 +225,9 @@ components:
           items:
             $ref: '#/components/schemas/RealtimeEventType'
           type: array
-          minItems: 1
+          minItems: 0
+          maxItems: 3
+          uniqueItems: true
         target:
           $ref: '#/components/schemas/RealtimeTarget'
       required:
@@ -305,23 +235,54 @@ components:
       - delivery
       - events
       type: object
-    RealtimeConnectionWarning:
+      oneOf:
+      - properties:
+          delivery:
+            enum:
+            - messages
+          events:
+            minItems: 1
+      - properties:
+          delivery:
+            enum:
+            - inbox
+          events:
+            maxItems: 0
+    RealtimeResumeRequest:
       additionalProperties: false
-      description: Non-fatal realtime connection-opening warning.
+      description: Bounded realtime resume request.
       properties:
-        code:
-          description: Realtime connection warning code.
-          enum:
-          - resume_failed
-          - resume_unavailable
+        cursor:
+          description: Last acknowledged realtime cursor.
           type: string
-        message:
-          description: Human-readable warning message.
-          type: string
+          minLength: 1
+          maxLength: 4096
       required:
-      - code
-      - message
+      - cursor
       type: object
+    RealtimeTarget:
+      description: Realtime target requested while opening a connection. The initial release supports self or an explicit workspace membership target.
+      oneOf:
+      - description: Authenticated principal shorthand.
+        enum:
+        - self
+        type: string
+      - additionalProperties: false
+        description: Workspace membership realtime target.
+        properties:
+          id:
+            description: Workspace membership identifier.
+            type: string
+            example: 01jzn7e61x3a7v9h2r7t2m3q4p
+          type:
+            description: Target type.
+            enum:
+            - workspace_membership
+            type: string
+        required:
+        - type
+        - id
+        type: object
     RealtimeConnectionSubscription:
       additionalProperties: false
       description: Canonical realtime subscription authorized by the API.
@@ -333,7 +294,9 @@ components:
           items:
             $ref: '#/components/schemas/RealtimeEventType'
           type: array
-          minItems: 1
+          minItems: 0
+          maxItems: 3
+          uniqueItems: true
         id:
           description: Realtime subscription identifier.
           type: string
@@ -346,49 +309,144 @@ components:
       - delivery
       - events
       type: object
-  responses:
-    Unauthorized:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/LegacyErrorResponse'
-      description: Missing or invalid API key.
-    RateLimited:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/PublicApiErrorResponse'
-      description: Rate limit or quota exceeded.
-    Conflict:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/LegacyErrorResponse'
-      description: Conflict.
-    InternalError:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/LegacyErrorResponse'
-      description: Internal server error.
-    NotFound:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/LegacyErrorResponse'
-      description: Not found.
-    Forbidden:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/LegacyErrorResponse'
-      description: Forbidden.
-    BadRequest:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/LegacyErrorResponse'
-      description: Bad request.
+      oneOf:
+      - properties:
+          delivery:
+            enum:
+            - messages
+          events:
+            minItems: 1
+      - properties:
+          delivery:
+            enum:
+            - inbox
+          events:
+            maxItems: 0
+    PublicApiErrorResponse:
+      additionalProperties: false
+      description: Target public API error envelope.
+      properties:
+        error:
+          additionalProperties: false
+          description: Error details.
+          properties:
+            code:
+              description: Machine-readable error code.
+              type: string
+            message:
+              description: Human-readable error message.
+              type: string
+            request_id:
+              description: Request identifier.
+              type:
+              - string
+              - 'null'
+          required:
+          - code
+          - message
+          type: object
+      required:
+      - error
+      type: object
+    OpenRealtimeConnectionRequest:
+      additionalProperties: false
+      description: Public realtime connection-opening request.
+      properties:
+        resume_from:
+          $ref: '#/components/schemas/RealtimeResumeRequest'
+        subscriptions:
+          description: Realtime subscriptions to authorize for this connection.
+          items:
+            $ref: '#/components/schemas/RealtimeConnectionSubscriptionRequest'
+          type: array
+          minItems: 1
+          maxItems: 1
+      type: object
+    RealtimeDelivery:
+      description: Realtime delivery filter. "messages" delivers readable conversation-scoped ProductEvents; "inbox" delivers agent pending-work snapshots with an empty events array.
+      enum:
+      - messages
+      - inbox
+      type: string
+    OpenRealtimeConnectionResponse:
+      additionalProperties: false
+      description: Temporary public realtime websocket connection details.
+      properties:
+        approximate_connection_time_seconds:
+          description: Approximate maximum connection lifetime in seconds. Resume near a cursor deadline can shorten it.
+          type:
+          - number
+          - 'null'
+        connection_id:
+          description: Realtime connection identifier.
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+        expires_at:
+          description: Timestamp when the returned connection URL expires if unused. Resume near a cursor deadline can shorten the normal URL lifetime.
+          type: string
+          example: '2026-05-14T08:00:00.000Z'
+          format: date-time
+        expires_in_seconds:
+          description: Seconds until the returned connection URL expires if unused, capped by any resume-cursor deadline.
+          type: integer
+          minimum: 1
+        heartbeat_interval_seconds:
+          description: Recommended heartbeat interval for the socket.
+          type: integer
+          minimum: 1
+        protocol:
+          description: Required websocket subprotocol.
+          enum:
+          - ando.realtime.v1
+          type: string
+        resume_supported:
+          description: Whether bounded resume is supported for this connection.
+          type: boolean
+        resume_cursor:
+          description: Safe cursor for the connection's initial ledger floor. Persist it before opening the websocket, then replace it only after the server confirms an ordered acknowledgement or sends a planned-disconnect checkpoint.
+          type: string
+          minLength: 1
+          maxLength: 4096
+        subscription_source:
+          description: Whether the canonical subscription was explicit or synthesized from external-agent Notify.
+          enum:
+          - explicit
+          - agent_wake
+          type: string
+        effective_wake_policy:
+          description: Current external-agent Notify ceiling. Null for a human member principal.
+          enum:
+          - mentions_and_direct_messages
+          - mentions_only
+          - all_messages
+          - disabled
+          type:
+          - string
+          - 'null'
+        subscriptions:
+          description: Canonical subscriptions authorized for the socket.
+          items:
+            $ref: '#/components/schemas/RealtimeConnectionSubscription'
+          type: array
+          minItems: 1
+          maxItems: 1
+        url:
+          description: Temporary pre-authorized websocket URL. Treat the ticket query parameter as secret.
+          type: string
+      required:
+      - url
+      - expires_at
+      - expires_in_seconds
+      - connection_id
+      - protocol
+      - heartbeat_interval_seconds
+      - approximate_connection_time_seconds
+      - resume_supported
+      - resume_cursor
+      - subscription_source
+      - effective_wake_policy
+      - subscriptions
+      type: object
   securitySchemes:
     AndoApiKey:
       description: Workspace API key. Current accepted keys use the ando_sk_ prefix.

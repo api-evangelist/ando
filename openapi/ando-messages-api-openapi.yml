@@ -12,7 +12,7 @@ tags:
 paths:
   /conversation-messages/{messageId}:
     get:
-      description: Returns a single conversation message by identifier.
+      description: Returns a single conversation message by identifier. Requires messages:read and access to the conversation.
       operationId: getConversationMessage
       parameters:
       - description: Message identifier.
@@ -38,6 +38,7 @@ paths:
                     author_name: Alex Kim
                     content: Validated the route migration.
                     image_urls: []
+                    attachments: []
                     reactions:
                     - emoji_text: ':thumbsup:'
                       count: 2
@@ -52,6 +53,7 @@ paths:
                       author_name: Alex Kim
                       content: Validated the route migration.
                       image_urls: []
+                      attachments: []
                       reactions:
                       - emoji_text: ':thumbsup:'
                         count: 2
@@ -94,9 +96,288 @@ paths:
       x-ando-rollback-runtime: express
       x-ando-selected-runtime: convex_http
       x-ando-target-runtime: convex_http
+    patch:
+      description: 'Replaces the markdown body of a message authored by the authenticated API-key workspace membership. Each accepted edit marks the message as edited and emits a message.updated ProductEvent to webhook and realtime subscribers. A message posted with a document card can replace that card by sending app_card; the server regenerates its text fallback. Attachments, thread placement, and authorship are fixed at create time and are not editable, and a message without a document card cannot gain one. Sending a body identical to the stored one is a no-op: the message keeps its revision and no event is emitted. Editing does not create new mentions or notifications.'
+      operationId: updateConversationMessage
+      parameters:
+      - description: Message identifier.
+        in: path
+        name: messageId
+        required: true
+        schema:
+          description: Message identifier.
+          type: string
+      requestBody:
+        content:
+          application/json:
+            examples:
+              progress:
+                summary: Repaint a message with run progress.
+                value:
+                  markdown_content: 'Step 3 of 5: running the migration test suite…'
+            schema:
+              $ref: '#/components/schemas/UpdateConversationMessageBody'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                message:
+                  summary: Updated message.
+                  value:
+                    id: msg_01jzn7e61x3a7v9h2r7t2m3q4p
+                    conversation_id: conv_01jzn7e61x3a7v9h2r7t2m3q4p
+                    conversation_name: Launch planning
+                    authorWorkspaceMembershipId: mem_01jzn7e61x3a7v9h2r7t2m3q4p
+                    author_id: mem_01jzn7e61x3a7v9h2r7t2m3q4p
+                    author_name: Alex Kim
+                    content: 'Step 3 of 5: running the migration test suite…'
+                    image_urls: []
+                    attachments: []
+                    reactions:
+                    - emoji_text: ':thumbsup:'
+                      count: 2
+                    replies_count: 1
+                    created_at: '2026-05-14T08:00:00.000Z'
+                    data:
+                      id: msg_01jzn7e61x3a7v9h2r7t2m3q4p
+                      conversation_id: conv_01jzn7e61x3a7v9h2r7t2m3q4p
+                      conversation_name: Launch planning
+                      authorWorkspaceMembershipId: mem_01jzn7e61x3a7v9h2r7t2m3q4p
+                      author_id: mem_01jzn7e61x3a7v9h2r7t2m3q4p
+                      author_name: Alex Kim
+                      content: 'Step 3 of 5: running the migration test suite…'
+                      image_urls: []
+                      attachments: []
+                      reactions:
+                      - emoji_text: ':thumbsup:'
+                        count: 2
+                      replies_count: 1
+                      created_at: '2026-05-14T08:00:00.000Z'
+              schema:
+                $ref: '#/components/schemas/MessageResultResponse'
+          description: Updated message.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      security:
+      - AndoApiKey: []
+      - BearerApiKey: []
+      summary: Update a message
+      tags:
+      - Messages
+      x-ando-compatibility-mode: standard_public
+      x-ando-migration-target: standard_public
+      x-ando-rate-limit-policy: declared
+      x-ando-route-id: api.api_v1_conversation_messages_by_messageid.patch
+      x-ando-canonical-host: api.ando.so
+      x-ando-documentation-owner: api_platform
+      x-ando-principal-kind: workspace_api_key
+      x-ando-public-api-route-class: durable_ingress
+      x-ando-public-path: /v1/conversation-messages/:messageId
+      x-ando-runtime-owner: convex_product
+      x-ando-status-probe-owner: public_api_messaging
+      x-ando-rollback-runtime: convex_http
+      x-ando-selected-runtime: convex_http
+      x-ando-target-runtime: convex_http
+    delete:
+      description: 'Deletes a message authored by the authenticated API-key workspace membership, exactly as its author deleting it in the app: the message is removed for everyone, its body, attachments and reactions are cleared, and replies under a thread root stay in their thread. Requires messages:write. A message that does not exist, is not visible to the key, was authored by someone else, or is already deleted returns 404 Message not found, so repeating a delete is safe and reveals nothing. No webhook event is emitted.'
+      operationId: deleteConversationMessage
+      parameters:
+      - description: Message identifier.
+        in: path
+        name: messageId
+        required: true
+        schema:
+          description: Message identifier.
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteConversationMessageResponse'
+          description: Deleted message.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      security:
+      - AndoApiKey: []
+      - BearerApiKey: []
+      summary: Delete a message
+      tags:
+      - Messages
+      x-ando-compatibility-mode: standard_public
+      x-ando-migration-target: standard_public
+      x-ando-rate-limit-policy: declared
+      x-ando-route-id: api.api_v1_conversation_messages_by_messageid.delete
+      x-ando-canonical-host: api.ando.so
+      x-ando-documentation-owner: api_platform
+      x-ando-principal-kind: workspace_api_key
+      x-ando-public-api-route-class: durable_ingress
+      x-ando-public-path: /v1/conversation-messages/:messageId
+      x-ando-runtime-owner: convex_product
+      x-ando-status-probe-owner: public_api_messaging
+      x-ando-rollback-runtime: convex_http
+      x-ando-selected-runtime: convex_http
+      x-ando-target-runtime: convex_http
+  /scheduled-messages:
+    get:
+      description: Lists the messages the calling API key scheduled that are still waiting to send, soonest first. Requires messages:write. Messages scheduled by other keys or in the app are never listed; sent and canceled messages drop out.
+      operationId: listScheduledMessages
+      parameters:
+      - description: Opaque cursor returned by data.page_info.next_cursor. Omit for the first page.
+        in: query
+        name: cursor
+        schema:
+          description: Opaque cursor returned by data.page_info.next_cursor. Omit for the first page.
+          type: string
+      - description: Maximum scheduled messages to return. Defaults to 50.
+        in: query
+        name: limit
+        schema:
+          description: Maximum scheduled messages to return. Defaults to 50.
+          type: integer
+          maximum: 100
+          minimum: 1
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                scheduled:
+                  summary: One waiting message.
+                  value:
+                    data:
+                      items:
+                      - conversation_id: 01jzn7e61x3a7v9h2r7t2m3q4p
+                        created_at: '2026-10-11T16:00:00.000Z'
+                        file_ids: []
+                        id: 4f1d2c3b-5a6e-4f70-8a9b-0c1d2e3f4a5b
+                        markdown_content: Release notes for 4.2 are live.
+                        replied_to_message_id: null
+                        send_at: '2026-10-12T09:00:00.000Z'
+                        status: scheduled
+                        thread_root_id: null
+                      page_info:
+                        has_next_page: false
+                        next_cursor: null
+              schema:
+                $ref: '#/components/schemas/ScheduledMessageListResponse'
+          description: Waiting scheduled messages.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      security:
+      - AndoApiKey: []
+      - BearerApiKey: []
+      summary: List scheduled messages
+      tags:
+      - Messages
+      x-ando-compatibility-mode: standard_public
+      x-ando-migration-target: standard_public
+      x-ando-rate-limit-policy: declared
+      x-ando-route-id: api.api_v1_scheduled_messages.get
+      x-ando-canonical-host: api.ando.so
+      x-ando-documentation-owner: api_platform
+      x-ando-principal-kind: workspace_api_key
+      x-ando-public-api-route-class: public_data
+      x-ando-public-path: /v1/scheduled-messages
+      x-ando-runtime-owner: convex_product
+      x-ando-status-probe-owner: public_api_messaging
+      x-ando-rollback-runtime: convex_http
+      x-ando-selected-runtime: convex_http
+      x-ando-target-runtime: convex_http
+  /scheduled-messages/{scheduledMessageId}:
+    delete:
+      description: Cancels a message the calling API key scheduled, so it is never sent. Requires messages:write. A scheduled message that does not exist, was scheduled by another key or in the app, was already sent or was already canceled returns 404 Scheduled message not found, so repeating a cancel is safe and reveals nothing. To change a scheduled message, cancel it and schedule again.
+      operationId: cancelScheduledMessage
+      parameters:
+      - description: Scheduled message identifier.
+        in: path
+        name: scheduledMessageId
+        required: true
+        schema:
+          description: Scheduled message identifier.
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CancelScheduledMessageResponse'
+          description: Canceled scheduled message.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      security:
+      - AndoApiKey: []
+      - BearerApiKey: []
+      summary: Cancel a scheduled message
+      tags:
+      - Messages
+      x-ando-compatibility-mode: standard_public
+      x-ando-migration-target: standard_public
+      x-ando-rate-limit-policy: declared
+      x-ando-route-id: api.api_v1_scheduled_messages_by_scheduledmessageid.delete
+      x-ando-canonical-host: api.ando.so
+      x-ando-documentation-owner: api_platform
+      x-ando-principal-kind: workspace_api_key
+      x-ando-public-api-route-class: durable_ingress
+      x-ando-public-path: /v1/scheduled-messages/:scheduledMessageId
+      x-ando-runtime-owner: convex_product
+      x-ando-status-probe-owner: public_api_messaging
+      x-ando-rollback-runtime: convex_http
+      x-ando-selected-runtime: convex_http
+      x-ando-target-runtime: convex_http
   /conversation-messages/{messageId}/replies:
     get:
-      description: Returns replies for a thread root message.
+      description: Returns replies for a thread root message in chronological order. Requires messages:read and access to the conversation. Use before to fetch the nearest preceding replies, or after to page forward; the two cursors are mutually exclusive.
       operationId: listThreadReplies
       parameters:
       - description: Thread root message identifier.
@@ -119,6 +400,12 @@ paths:
         schema:
           description: Cursor or ISO timestamp after which results should be returned.
           type: string
+      - description: Opaque cursor identifying a reply in this thread. Returns the nearest earlier replies; mutually exclusive with after.
+        in: query
+        name: before
+        schema:
+          type: string
+          description: Opaque cursor identifying a reply in this thread.
       responses:
         '200':
           content:
@@ -140,6 +427,7 @@ paths:
                         author_name: Alex Kim
                         content: Follow-up looks good.
                         image_urls: []
+                        attachments: []
                         reactions:
                         - emoji_text: ':thumbsup:'
                           count: 2
@@ -163,6 +451,7 @@ paths:
                       author_name: Alex Kim
                       content: Follow-up looks good.
                       image_urls: []
+                      attachments: []
                       reactions:
                       - emoji_text: ':thumbsup:'
                         count: 2
@@ -212,7 +501,7 @@ paths:
       x-ando-target-runtime: convex_http
   /conversations/{conversationId}/messages:
     get:
-      description: Returns messages in a conversation.
+      description: Returns messages in a conversation. Requires messages:read and access to the conversation.
       operationId: listConversationMessages
       parameters:
       - description: Conversation identifier.
@@ -255,6 +544,7 @@ paths:
                         author_name: Alex Kim
                         content: Validated the route migration.
                         image_urls: []
+                        attachments: []
                         reactions:
                         - emoji_text: ':thumbsup:'
                           count: 2
@@ -277,6 +567,7 @@ paths:
                       author_name: Alex Kim
                       content: Validated the route migration.
                       image_urls: []
+                      attachments: []
                       reactions:
                       - emoji_text: ':thumbsup:'
                         count: 2
@@ -325,7 +616,7 @@ paths:
       x-ando-selected-runtime: convex_http
       x-ando-target-runtime: convex_http
     post:
-      description: Creates a message in a conversation using the authenticated API-key workspace membership as the author.
+      description: 'Creates a message in a conversation using the authenticated API-key workspace membership as the author. With send_at, the message is scheduled instead and the response is 202 with the scheduled message: it is sent at that time, through the same scheduling the app uses, only if the key is still live and its member can still post there. send_at must be at least 5 minutes and at most 30 days ahead (400 invalid_send_at otherwise); a key holds at most 100 waiting messages (409 scheduled_message_limit_reached). Thread replies schedule the same way.'
       operationId: createConversationMessage
       parameters:
       - description: Conversation identifier.
@@ -353,6 +644,7 @@ paths:
                   markdown_content: Can you review this?
                   explicit_context_message_ids: []
                   image_urls: []
+                  file_ids: []
                   suppressed_link_preview_urls: []
                   thread_root_id: null
             schema:
@@ -376,6 +668,7 @@ paths:
                       author_name: Alex Kim
                       content: Validated the route migration.
                       image_urls: []
+                      attachments: []
                       reactions:
                       - emoji_text: ':thumbsup:'
                         count: 2
@@ -385,6 +678,27 @@ paths:
               schema:
                 $ref: '#/components/schemas/CreateConversationMessageResponse'
           description: Created message.
+        '202':
+          content:
+            application/json:
+              examples:
+                scheduled:
+                  summary: Message scheduled for later.
+                  value:
+                    data:
+                      scheduled_message:
+                        conversation_id: 01jzn7e61x3a7v9h2r7t2m3q4p
+                        created_at: '2026-10-11T16:00:00.000Z'
+                        file_ids: []
+                        id: 4f1d2c3b-5a6e-4f70-8a9b-0c1d2e3f4a5b
+                        markdown_content: Release notes for 4.2 are live.
+                        replied_to_message_id: null
+                        send_at: '2026-10-12T09:00:00.000Z'
+                        status: scheduled
+                        thread_root_id: null
+              schema:
+                $ref: '#/components/schemas/ScheduleConversationMessageResponse'
+          description: Scheduled message, when the request carried send_at.
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -414,16 +728,182 @@ paths:
       x-ando-principal-kind: workspace_api_key
       x-ando-public-api-route-class: durable_ingress
       x-ando-public-path: /v1/conversations/:conversationId/messages
-      x-ando-runtime-owner: api_platform
+      x-ando-runtime-owner: convex_product
       x-ando-status-probe-owner: public_api_messaging
-      x-ando-rollback-runtime: express
+      x-ando-rollback-runtime: convex_http
       x-ando-selected-runtime: convex_http
       x-ando-target-runtime: convex_http
 components:
   schemas:
-    ThreadRepliesData:
+    CancelScheduledMessageResponse:
       additionalProperties: false
-      description: Standard thread replies payload. Use thread_root_id here to validate thread grouping; individual MessageResult items intentionally omit thread_root_id and replied_to_message_id.
+      description: Canceled scheduled message response.
+      properties:
+        data:
+          additionalProperties: false
+          description: Canceled scheduled message data.
+          properties:
+            scheduled_message:
+              additionalProperties: false
+              description: The scheduled message that will no longer be sent.
+              properties:
+                canceled_at:
+                  description: When the message was canceled.
+                  type: string
+                  example: '2026-05-14T08:00:00.000Z'
+                  format: date-time
+                id:
+                  description: Scheduled message identifier.
+                  type: string
+                  example: 01jzn7e61x3a7v9h2r7t2m3q4p
+                status:
+                  type: string
+                  enum:
+                  - canceled
+              required:
+              - canceled_at
+              - id
+              - status
+              type: object
+          required:
+          - scheduled_message
+          type: object
+      required:
+      - data
+      type: object
+    MessageForwardSource:
+      additionalProperties: false
+      description: What a forwarded message carries from its source. Present only on forwarded messages; absent on older deployments. A show_message forward shares the snapshot captured at forward time with every reader of the forwarded message. A link_only forward shares no source content. Source identifiers are present only when the reader can open the source conversation.
+      properties:
+        call_id:
+          description: Call explicitly shared by this destination message. Pass the destination message ID as forwarded_message_id to call reads.
+          type: string
+        author_id:
+          description: Source author workspace membership identifier. Null for link_only forwards.
+          type:
+          - string
+          - 'null'
+        author_name:
+          description: Source author display name at forward time. Null for link_only forwards.
+          type:
+          - string
+          - 'null'
+        can_open_source:
+          description: Whether the reader can open the source conversation.
+          type: boolean
+        content:
+          description: Source message markdown captured at forward time. Null for link_only forwards.
+          type:
+          - string
+          - 'null'
+        file_names:
+          description: Names of files attached to the source message at forward time. Empty for link_only forwards.
+          items:
+            description: Attachment filename.
+            type: string
+          type: array
+        is_thread_reply:
+          description: Whether the source message is a thread reply.
+          type: boolean
+        share_mode:
+          description: What the forwarder chose to share.
+          enum:
+          - show_message
+          - link_only
+          type: string
+        source_conversation_id:
+          description: Source conversation identifier. Null unless the reader can open the source.
+          type:
+          - string
+          - 'null'
+        source_conversation_name:
+          description: Current source conversation name. Null unless the reader can open the source.
+          type:
+          - string
+          - 'null'
+        source_created_at:
+          description: Source message creation timestamp.
+          type: string
+          example: '2026-05-14T08:00:00.000Z'
+          format: date-time
+        source_kind:
+          description: Kind of source message.
+          enum:
+          - message
+          - jam_call_card
+          type: string
+        source_message_id:
+          description: Source message identifier. Null unless the reader can open the source.
+          type:
+          - string
+          - 'null'
+        source_subtitle:
+          description: 'Where the source was posted, captured at forward time: #channel-name, a channel, a direct message, or a group DM. A reader who cannot open a channel source gets "a private channel" instead of its name. Null for link_only forwards.'
+          type:
+          - string
+          - 'null'
+        source_thread_root_id:
+          description: Source thread root identifier for thread replies. Null unless the reader can open the source.
+          type:
+          - string
+          - 'null'
+      required:
+      - share_mode
+      - source_kind
+      - can_open_source
+      - source_message_id
+      - source_conversation_id
+      - source_thread_root_id
+      - source_conversation_name
+      - source_subtitle
+      - source_created_at
+      - is_thread_reply
+      - author_id
+      - author_name
+      - content
+      - file_names
+      type: object
+    LegacyErrorResponse:
+      additionalProperties: false
+      description: Current compatibility error envelope used by legacy /api/v1 routes.
+      properties:
+        error:
+          description: Error message.
+          type: string
+        error_code:
+          description: Optional machine-readable error code.
+          type:
+          - string
+          - 'null'
+        type:
+          description: 'Error class, one per HTTP status family. rate_limit_error, api_error, overloaded_error and timeout_error are worth retrying; the others need a different request. Retry a write only with the same Idempotency-Key: an api_error can mean it committed.'
+          enum:
+          - invalid_request_error
+          - authentication_error
+          - permission_error
+          - not_found_error
+          - conflict_error
+          - request_too_large
+          - rate_limit_error
+          - api_error
+          - overloaded_error
+          - timeout_error
+          type: string
+        request_id:
+          description: The request id, also sent as the x-request-id header. Quote it when reporting a problem.
+          type: string
+        missing_scopes:
+          description: Missing scopes.
+          items:
+            description: Scope.
+            type: string
+          type: array
+      required:
+      - error
+      type: object
+    ConversationMessagesResponse:
+      additionalProperties: false
+      description: Conversation messages response with the standard public data envelope plus legacy top-level aliases.
       properties:
         conversation_id:
           description: Conversation identifier.
@@ -434,50 +914,426 @@ components:
           type:
           - string
           - 'null'
+        data:
+          $ref: '#/components/schemas/ConversationMessagesData'
         items:
-          description: Thread reply messages.
+          description: Messages.
           items:
             $ref: '#/components/schemas/MessageResult'
           type: array
-        page_info:
-          $ref: '#/components/schemas/PublicApiPageInfo'
-        thread_root_id:
-          description: Thread root message identifier.
-          type: string
-          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+        pageInfo:
+          $ref: '#/components/schemas/LegacyPageInfo'
       required:
-      - thread_root_id
+      - data
       - conversation_id
       - conversation_name
       - items
-      - page_info
+      - pageInfo
       type: object
-    PublicApiErrorResponse:
+    ScheduledMessageResult:
       additionalProperties: false
-      description: Target public API error envelope.
+      description: A message the calling API key scheduled that is still waiting to send. Only that key can see or cancel it.
       properties:
-        error:
-          additionalProperties: false
-          description: Error details.
-          properties:
-            code:
-              description: Machine-readable error code.
-              type: string
-            message:
-              description: Human-readable error message.
-              type: string
-            request_id:
-              description: Request identifier.
-              type:
-              - string
-              - 'null'
-          required:
-          - code
-          - message
-          type: object
+        conversation_id:
+          description: Conversation the message will be sent to.
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+        created_at:
+          description: When the message was scheduled.
+          type: string
+          example: '2026-05-14T08:00:00.000Z'
+          format: date-time
+        file_ids:
+          description: Attached file identifiers.
+          items:
+            description: File identifier.
+            type: string
+          type: array
+        id:
+          description: Scheduled message identifier.
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+        markdown_content:
+          description: Message body.
+          type: string
+        replied_to_message_id:
+          description: Immediate parent message inside the thread, if any.
+          type:
+          - string
+          - 'null'
+        send_at:
+          description: When the message will be sent.
+          type: string
+          example: '2026-05-14T08:00:00.000Z'
+          format: date-time
+        status:
+          type: string
+          enum:
+          - scheduled
+        thread_root_id:
+          description: Thread root message identifier for a scheduled thread reply.
+          type:
+          - string
+          - 'null'
       required:
-      - error
+      - conversation_id
+      - created_at
+      - file_ids
+      - id
+      - markdown_content
+      - replied_to_message_id
+      - send_at
+      - status
+      - thread_root_id
       type: object
+    CardActions:
+      oneOf:
+      - type: object
+        properties:
+          type:
+            type: string
+            enum:
+            - actions
+          id:
+            type: string
+            maxLength: 200
+            minLength: 1
+            pattern: \S
+          presentation:
+            type: string
+            enum:
+            - rows
+          status:
+            type: string
+            enum:
+            - closed
+          items:
+            type: array
+            items:
+              type: object
+              properties:
+                id:
+                  type: string
+                  maxLength: 200
+                  minLength: 1
+                  pattern: \S
+                label:
+                  type: string
+                  maxLength: 300
+                  minLength: 1
+                  pattern: \S
+                description:
+                  type: string
+                  maxLength: 2000
+                  minLength: 1
+                  pattern: \S
+                accessibleLabel:
+                  type: string
+                  maxLength: 300
+                  minLength: 1
+                  pattern: \S
+                selected:
+                  type: boolean
+                count:
+                  type: integer
+                  minimum: 0
+                  maximum: 1000000000
+                input:
+                  type: object
+                  maxProperties: 16
+                  additionalProperties:
+                    oneOf:
+                    - type: string
+                      maxLength: 16384
+                    - type: number
+                    - type: boolean
+                    - type:
+                      - string
+                      - 'null'
+                      enum:
+                      - null
+                  description: Scalar host input only. Reserved keys __proto__, prototype and constructor are rejected.
+              required:
+              - id
+              - label
+              additionalProperties: false
+            minItems: 1
+            maxItems: 20
+          platforms:
+            $ref: '#/components/schemas/CardPlatforms'
+        required:
+        - type
+        - id
+        - presentation
+        - items
+        additionalProperties: false
+      - type: object
+        properties:
+          type:
+            type: string
+            enum:
+            - actions
+          id:
+            type: string
+            maxLength: 200
+            minLength: 1
+            pattern: \S
+          presentation:
+            type: string
+            enum:
+            - footer
+          items:
+            type: array
+            items:
+              type: object
+              properties:
+                id:
+                  type: string
+                  maxLength: 200
+                  minLength: 1
+                  pattern: \S
+                label:
+                  type: string
+                  maxLength: 300
+                  minLength: 1
+                  pattern: \S
+                icon:
+                  type: string
+                  enum:
+                  - refresh
+                input:
+                  type: object
+                  maxProperties: 16
+                  additionalProperties:
+                    oneOf:
+                    - type: string
+                      maxLength: 16384
+                    - type: number
+                    - type: boolean
+                    - type:
+                      - string
+                      - 'null'
+                      enum:
+                      - null
+                  description: Scalar host input only. Reserved keys __proto__, prototype and constructor are rejected.
+                variant:
+                  type: string
+                  enum:
+                  - ghost
+                  - primary
+                  - secondary
+              required:
+              - id
+              - label
+              additionalProperties: false
+            minItems: 1
+            maxItems: 8
+          platforms:
+            $ref: '#/components/schemas/CardPlatforms'
+        required:
+        - type
+        - id
+        - presentation
+        - items
+        additionalProperties: false
+      - type: object
+        properties:
+          type:
+            type: string
+            enum:
+            - actions
+          id:
+            type: string
+            maxLength: 200
+            minLength: 1
+            pattern: \S
+          items:
+            type: array
+            items:
+              type: object
+              properties:
+                id:
+                  type: string
+                  maxLength: 200
+                  minLength: 1
+                  pattern: \S
+                label:
+                  type: string
+                  maxLength: 300
+                  minLength: 1
+                  pattern: \S
+                icon:
+                  type: string
+                  enum:
+                  - refresh
+                  - upvote
+                accessibleLabel:
+                  type: string
+                  maxLength: 300
+                  minLength: 1
+                  pattern: \S
+                selected:
+                  type: boolean
+                count:
+                  type: integer
+                  minimum: 0
+                  maximum: 1000000000
+                input:
+                  type: object
+                  maxProperties: 16
+                  additionalProperties:
+                    oneOf:
+                    - type: string
+                      maxLength: 16384
+                    - type: number
+                    - type: boolean
+                    - type:
+                      - string
+                      - 'null'
+                      enum:
+                      - null
+                  description: Scalar host input only. Reserved keys __proto__, prototype and constructor are rejected.
+              required:
+              - id
+              - label
+              additionalProperties: false
+            minItems: 1
+            maxItems: 8
+          platforms:
+            $ref: '#/components/schemas/CardPlatforms'
+        required:
+        - type
+        - id
+        - items
+        additionalProperties: false
+      - type: object
+        properties:
+          type:
+            type: string
+            enum:
+            - actions
+          id:
+            type: string
+            maxLength: 200
+            minLength: 1
+            pattern: \S
+          items:
+            type: array
+            items:
+              type: object
+              properties:
+                id:
+                  type: string
+                  maxLength: 200
+                  minLength: 1
+                  pattern: \S
+                label:
+                  type: string
+                  maxLength: 300
+                  minLength: 1
+                  pattern: \S
+                icon:
+                  type: string
+                  enum:
+                  - refresh
+                input:
+                  type: object
+                  maxProperties: 16
+                  additionalProperties:
+                    oneOf:
+                    - type: string
+                      maxLength: 16384
+                    - type: number
+                    - type: boolean
+                    - type:
+                      - string
+                      - 'null'
+                      enum:
+                      - null
+                  description: Scalar host input only. Reserved keys __proto__, prototype and constructor are rejected.
+              required:
+              - id
+              - label
+              additionalProperties: false
+            minItems: 1
+            maxItems: 8
+          overflowLabel:
+            type: string
+            maxLength: 300
+            minLength: 1
+            pattern: \S
+          platforms:
+            $ref: '#/components/schemas/CardPlatforms'
+        required:
+        - type
+        - id
+        - items
+        - overflowLabel
+        additionalProperties: false
+      - type: object
+        properties:
+          type:
+            type: string
+            enum:
+            - actions
+          id:
+            type: string
+            maxLength: 200
+            minLength: 1
+            pattern: \S
+          items:
+            type: array
+            items:
+              type: object
+              properties:
+                id:
+                  type: string
+                  maxLength: 200
+                  minLength: 1
+                  pattern: \S
+                label:
+                  type: string
+                  maxLength: 300
+                  minLength: 1
+                  pattern: \S
+                icon:
+                  type: string
+                  enum:
+                  - refresh
+                input:
+                  type: object
+                  maxProperties: 16
+                  additionalProperties:
+                    oneOf:
+                    - type: string
+                      maxLength: 16384
+                    - type: number
+                    - type: boolean
+                    - type:
+                      - string
+                      - 'null'
+                      enum:
+                      - null
+                  description: Scalar host input only. Reserved keys __proto__, prototype and constructor are rejected.
+              required:
+              - id
+              - label
+              additionalProperties: false
+            minItems: 0
+            maxItems: 100
+          menuLabel:
+            type: string
+            maxLength: 300
+            minLength: 1
+            pattern: \S
+          platforms:
+            $ref: '#/components/schemas/CardPlatforms'
+        required:
+        - type
+        - id
+        - items
+        - menuLabel
+        additionalProperties: false
     ConversationMessagesData:
       additionalProperties: false
       description: Standard conversation messages payload.
@@ -504,70 +1360,1798 @@ components:
       - items
       - page_info
       type: object
-    CreateConversationMessageBody:
-      additionalProperties: false
-      description: Create a conversation message. The authenticated API-key workspace member is the author; author_id is accepted only for legacy body compatibility and is ignored.
+    CardComputedValue:
+      type: object
       properties:
+        expression:
+          $ref: '#/components/schemas/CardExpression'
+        format:
+          $ref: '#/components/schemas/CardNumberFormat'
+      required:
+      - expression
+      additionalProperties: false
+      description: 'Makes a facts item follow the card''s number_input blocks. Omit the item''s value: it is written as the result at the inputs'' defaults. A result that is not a finite number, such as a division by zero, shows as a gap.'
+    UpdateConversationMessageBody:
+      additionalProperties: false
+      description: Edit body for a conversation message. See the operation for edit semantics.
+      properties:
+        app_card:
+          additionalProperties: false
+          description: Replacement document card. The message must already carry a document card; the server validates the version-1 CardDocument and regenerates the text fallback.
+          properties:
+            kind:
+              type: string
+              enum:
+              - document
+            document:
+              $ref: '#/components/schemas/CardDocument'
+          required:
+          - kind
+          - document
+          type: object
         markdown_content:
-          description: Message markdown content.
-          type:
-          - string
-          - 'null'
-        explicit_context_message_ids:
-          description: Message identifiers to include as explicit context.
-          items:
-            description: Message identifier.
-            type: string
-          type: array
-        image_urls:
-          description: Image URLs to attach to the message.
-          items:
-            description: Image URL.
-            type: string
-            format: uri
-          type: array
+          description: 'Replacement message markdown content. Must contain renderable text unless app_card is sent: clearing a message body is not supported.'
+          type: string
         suppressed_link_preview_urls:
-          description: URLs whose link previews should be suppressed.
+          description: 'URLs to send as plain links: no link preview and no app card. Omit to leave the stored list unchanged.'
           items:
             description: URL.
             type: string
             format: uri
           type: array
-        initiator_id:
-          description: Initiating workspace member identifier.
-          type:
-          - string
-          - 'null'
-        thread_root_id:
-          description: Thread root message identifier.
-          type:
-          - string
-          - 'null'
-        replied_to_message_id:
-          description: Immediate parent message identifier inside an existing thread. For the first reply to a root message, send thread_root_id only; if replied_to_message_id equals thread_root_id, the server normalizes it as the first reply.
-          type:
-          - string
-          - 'null'
-        call_root_id:
-          description: Call root identifier.
-          type:
-          - string
-          - 'null'
-        optimistic_id:
-          description: Client optimistic identifier.
-          type: string
-        client_request_id:
-          description: Legacy body idempotency value. Public v1 clients should use the Idempotency-Key header.
-          type:
-          - string
-          - 'null'
-        author_id:
-          description: 'Ignored legacy body author workspace member identifier. Deprecated: the authenticated API-key workspace member is always the author.'
-          type: string
-          deprecated: true
       required:
       - markdown_content
       type: object
+    LegacyPageInfo:
+      additionalProperties: false
+      description: Current compatibility pagination metadata with camelCase field names.
+      properties:
+        endCursor:
+          description: Cursor for the last item.
+          type:
+          - string
+          - 'null'
+        hasNextPage:
+          description: Whether another page exists after this page.
+          type: boolean
+        hasPreviousPage:
+          description: Whether another page exists before this page.
+          type: boolean
+        startCursor:
+          description: Cursor for the first item.
+          type:
+          - string
+          - 'null'
+      required:
+      - hasNextPage
+      - hasPreviousPage
+      type: object
+    CreateConversationMessageResponse:
+      additionalProperties: false
+      description: Create-message response with the standard public data envelope plus legacy compatibility aliases.
+      properties:
+        data:
+          $ref: '#/components/schemas/MessageResult'
+        legacy_data:
+          additionalProperties: true
+          description: Legacy extended conversation message. New clients should read the standard data message result.
+          type:
+          - object
+          - 'null'
+        success:
+          description: Compatibility command flag.
+          type: boolean
+      required:
+      - success
+      - data
+      type: object
+    CardBlock:
+      oneOf:
+      - type: object
+        properties:
+          type:
+            type: string
+            enum:
+            - link
+          id:
+            type: string
+            maxLength: 200
+            minLength: 1
+            pattern: \S
+          label:
+            type: string
+            maxLength: 500
+            minLength: 1
+            pattern: \S
+          url:
+            type: string
+            maxLength: 8192
+            pattern: ^[Hh][Tt][Tt][Pp][Ss]?://[^\s\u0000-\u0020\u007f]+$
+            description: Absolute HTTP(S) URL without credentials. The runtime URL parser also validates the destination syntax.
+          platforms:
+            $ref: '#/components/schemas/CardPlatforms'
+        required:
+        - type
+        - id
+        - label
+        - url
+        additionalProperties: false
+      - type: object
+        properties:
+          type:
+            type: string
+            enum:
+            - text
+          id:
+            type: string
+            maxLength: 200
+            minLength: 1
+            pattern: \S
+          text:
+            type: string
+            maxLength: 16384
+            minLength: 1
+            pattern: \S
+          style:
+            type: string
+            enum:
+            - body
+            - caption
+            - code
+          tooltip:
+            type: string
+            maxLength: 2000
+            minLength: 1
+            pattern: \S
+          role:
+            type: string
+            enum:
+            - status
+            - alert
+          accessibleLabel:
+            type: string
+            maxLength: 300
+            minLength: 1
+            pattern: \S
+          platforms:
+            $ref: '#/components/schemas/CardPlatforms'
+        required:
+        - type
+        - id
+        - text
+        additionalProperties: false
+      - type: object
+        properties:
+          type:
+            type: string
+            enum:
+            - heading
+          id:
+            type: string
+            maxLength: 200
+            minLength: 1
+            pattern: \S
+          text:
+            type: string
+            maxLength: 500
+            minLength: 1
+            pattern: \S
+          platforms:
+            $ref: '#/components/schemas/CardPlatforms'
+        required:
+        - type
+        - id
+        - text
+        additionalProperties: false
+      - type: object
+        properties:
+          type:
+            type: string
+            enum:
+            - context
+          id:
+            type: string
+            maxLength: 200
+            minLength: 1
+            pattern: \S
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/CardInline'
+            minItems: 1
+            maxItems: 32
+          tooltip:
+            type: string
+            maxLength: 2000
+            minLength: 1
+            pattern: \S
+          platforms:
+            $ref: '#/components/schemas/CardPlatforms'
+        required:
+        - type
+        - id
+        - items
+        additionalProperties: false
+      - type: object
+        properties:
+          type:
+            type: string
+            enum:
+            - facts
+          id:
+            type: string
+            maxLength: 200
+            minLength: 1
+            pattern: \S
+          label:
+            type: string
+            maxLength: 500
+            minLength: 1
+            pattern: \S
+          presentation:
+            type: string
+            enum:
+            - list
+            - stats
+          items:
+            type: array
+            items:
+              oneOf:
+              - type: object
+                properties:
+                  label:
+                    type: string
+                    maxLength: 500
+                    minLength: 1
+                    pattern: \S
+                  value:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/CardInline'
+                    minItems: 1
+                    maxItems: 32
+                  caption:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/CardInline'
+                    minItems: 1
+                    maxItems: 32
+                required:
+                - label
+                - value
+                additionalProperties: false
+              - type: object
+                properties:
+                  label:
+                    type: string
+                    maxLength: 500
+                    minLength: 1
+                    pattern: \S
+                  compute:
+                    $ref: '#/components/schemas/CardComputedValue'
+                  value:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/CardInline'
+                    minItems: 1
+                    maxItems: 32
+                  caption:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/CardInline'
+                    minItems: 1
+                    maxItems: 32
+                required:
+                - label
+                - compute
+                additionalProperties: false
+            minItems: 0
+            maxItems: 100
+          platforms:
+            $ref: '#/components/schemas/CardPlatforms'
+        required:
+        - type
+        - id
+        - items
+        additionalProperties: false
+      - type: object
+        properties:
+          type:
+            type: string
+            enum:
+            - image
+          id:
+            type: string
+            maxLength: 200
+            minLength: 1
+            pattern: \S
+          url:
+            type: string
+            maxLength: 8192
+            pattern: ^[Hh][Tt][Tt][Pp][Ss]?://[^\s\u0000-\u0020\u007f]+$
+            description: Absolute HTTP(S) URL without credentials. The runtime URL parser also validates the destination syntax.
+          alt:
+            type: string
+            maxLength: 2000
+          presentation:
+            type: string
+            enum:
+            - thumbnail
+            - content
+            - cover
+          aspect:
+            type: number
+            minimum: 0.1
+            maximum: 10
+            description: Image width divided by image height.
+          platforms:
+            $ref: '#/components/schemas/CardPlatforms'
+        required:
+        - type
+        - id
+        - url
+        - alt
+        additionalProperties: false
+      - oneOf:
+        - type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - actions
+            id:
+              type: string
+              maxLength: 200
+              minLength: 1
+              pattern: \S
+            presentation:
+              type: string
+              enum:
+              - rows
+            status:
+              type: string
+              enum:
+              - closed
+            items:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    maxLength: 200
+                    minLength: 1
+                    pattern: \S
+                  label:
+                    type: string
+                    maxLength: 300
+                    minLength: 1
+                    pattern: \S
+                  description:
+                    type: string
+                    maxLength: 2000
+                    minLength: 1
+                    pattern: \S
+                  accessibleLabel:
+                    type: string
+                    maxLength: 300
+                    minLength: 1
+                    pattern: \S
+                  selected:
+                    type: boolean
+                  count:
+                    type: integer
+                    minimum: 0
+                    maximum: 1000000000
+                  input:
+                    type: object
+                    maxProperties: 16
+                    additionalProperties:
+                      oneOf:
+                      - type: string
+                        maxLength: 16384
+                      - type: number
+                      - type: boolean
+                      - type:
+                        - string
+                        - 'null'
+                        enum:
+                        - null
+                    description: Scalar host input only. Reserved keys __proto__, prototype and constructor are rejected.
+                required:
+                - id
+                - label
+                additionalProperties: false
+              minItems: 1
+              maxItems: 20
+            platforms:
+              $ref: '#/components/schemas/CardPlatforms'
+          required:
+          - type
+          - id
+          - presentation
+          - items
+          additionalProperties: false
+        - type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - actions
+            id:
+              type: string
+              maxLength: 200
+              minLength: 1
+              pattern: \S
+            presentation:
+              type: string
+              enum:
+              - footer
+            items:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    maxLength: 200
+                    minLength: 1
+                    pattern: \S
+                  label:
+                    type: string
+                    maxLength: 300
+                    minLength: 1
+                    pattern: \S
+                  icon:
+                    type: string
+                    enum:
+                    - refresh
+                  input:
+                    type: object
+                    maxProperties: 16
+                    additionalProperties:
+                      oneOf:
+                      - type: string
+                        maxLength: 16384
+                      - type: number
+                      - type: boolean
+                      - type:
+                        - string
+                        - 'null'
+                        enum:
+                        - null
+                    description: Scalar host input only. Reserved keys __proto__, prototype and constructor are rejected.
+                  variant:
+                    type: string
+                    enum:
+                    - ghost
+                    - primary
+                    - secondary
+                required:
+                - id
+                - label
+                additionalProperties: false
+              minItems: 1
+              maxItems: 8
+            platforms:
+              $ref: '#/components/schemas/CardPlatforms'
+          required:
+          - type
+          - id
+          - presentation
+          - items
+          additionalProperties: false
+        - type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - actions
+            id:
+              type: string
+              maxLength: 200
+              minLength: 1
+              pattern: \S
+            items:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    maxLength: 200
+                    minLength: 1
+                    pattern: \S
+                  label:
+                    type: string
+                    maxLength: 300
+                    minLength: 1
+                    pattern: \S
+                  icon:
+                    type: string
+                    enum:
+                    - refresh
+                    - upvote
+                  accessibleLabel:
+                    type: string
+                    maxLength: 300
+                    minLength: 1
+                    pattern: \S
+                  selected:
+                    type: boolean
+                  count:
+                    type: integer
+                    minimum: 0
+                    maximum: 1000000000
+                  input:
+                    type: object
+                    maxProperties: 16
+                    additionalProperties:
+                      oneOf:
+                      - type: string
+                        maxLength: 16384
+                      - type: number
+                      - type: boolean
+                      - type:
+                        - string
+                        - 'null'
+                        enum:
+                        - null
+                    description: Scalar host input only. Reserved keys __proto__, prototype and constructor are rejected.
+                required:
+                - id
+                - label
+                additionalProperties: false
+              minItems: 1
+              maxItems: 8
+            platforms:
+              $ref: '#/components/schemas/CardPlatforms'
+          required:
+          - type
+          - id
+          - items
+          additionalProperties: false
+        - type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - actions
+            id:
+              type: string
+              maxLength: 200
+              minLength: 1
+              pattern: \S
+            items:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    maxLength: 200
+                    minLength: 1
+                    pattern: \S
+                  label:
+                    type: string
+                    maxLength: 300
+                    minLength: 1
+                    pattern: \S
+                  icon:
+                    type: string
+                    enum:
+                    - refresh
+                  input:
+                    type: object
+                    maxProperties: 16
+                    additionalProperties:
+                      oneOf:
+                      - type: string
+                        maxLength: 16384
+                      - type: number
+                      - type: boolean
+                      - type:
+                        - string
+                        - 'null'
+                        enum:
+                        - null
+                    description: Scalar host input only. Reserved keys __proto__, prototype and constructor are rejected.
+                required:
+                - id
+                - label
+                additionalProperties: false
+              minItems: 1
+              maxItems: 8
+            overflowLabel:
+              type: string
+              maxLength: 300
+              minLength: 1
+              pattern: \S
+            platforms:
+              $ref: '#/components/schemas/CardPlatforms'
+          required:
+          - type
+          - id
+          - items
+          - overflowLabel
+          additionalProperties: false
+        - type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - actions
+            id:
+              type: string
+              maxLength: 200
+              minLength: 1
+              pattern: \S
+            items:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    maxLength: 200
+                    minLength: 1
+                    pattern: \S
+                  label:
+                    type: string
+                    maxLength: 300
+                    minLength: 1
+                    pattern: \S
+                  icon:
+                    type: string
+                    enum:
+                    - refresh
+                  input:
+                    type: object
+                    maxProperties: 16
+                    additionalProperties:
+                      oneOf:
+                      - type: string
+                        maxLength: 16384
+                      - type: number
+                      - type: boolean
+                      - type:
+                        - string
+                        - 'null'
+                        enum:
+                        - null
+                    description: Scalar host input only. Reserved keys __proto__, prototype and constructor are rejected.
+                required:
+                - id
+                - label
+                additionalProperties: false
+              minItems: 0
+              maxItems: 100
+            menuLabel:
+              type: string
+              maxLength: 300
+              minLength: 1
+              pattern: \S
+            platforms:
+              $ref: '#/components/schemas/CardPlatforms'
+          required:
+          - type
+          - id
+          - items
+          - menuLabel
+          additionalProperties: false
+      - type: object
+        properties:
+          type:
+            type: string
+            enum:
+            - group
+          id:
+            type: string
+            maxLength: 200
+            minLength: 1
+            pattern: \S
+          layout:
+            type: string
+            enum:
+            - stack
+            - columns
+          blocks:
+            type: array
+            items:
+              $ref: '#/components/schemas/CardBlock'
+            minItems: 0
+            maxItems: 1024
+          platforms:
+            $ref: '#/components/schemas/CardPlatforms'
+        required:
+        - type
+        - id
+        - layout
+        - blocks
+        additionalProperties: false
+      - type: object
+        properties:
+          type:
+            type: string
+            enum:
+            - disclosure
+          id:
+            type: string
+            maxLength: 200
+            minLength: 1
+            pattern: \S
+          label:
+            type: string
+            maxLength: 500
+            minLength: 1
+            pattern: \S
+          status:
+            type: object
+            properties:
+              text:
+                type: string
+                maxLength: 300
+                minLength: 1
+                pattern: \S
+              tone:
+                type: string
+                enum:
+                - brand
+                - neutral
+                - muted
+                - success
+                - warning
+                - danger
+            required:
+            - text
+            - tone
+            additionalProperties: false
+          blocks:
+            type: array
+            items:
+              $ref: '#/components/schemas/CardBlock'
+            minItems: 0
+            maxItems: 1024
+          platforms:
+            $ref: '#/components/schemas/CardPlatforms'
+        required:
+        - type
+        - id
+        - label
+        - blocks
+        additionalProperties: false
+      - type: object
+        properties:
+          type:
+            type: string
+            enum:
+            - collection
+          id:
+            type: string
+            maxLength: 200
+            minLength: 1
+            pattern: \S
+          label:
+            type: string
+            maxLength: 500
+            minLength: 1
+            pattern: \S
+          emptyMessage:
+            type: string
+            maxLength: 2000
+            minLength: 1
+            pattern: \S
+          ordered:
+            type: boolean
+          presentation:
+            type: string
+            enum:
+            - scroll
+            - list
+            - gallery
+          approximate:
+            type: boolean
+          itemNoun:
+            type: string
+            maxLength: 100
+            minLength: 1
+            pattern: \S
+          items:
+            type: array
+            items:
+              type: object
+              properties:
+                id:
+                  type: string
+                  maxLength: 200
+                  minLength: 1
+                  pattern: \S
+                blocks:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/CardBlock'
+                  minItems: 0
+                  maxItems: 1024
+              required:
+              - id
+              - blocks
+              additionalProperties: false
+            minItems: 0
+            maxItems: 100
+          platforms:
+            $ref: '#/components/schemas/CardPlatforms'
+        required:
+        - type
+        - id
+        - label
+        - emptyMessage
+        - items
+        additionalProperties: false
+      - type: object
+        properties:
+          type:
+            type: string
+            enum:
+            - table
+          id:
+            type: string
+            maxLength: 200
+            minLength: 1
+            pattern: \S
+          label:
+            type: string
+            maxLength: 500
+            minLength: 1
+            pattern: \S
+          columns:
+            type: array
+            items:
+              type: object
+              properties:
+                id:
+                  type: string
+                  maxLength: 200
+                  minLength: 1
+                  pattern: \S
+                label:
+                  type: string
+                  maxLength: 500
+                  minLength: 1
+                  pattern: \S
+                align:
+                  type: string
+                  enum:
+                  - start
+                  - end
+                format:
+                  $ref: '#/components/schemas/CardNumberFormat'
+              required:
+              - id
+              - label
+              additionalProperties: false
+            minItems: 1
+            maxItems: 16
+          rows:
+            type: array
+            items:
+              type: array
+              items:
+                oneOf:
+                - type: string
+                  maxLength: 16384
+                - type: number
+                - type: boolean
+                - type:
+                  - string
+                  - 'null'
+                  enum:
+                  - null
+              minItems: 1
+              maxItems: 16
+            minItems: 0
+            maxItems: 100
+          emptyMessage:
+            type: string
+            maxLength: 2000
+            minLength: 1
+            pattern: \S
+          platforms:
+            $ref: '#/components/schemas/CardPlatforms'
+        required:
+        - type
+        - id
+        - label
+        - columns
+        - rows
+        - emptyMessage
+        additionalProperties: false
+      - oneOf:
+        - type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - chart
+            id:
+              type: string
+              maxLength: 200
+              minLength: 1
+              pattern: \S
+            title:
+              type: string
+              maxLength: 500
+              minLength: 1
+              pattern: \S
+            summary:
+              type: string
+              maxLength: 2000
+              minLength: 1
+              pattern: \S
+            mark:
+              type: string
+              enum:
+              - bar
+            axis:
+              type: object
+              properties:
+                kind:
+                  type: string
+                  enum:
+                  - category
+                values:
+                  type: array
+                  items:
+                    type: string
+                    maxLength: 300
+                    minLength: 1
+                    pattern: \S
+                  minItems: 1
+                  maxItems: 128
+                  uniqueItems: true
+              required:
+              - kind
+              - values
+              additionalProperties: false
+            unit:
+              type: string
+              maxLength: 100
+              minLength: 1
+              pattern: \S
+            format:
+              $ref: '#/components/schemas/CardNumberFormat'
+            series:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    maxLength: 200
+                    minLength: 1
+                    pattern: \S
+                  label:
+                    type: string
+                    maxLength: 300
+                    minLength: 1
+                    pattern: \S
+                  values:
+                    type: array
+                    items:
+                      oneOf:
+                      - type: number
+                        minimum: -1000000000000
+                        maximum: 1000000000000
+                      - type:
+                        - string
+                        - 'null'
+                        enum:
+                        - null
+                    minItems: 1
+                    maxItems: 128
+                required:
+                - id
+                - label
+                - values
+                additionalProperties: false
+              minItems: 1
+              maxItems: 6
+            platforms:
+              $ref: '#/components/schemas/CardPlatforms'
+          required:
+          - type
+          - id
+          - title
+          - summary
+          - mark
+          - axis
+          - unit
+          - series
+          additionalProperties: false
+        - type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - chart
+            id:
+              type: string
+              maxLength: 200
+              minLength: 1
+              pattern: \S
+            title:
+              type: string
+              maxLength: 500
+              minLength: 1
+              pattern: \S
+            summary:
+              type: string
+              maxLength: 2000
+              minLength: 1
+              pattern: \S
+            mark:
+              type: string
+              enum:
+              - line
+            axis:
+              oneOf:
+              - type: object
+                properties:
+                  kind:
+                    type: string
+                    enum:
+                    - time
+                  values:
+                    type: array
+                    items:
+                      type: integer
+                      minimum: -8640000000000000
+                      maximum: 8640000000000000
+                    minItems: 2
+                    maxItems: 128
+                    uniqueItems: true
+                required:
+                - kind
+                - values
+                additionalProperties: false
+              - type: object
+                properties:
+                  kind:
+                    type: string
+                    enum:
+                    - category
+                  values:
+                    type: array
+                    items:
+                      type: string
+                      maxLength: 300
+                      minLength: 1
+                      pattern: \S
+                    minItems: 2
+                    maxItems: 128
+                    uniqueItems: true
+                required:
+                - kind
+                - values
+                additionalProperties: false
+            unit:
+              type: string
+              maxLength: 100
+              minLength: 1
+              pattern: \S
+            format:
+              $ref: '#/components/schemas/CardNumberFormat'
+            series:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    maxLength: 200
+                    minLength: 1
+                    pattern: \S
+                  label:
+                    type: string
+                    maxLength: 300
+                    minLength: 1
+                    pattern: \S
+                  values:
+                    type: array
+                    items:
+                      oneOf:
+                      - type: number
+                        minimum: -1000000000000
+                        maximum: 1000000000000
+                      - type:
+                        - string
+                        - 'null'
+                        enum:
+                        - null
+                    minItems: 2
+                    maxItems: 128
+                required:
+                - id
+                - label
+                - values
+                additionalProperties: false
+              minItems: 1
+              maxItems: 6
+            platforms:
+              $ref: '#/components/schemas/CardPlatforms'
+          required:
+          - type
+          - id
+          - title
+          - summary
+          - mark
+          - axis
+          - unit
+          - series
+          additionalProperties: false
+        - type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - chart
+            id:
+              type: string
+              maxLength: 200
+              minLength: 1
+              pattern: \S
+            title:
+              type: string
+              maxLength: 500
+              minLength: 1
+              pattern: \S
+            summary:
+              type: string
+              maxLength: 2000
+              minLength: 1
+              pattern: \S
+            mark:
+              type: string
+              enum:
+              - area
+            axis:
+              oneOf:
+              - type: object
+                properties:
+                  kind:
+                    type: string
+                    enum:
+                    - time
+                  values:
+                    type: array
+                    items:
+                      type: integer
+                      minimum: -8640000000000000
+                      maximum: 8640000000000000
+                    minItems: 2
+                    maxItems: 128
+                    uniqueItems: true
+                required:
+                - kind
+                - values
+                additionalProperties: false
+              - type: object
+                properties:
+                  kind:
+                    type: string
+                    enum:
+                    - category
+                  values:
+                    type: array
+                    items:
+                      type: string
+                      maxLength: 300
+                      minLength: 1
+                      pattern: \S
+                    minItems: 2
+                    maxItems: 128
+                    uniqueItems: true
+                required:
+                - kind
+                - values
+                additionalProperties: false
+            unit:
+              type: string
+              maxLength: 100
+              minLength: 1
+              pattern: \S
+            format:
+              $ref: '#/components/schemas/CardNumberFormat'
+            series:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    maxLength: 200
+                    minLength: 1
+                    pattern: \S
+                  label:
+                    type: string
+                    maxLength: 300
+                    minLength: 1
+                    pattern: \S
+                  values:
+                    type: array
+                    items:
+                      oneOf:
+                      - type: number
+                        minimum: 0
+                        maximum: 1000000000000
+                      - type:
+                        - string
+                        - 'null'
+                        enum:
+                        - null
+                    minItems: 2
+                    maxItems: 128
+                required:
+                - id
+                - label
+                - values
+                additionalProperties: false
+              minItems: 1
+              maxItems: 1
+            platforms:
+              $ref: '#/components/schemas/CardPlatforms'
+          required:
+          - type
+          - id
+          - title
+          - summary
+          - mark
+          - axis
+          - unit
+          - series
+          additionalProperties: false
+      - type: object
+        properties:
+          type:
+            type: string
+            enum:
+            - text_input
+          id:
+            type: string
+            maxLength: 200
+            minLength: 1
+            pattern: \S
+          label:
+            type: string
+            maxLength: 300
+            minLength: 1
+            pattern: \S
+          value:
+            type: string
+            maxLength: 2000
+          submitLabel:
+            type: string
+            maxLength: 100
+            minLength: 1
+            pattern: \S
+          platforms:
+            $ref: '#/components/schemas/CardPlatforms'
+        required:
+        - type
+        - id
+        - label
+        - value
+        - submitLabel
+        additionalProperties: false
+      - type: object
+        properties:
+          type:
+            type: string
+            enum:
+            - secret_input
+          id:
+            type: string
+            maxLength: 200
+            minLength: 1
+            pattern: \S
+          label:
+            type: string
+            maxLength: 300
+            minLength: 1
+            pattern: \S
+          submitLabel:
+            type: string
+            maxLength: 100
+            minLength: 1
+            pattern: \S
+          companionLabel:
+            type: string
+            maxLength: 300
+            minLength: 1
+            pattern: \S
+          status:
+            type: string
+            enum:
+            - saved
+            - verified
+          companionValue:
+            type: string
+            maxLength: 2000
+            minLength: 1
+            pattern: \S
+          platforms:
+            $ref: '#/components/schemas/CardPlatforms'
+        required:
+        - type
+        - id
+        - label
+        - submitLabel
+        additionalProperties: false
+      - type: object
+        properties:
+          type:
+            type: string
+            enum:
+            - checkbox
+          id:
+            type: string
+            maxLength: 200
+            minLength: 1
+            pattern: \S
+          label:
+            type: string
+            maxLength: 300
+            minLength: 1
+            pattern: \S
+          value:
+            type: boolean
+          platforms:
+            $ref: '#/components/schemas/CardPlatforms'
+        required:
+        - type
+        - id
+        - label
+        - value
+        additionalProperties: false
+      - type: object
+        properties:
+          type:
+            type: string
+            enum:
+            - number_input
+          id:
+            type: string
+            maxLength: 200
+            minLength: 1
+            pattern: \S
+          label:
+            type: string
+            maxLength: 300
+            minLength: 1
+            pattern: \S
+          value:
+            type: number
+            minimum: -1000000000000
+            maximum: 1000000000000
+          min:
+            type: number
+            minimum: -1000000000000
+            maximum: 1000000000000
+          max:
+            type: number
+            minimum: -1000000000000
+            maximum: 1000000000000
+          step:
+            type: number
+            minimum: 1.0e-09
+            description: More than 0, and at most 10000 steps from min to max.
+          format:
+            $ref: '#/components/schemas/CardNumberFormat'
+          platforms:
+            $ref: '#/components/schemas/CardPlatforms'
+        required:
+        - type
+        - id
+        - label
+        - value
+        - min
+        - max
+        additionalProperties: false
+        description: A slider the reader moves; nothing is sent. Facts items with compute follow it at once. At most 4 a card.
+      - type: object
+        properties:
+          type:
+            type: string
+            enum:
+            - select
+          id:
+            type: string
+            maxLength: 200
+            minLength: 1
+            pattern: \S
+          label:
+            type: string
+            maxLength: 300
+            minLength: 1
+            pattern: \S
+          value:
+            type: string
+            maxLength: 500
+            minLength: 1
+            pattern: \S
+          accessibleLabel:
+            type: string
+            maxLength: 300
+            minLength: 1
+            pattern: \S
+          options:
+            type: array
+            items:
+              type: object
+              properties:
+                value:
+                  type: string
+                  maxLength: 500
+                  minLength: 1
+                  pattern: \S
+                label:
+                  type: string
+                  maxLength: 500
+                  minLength: 1
+                  pattern: \S
+              required:
+              - value
+              - label
+              additionalProperties: false
+            minItems: 1
+            maxItems: 100
+          platforms:
+            $ref: '#/components/schemas/CardPlatforms'
+        required:
+        - type
+        - id
+        - label
+        - value
+        - options
+        additionalProperties: false
+      - type: object
+        properties:
+          type:
+            type: string
+            enum:
+            - resource
+          id:
+            type: string
+            maxLength: 200
+            minLength: 1
+            pattern: \S
+          url:
+            type: string
+            maxLength: 8192
+            pattern: ^[Hh][Tt][Tt][Pp][Ss]?://[^\s\u0000-\u0020\u007f]+$
+            description: Absolute HTTP(S) URL without credentials. The runtime URL parser also validates the destination syntax.
+          title:
+            type: string
+            maxLength: 2000
+            minLength: 1
+            pattern: \S
+          loading:
+            type: boolean
+          subtitle:
+            type: string
+            maxLength: 2000
+            minLength: 1
+            pattern: \S
+          body:
+            type: string
+            maxLength: 16384
+            minLength: 1
+            pattern: \S
+          bodyStyle:
+            type: string
+            enum:
+            - preview
+          accessibleLabel:
+            type: string
+            maxLength: 2000
+            minLength: 1
+            pattern: \S
+          metadata:
+            type: array
+            items:
+              oneOf:
+              - type: object
+                properties:
+                  type:
+                    type: string
+                    enum:
+                    - text
+                  text:
+                    type: string
+                    maxLength: 16384
+                    minLength: 1
+                    pattern: \S
+                  tooltip:
+                    type: string
+                    maxLength: 2000
+                    minLength: 1
+                    pattern: \S
+                required:
+                - type
+                - text
+                additionalProperties: false
+              - type: object
+                properties:
+                  type:
+                    type: string
+                    enum:
+                    - status
+                  text:
+                    type: string
+                    maxLength: 300
+                    minLength: 1
+                    pattern: \S
+                  tone:
+                    type: string
+                    enum:
+                    - brand
+                    - neutral
+                    - muted
+                    - success
+                    - warning
+                    - danger
+                required:
+                - type
+                - text
+                - tone
+                additionalProperties: false
+              - type: object
+                properties:
+                  type:
+                    type: string
+                    enum:
+                    - time
+                  timestamp:
+                    type: integer
+                    minimum: -8640000000000000
+                    maximum: 8640000000000000
+                  format:
+                    type: string
+                    enum:
+                    - relative
+                    - absolute
+                  prefix:
+                    type: string
+                    maxLength: 80
+                    minLength: 1
+                    pattern: \S
+                    description: Words before the time in the same run, such as "Closes".
+                required:
+                - type
+                - timestamp
+                - format
+                additionalProperties: false
+            minItems: 1
+            maxItems: 32
+          image:
+            type: object
+            properties:
+              url:
+                type: string
+                maxLength: 8192
+                pattern: ^[Hh][Tt][Tt][Pp][Ss]?://[^\s\u0000-\u0020\u007f]+$
+                description: Absolute HTTP(S) URL without credentials. The runtime URL parser also validates the destination syntax.
+              alt:
+                type: string
+                maxLength: 2000
+              presentation:
+                type: string
+                enum:
+                - thumbnail
+                - content
+                - cover
+              aspect:
+                type: number
+                minimum: 0.1
+                maximum: 10
+                description: Image width divided by image height.
+            required:
+            - url
+            - alt
+            additionalProperties: false
+          links:
+            type: array
+            items:
+              type: object
+              properties:
+                type:
+                  type: string
+                  enum:
+                  - link
+                text:
+                  type: string
+                  maxLength: 16384
+                  minLength: 1
+                  pattern: \S
+                url:
+                  type: string
+                  maxLength: 8192
+                  pattern: ^[Hh][Tt][Tt][Pp][Ss]?://[^\s\u0000-\u0020\u007f]+$
+                  description: Absolute HTTP(S) URL without credentials. The runtime URL parser also validates the destination syntax.
+                accessibleLabel:
+                  type: string
+                  maxLength: 500
+                  minLength: 1
+                  pattern: \S
+                icon:
+                  type: string
+                  enum:
+                  - spotify
+                  - bandcamp
+                  - google_maps
+                  - linkedin
+              required:
+              - type
+              - text
+              - url
+              additionalProperties: false
+            minItems: 0
+            maxItems: 8
+          audio:
+            type: object
+            properties:
+              url:
+                type: string
+                maxLength: 8192
+                pattern: ^[Hh][Tt][Tt][Pp][Ss]?://[^\s\u0000-\u0020\u007f]+$
+                description: Absolute HTTP(S) URL without credentials. The runtime URL parser also validates the destination syntax.
+              label:
+                type: string
+                maxLength: 2000
+                minLength: 1
+                pattern: \S
+            required:
+            - url
+            - label
+            additionalProperties: false
+          avatarUrl:
+            type: string
+            maxLength: 8192
+            pattern: ^[Hh][Tt][Tt][Pp][Ss]?://[^\s\u0000-\u0020\u007f]+$
+            description: Absolute HTTP(S) URL without credentials. The runtime URL parser also validates the destination syntax.
+          media:
+            oneOf:
+            - type: object
+              properties:
+                kind:
+                  type: string
+                  enum:
+                  - photos
+                images:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      url:
+                        type: string
+                        maxLength: 8192
+                        pattern: ^[Hh][Tt][Tt][Pp][Ss]?://[^\s\u0000-\u0020\u007f]+$
+                        description: Absolute HTTP(S) URL without credentials. The runtime URL parser also validates the destination syntax.
+                      alt:
+                        type: string
+                        maxLength: 2000
+                      aspect:
+                        type: number
+                        minimum: 0.1
+                        maximum: 10
+                        description: Image width divided by image height.
+                    required:
+                    - url
+                    - alt
+                    additionalProperties: false
+                  minItems: 1
+                  maxItems: 4
+              required:
+              - kind
+              - images
+              additionalProperties: false
+            - type: object
+              properties:
+                kind:
+                  type: string
+                  enum:
+                  - video_poster
+                images:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      url:
+                        type: string
+                        maxLength: 8192
+                        pattern: ^[Hh][Tt][Tt][Pp][Ss]?://[^\s\u0000-\u0020\u007f]+$
+                        description: Absolute HTTP(S) URL without credentials. The runtime URL parser also validates the destination syntax.
+                      alt:
+                        type: string
+                        maxLength: 2000
+                      aspect:
+                        type: number
+                        minimum: 0.1
+                        maximum: 10
+                        description: Image width divided by image height.
+                    required:
+                    - url
+                    - alt
+                    additionalProperties: false
+                  minItems: 1
+                  maxItems: 1
+                videoUrl:
+                  type: string
+                  maxLength: 8192
+                  pattern: ^[Hh][Tt][Tt][Pp][Ss]?://[^\s\u0000-\u0020\u007f]+$
+                  description: Absolute HTTP(S) URL without credentials. The runtime URL parser also validates the destination syntax.
+              required:
+              - kind
+              - images
+              additionalProperties: false
+          quote:
+            type: object
+            properties:
+              url:
+                type: string
+                maxLength: 8192
+                pattern: ^[Hh][Tt][Tt][Pp][Ss]?://[^\s\u0000-\u0020\u007f]+$
+                description: Absolute HTTP(S) URL without credentials. The runtime URL parser also validates the destination syntax.
+              title:
+                type: string
+                maxLength: 2000
+                minLength: 1
+                pattern: \S
+              subtitle:
+                type: string
+                maxLength: 2000
+                minLength: 1
+                pattern: \S
+              avatarUrl:
+                type: string
+                maxLength: 8192
+                pattern: ^[Hh][Tt][Tt][Pp][Ss]?://[^\s\u0000-\u0020\u007f]+$
+                description: Absolute HTTP(S) URL without credentials. The runtime URL parser also validates the destination syntax.
+              body:
+                type: string
+                maxLength: 16384
+                minLength: 1
+                pattern: \S
+              image:
+                type: object
+                properties:
+                  url:
+                    type: string
+                    maxLength: 8192
+                    pattern: ^[Hh][Tt][Tt][Pp][Ss]?://[^\s\u0000-\u0020\u007f]+$
+                    description: Absolute HTTP(S) URL without credentials. The runtime URL parser also validates the destination syntax.
+                  alt:
+                    type: string
+                    maxLength: 2000
+                  aspect:
+                    type: number
+                    minimum: 0.1
+                    maximum: 10
+                    description: Image width divided by image height.
+                required:
+                - url
+                - alt
+                additionalProperties: false
+            required:
+            - url
+            - title
+            additionalProperties: false
+          platforms:
+            $ref: '#/components/schemas/CardPlatforms'
+        required:
+        - type
+        - id
+        - url
+        additionalProperties: false
     MessageResultResponse:
       additionalProperties: false
       description: Message detail response with the standard public data envelope plus legacy top-level aliases.
@@ -626,6 +3210,7 @@ components:
         replies_count:
           description: Number of thread replies.
           type: integer
+          minimum: 0
       required:
       - data
       - id
@@ -640,9 +3225,310 @@ components:
       - replies_count
       - created_at
       type: object
-    ConversationMessagesResponse:
+    CardInline:
+      oneOf:
+      - type: object
+        properties:
+          type:
+            type: string
+            enum:
+            - text
+          text:
+            type: string
+            maxLength: 16384
+            minLength: 1
+            pattern: \S
+          tooltip:
+            type: string
+            maxLength: 2000
+            minLength: 1
+            pattern: \S
+        required:
+        - type
+        - text
+        additionalProperties: false
+      - type: object
+        properties:
+          type:
+            type: string
+            enum:
+            - email
+          text:
+            type: string
+            maxLength: 16384
+            minLength: 1
+            pattern: \S
+          address:
+            type: string
+            maxLength: 254
+            minLength: 1
+            pattern: ^[^\s@]+@[^\s@]+\.[^\s@]+$
+        required:
+        - type
+        - text
+        - address
+        additionalProperties: false
+      - type: object
+        properties:
+          type:
+            type: string
+            enum:
+            - link
+          text:
+            type: string
+            maxLength: 16384
+            minLength: 1
+            pattern: \S
+          url:
+            type: string
+            maxLength: 8192
+            pattern: ^[Hh][Tt][Tt][Pp][Ss]?://[^\s\u0000-\u0020\u007f]+$
+            description: Absolute HTTP(S) URL without credentials. The runtime URL parser also validates the destination syntax.
+          accessibleLabel:
+            type: string
+            maxLength: 500
+            minLength: 1
+            pattern: \S
+          icon:
+            type: string
+            enum:
+            - spotify
+            - bandcamp
+            - google_maps
+            - linkedin
+        required:
+        - type
+        - text
+        - url
+        additionalProperties: false
+      - type: object
+        properties:
+          type:
+            type: string
+            enum:
+            - status
+          text:
+            type: string
+            maxLength: 300
+            minLength: 1
+            pattern: \S
+          tone:
+            type: string
+            enum:
+            - brand
+            - neutral
+            - muted
+            - success
+            - warning
+            - danger
+        required:
+        - type
+        - text
+        - tone
+        additionalProperties: false
+      - type: object
+        properties:
+          type:
+            type: string
+            enum:
+            - time
+          timestamp:
+            type: integer
+            minimum: -8640000000000000
+            maximum: 8640000000000000
+          format:
+            type: string
+            enum:
+            - relative
+            - absolute
+          prefix:
+            type: string
+            maxLength: 80
+            minLength: 1
+            pattern: \S
+            description: Words before the time in the same run, such as "Closes".
+        required:
+        - type
+        - timestamp
+        - format
+        additionalProperties: false
+    CreateConversationMessageBody:
       additionalProperties: false
-      description: Conversation messages response with the standard public data envelope plus legacy top-level aliases.
+      description: Create a conversation message. The authenticated API-key workspace member is the author; author_id is accepted only for legacy body compatibility and is ignored.
+      properties:
+        app_card:
+          oneOf:
+          - additionalProperties: false
+            description: A deployment attempt reported by the authenticated publisher. Markdown remains the fallback for clients without native cards.
+            properties:
+              kind:
+                type: string
+                enum:
+                - deployment
+              deployment:
+                additionalProperties: false
+                description: Immutable deployment result.
+                properties:
+                  repository:
+                    description: GitHub owner/repository.
+                    type: string
+                    maxLength: 200
+                    pattern: ^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$
+                  sha:
+                    description: Full commit SHA.
+                    type: string
+                    pattern: ^[a-fA-F0-9]{40}$
+                  subject:
+                    description: Commit subject.
+                    type: string
+                    maxLength: 300
+                  environment:
+                    description: Deployment environment.
+                    type: string
+                    minLength: 1
+                    maxLength: 80
+                  run_id:
+                    description: GitHub Actions run ID.
+                    type: string
+                    pattern: ^[1-9][0-9]*$
+                    maxLength: 30
+                  run_attempt:
+                    type: integer
+                    minimum: 1
+                  verification:
+                    type: string
+                    enum:
+                    - success
+                    - failure
+                    - cancelled
+                    - skipped
+                    - unknown
+                  services:
+                    type: array
+                    minItems: 1
+                    maxItems: 12
+                    items:
+                      additionalProperties: false
+                      description: One service outcome; names must be distinct.
+                      properties:
+                        name:
+                          description: Service name.
+                          type: string
+                          minLength: 1
+                          maxLength: 80
+                        result:
+                          type: string
+                          enum:
+                          - success
+                          - failure
+                          - cancelled
+                          - skipped
+                          - unknown
+                      required:
+                      - name
+                      - result
+                      type: object
+                required:
+                - repository
+                - sha
+                - subject
+                - environment
+                - run_id
+                - run_attempt
+                - verification
+                - services
+                type: object
+            required:
+            - kind
+            - deployment
+            type: object
+          - additionalProperties: false
+            description: A native report or visualization. The server validates the version-1 CardDocument and generates text fallback.
+            properties:
+              kind:
+                type: string
+                enum:
+                - document
+              document:
+                $ref: '#/components/schemas/CardDocument'
+            required:
+            - kind
+            - document
+            type: object
+        markdown_content:
+          description: Message markdown content.
+          type:
+          - string
+          - 'null'
+        explicit_context_message_ids:
+          description: Message identifiers to include as explicit context.
+          items:
+            description: Message identifier.
+            type: string
+          type: array
+        image_urls:
+          description: Image URLs to attach to the message.
+          items:
+            description: Image URL.
+            type: string
+            format: uri
+          type: array
+        file_ids:
+          description: Ready file identifiers from the Files routes to attach to the message.
+          items:
+            description: File identifier.
+            type: string
+          type: array
+        suppressed_link_preview_urls:
+          description: 'URLs to send as plain links: no link preview and no app card.'
+          items:
+            description: URL.
+            type: string
+            format: uri
+          type: array
+        initiator_id:
+          description: Initiating workspace member identifier.
+          type:
+          - string
+          - 'null'
+        thread_root_id:
+          description: Thread root message identifier.
+          type:
+          - string
+          - 'null'
+        replied_to_message_id:
+          description: Immediate parent message identifier inside an existing thread. For the first reply to a root message, send thread_root_id only; if replied_to_message_id equals thread_root_id, the server normalizes it as the first reply.
+          type:
+          - string
+          - 'null'
+        call_root_id:
+          description: Call root identifier.
+          type:
+          - string
+          - 'null'
+        optimistic_id:
+          description: Client optimistic identifier.
+          type: string
+        client_request_id:
+          description: Legacy body idempotency value. Public v1 clients should use the Idempotency-Key header.
+          type:
+          - string
+          - 'null'
+        author_id:
+          description: 'Ignored legacy body author workspace member identifier. Deprecated: the authenticated API-key workspace member is always the author.'
+          type: string
+          deprecated: true
+        send_at:
+          description: Send the message later instead of now. An ISO 8601 timestamp with a UTC offset, at least 5 minutes and at most 30 days ahead. The response is then 202 with a scheduled message. Cannot be combined with app_card or initiator_id.
+          type: string
+          example: '2026-10-12T09:00:00Z'
+          format: date-time
+      required:
+      - markdown_content
+      type: object
+    ThreadRepliesData:
+      additionalProperties: false
+      description: Standard thread replies payload. Use thread_root_id here to validate thread grouping; individual MessageResult items intentionally omit thread_root_id and replied_to_message_id.
       properties:
         conversation_id:
           description: Conversation identifier.
@@ -653,66 +3539,159 @@ components:
           type:
           - string
           - 'null'
-        data:
-          $ref: '#/components/schemas/ConversationMessagesData'
         items:
-          description: Messages.
+          description: Thread reply messages.
           items:
             $ref: '#/components/schemas/MessageResult'
           type: array
-        pageInfo:
-          $ref: '#/components/schemas/LegacyPageInfo'
+        page_info:
+          $ref: '#/components/schemas/PublicApiPageInfo'
+        thread_root_id:
+          description: Thread root message identifier.
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
       required:
-      - data
+      - thread_root_id
       - conversation_id
       - conversation_name
       - items
-      - pageInfo
+      - page_info
       type: object
-    LegacyErrorResponse:
+    DeleteConversationMessageResponse:
       additionalProperties: false
-      description: Current compatibility error envelope used by legacy /api/v1 routes.
+      description: Deleted message response.
       properties:
-        error:
-          description: Error message.
-          type: string
-        error_code:
-          description: Optional machine-readable error code.
-          type:
-          - string
-          - 'null'
-        missing_scopes:
-          description: Missing scopes.
-          items:
-            description: Scope.
-            type: string
-          type: array
+        data:
+          additionalProperties: false
+          description: Deleted message data.
+          properties:
+            message:
+              additionalProperties: false
+              description: The message that was deleted.
+              properties:
+                conversation_id:
+                  description: Conversation the message was deleted from.
+                  type: string
+                  example: 01jzn7e61x3a7v9h2r7t2m3q4p
+                deleted_at:
+                  description: Message deletion timestamp.
+                  type: string
+                  example: '2026-05-14T08:00:00.000Z'
+                  format: date-time
+                id:
+                  description: Deleted message identifier.
+                  type: string
+                  example: 01jzn7e61x3a7v9h2r7t2m3q4p
+              required:
+              - conversation_id
+              - deleted_at
+              - id
+              type: object
+          required:
+          - message
+          type: object
       required:
-      - error
+      - data
       type: object
-    LegacyPageInfo:
+    PublicApiPageInfo:
       additionalProperties: false
-      description: Current compatibility pagination metadata with camelCase field names.
+      description: Target public API pagination metadata with snake_case field names.
       properties:
-        endCursor:
+        end_cursor:
           description: Cursor for the last item.
           type:
           - string
           - 'null'
-        hasNextPage:
+        has_next_page:
           description: Whether another page exists after this page.
           type: boolean
-        hasPreviousPage:
+        has_previous_page:
           description: Whether another page exists before this page.
           type: boolean
-        startCursor:
+        next_cursor:
+          description: Cursor for the next page.
+          type:
+          - string
+          - 'null'
+        previous_cursor:
+          description: Cursor for the previous page.
+          type:
+          - string
+          - 'null'
+        start_cursor:
           description: Cursor for the first item.
           type:
           - string
           - 'null'
       required:
-      - hasNextPage
-      - hasPreviousPage
+      - has_next_page
+      type: object
+    CardExpression:
+      oneOf:
+      - type: number
+        minimum: -1000000000000
+        maximum: 1000000000000
+      - type: object
+        properties:
+          $get:
+            type: array
+            items:
+              type: string
+              maxLength: 200
+              minLength: 1
+              pattern: \S
+            minItems: 2
+            maxItems: 2
+            description: 'Exactly ["inputs", id]: the current value of the number_input with that id.'
+        required:
+        - $get
+        additionalProperties: false
+      - type: object
+        properties:
+          $op:
+            type: string
+            enum:
+            - add
+            - sub
+            - mul
+            - div
+            - pow
+            - min
+            - max
+            - round
+            - floor
+            - ceil
+            - if
+            - gt
+            - lt
+            - eq
+            - and
+            - not
+          args:
+            type: array
+            items:
+              $ref: '#/components/schemas/CardExpression'
+            minItems: 1
+            maxItems: 20
+        required:
+        - $op
+        - args
+        additionalProperties: false
+    ScheduleConversationMessageResponse:
+      additionalProperties: false
+      description: Accepted response for a create-message request that carried send_at.
+      properties:
+        data:
+          additionalProperties: false
+          description: Scheduled message data.
+          properties:
+            scheduled_message:
+              $ref: '#/components/schemas/ScheduledMessageResult'
+          required:
+          - scheduled_message
+          type: object
+      required:
+      - data
       type: object
     MessageReactionSummary:
       additionalProperties: false
@@ -721,12 +3700,59 @@ components:
         count:
           description: Number of reactions for this emoji.
           type: integer
+          minimum: 0
         emoji_text:
           description: Emoji text.
           type: string
       required:
       - emoji_text
       - count
+      type: object
+    CardPlatforms:
+      type: array
+      items:
+        type: string
+        enum:
+        - native
+        - web
+      minItems: 1
+      maxItems: 2
+      uniqueItems: true
+    ScheduledMessageListResponse:
+      additionalProperties: false
+      description: The calling API key's scheduled messages that are still waiting, soonest first.
+      properties:
+        data:
+          additionalProperties: false
+          description: Scheduled message list.
+          properties:
+            items:
+              description: Scheduled messages.
+              items:
+                $ref: '#/components/schemas/ScheduledMessageResult'
+              type: array
+            page_info:
+              additionalProperties: false
+              description: Pagination metadata.
+              properties:
+                has_next_page:
+                  description: Whether more scheduled messages exist past this page.
+                  type: boolean
+                next_cursor:
+                  description: Cursor for the next page; null on the last page.
+                  type:
+                  - string
+                  - 'null'
+              required:
+              - has_next_page
+              - next_cursor
+              type: object
+          required:
+          - items
+          - page_info
+          type: object
+      required:
+      - data
       type: object
     MessageResult:
       additionalProperties: false
@@ -743,6 +3769,11 @@ components:
           deprecated: true
         author_name:
           description: Author workspace member display name.
+          type:
+          - string
+          - 'null'
+        call_id:
+          description: Associated Jam identifier. Null for messages without a Jam; absent on older deployments.
           type:
           - string
           - 'null'
@@ -776,6 +3807,35 @@ components:
             type: string
             format: uri
           type: array
+        attachments:
+          description: Files attached to the message. Use file_id with GET /files/{fileId} or the get_file MCP tool to obtain a short-lived download URL.
+          items:
+            additionalProperties: false
+            description: Message attachment metadata.
+            properties:
+              content_type:
+                description: Attachment MIME content type.
+                type: string
+              file_id:
+                description: Attachment file identifier.
+                type: string
+                example: 01jzn7e61x3a7v9h2r7t2m3q4p
+              filename:
+                description: Attachment filename.
+                type: string
+              size_bytes:
+                description: Attachment size in bytes.
+                type: integer
+                minimum: 0
+            required:
+            - file_id
+            - filename
+            - content_type
+            - size_bytes
+            type: object
+          type: array
+        forward_source:
+          $ref: '#/components/schemas/MessageForwardSource'
         reactions:
           description: Emoji reaction counts on the message.
           items:
@@ -784,6 +3844,7 @@ components:
         replies_count:
           description: Number of thread replies.
           type: integer
+          minimum: 0
       required:
       - id
       - conversation_id
@@ -793,28 +3854,10 @@ components:
       - author_name
       - content
       - image_urls
+      - attachments
       - reactions
       - replies_count
       - created_at
-      type: object
-    CreateConversationMessageResponse:
-      additionalProperties: false
-      description: Create-message response with the standard public data envelope plus legacy compatibility aliases.
-      properties:
-        data:
-          $ref: '#/components/schemas/MessageResult'
-        legacy_data:
-          additionalProperties: true
-          description: Legacy extended conversation message. New clients should read the standard data message result.
-          type:
-          - object
-          - 'null'
-        success:
-          description: Compatibility command flag.
-          type: boolean
-      required:
-      - success
-      - data
       type: object
     ThreadRepliesResponse:
       additionalProperties: false
@@ -850,52 +3893,124 @@ components:
       - items
       - pageInfo
       type: object
-    PublicApiPageInfo:
+    PublicApiErrorResponse:
       additionalProperties: false
-      description: Target public API pagination metadata with snake_case field names.
+      description: Target public API error envelope.
       properties:
-        end_cursor:
-          description: Cursor for the last item.
-          type:
-          - string
-          - 'null'
-        has_next_page:
-          description: Whether another page exists after this page.
-          type: boolean
-        has_previous_page:
-          description: Whether another page exists before this page.
-          type: boolean
-        next_cursor:
-          description: Cursor for the next page.
-          type:
-          - string
-          - 'null'
-        previous_cursor:
-          description: Cursor for the previous page.
-          type:
-          - string
-          - 'null'
-        start_cursor:
-          description: Cursor for the first item.
-          type:
-          - string
-          - 'null'
+        error:
+          additionalProperties: false
+          description: Error details.
+          properties:
+            code:
+              description: Machine-readable error code.
+              type: string
+            message:
+              description: Human-readable error message.
+              type: string
+            request_id:
+              description: Request identifier.
+              type:
+              - string
+              - 'null'
+          required:
+          - code
+          - message
+          type: object
       required:
-      - has_next_page
+      - error
       type: object
+    CardNumberFormat:
+      oneOf:
+      - type: object
+        properties:
+          kind:
+            type: string
+            enum:
+            - number
+          maximumFractionDigits:
+            type: integer
+            minimum: 0
+            maximum: 6
+        required:
+        - kind
+        additionalProperties: false
+      - type: object
+        properties:
+          kind:
+            type: string
+            enum:
+            - duration_ms
+            - percent
+        required:
+        - kind
+        additionalProperties: false
+      - type: object
+        properties:
+          kind:
+            type: string
+            enum:
+            - currency
+          currency:
+            type: string
+            pattern: ^[A-Z]{3}$
+        required:
+        - kind
+        - currency
+        additionalProperties: false
+    CardDocument:
+      type: object
+      properties:
+        version:
+          type: integer
+          enum:
+          - 1
+        title:
+          type: string
+          maxLength: 2000
+          minLength: 1
+          pattern: \S
+        subtitle:
+          type: string
+          maxLength: 2000
+          minLength: 1
+          pattern: \S
+        titleDisplay:
+          type: string
+          enum:
+          - visible
+          - accessible
+        width:
+          type: string
+          enum:
+          - content
+          - wide
+          - full
+        frame:
+          type: string
+          enum:
+          - card
+          - none
+        blocks:
+          type: array
+          items:
+            $ref: '#/components/schemas/CardBlock'
+          minItems: 0
+          maxItems: 1024
+        headerActions:
+          $ref: '#/components/schemas/CardActions'
+      required:
+      - version
+      - title
+      - blocks
+      additionalProperties: false
+      description: 'Version-1 declarative Ando card. Runtime also enforces global ID uniqueness, nesting <=6, <=1024 total blocks, <=512 KiB JSON, valid HTTP(S) URLs, table row widths, selected option membership, increasing chart times, matching series lengths and sufficient known measurements. Percentage charts use 0–100. Resources require a title unless loading=true. Any block may set platforms to show only there: native is the iOS and Android app, web is the browser and desktop app; omit it to show the block everywhere.'
   responses:
-    Unauthorized:
+    InternalError:
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/LegacyErrorResponse'
-      description: Missing or invalid API key.
-    RateLimited:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/PublicApiErrorResponse'
-      description: Rate limit or quota exceeded.
+      description: Internal server error.
     Conflict:
       content:
         application/json:
@@ -908,24 +4023,30 @@ components:
           schema:
             $ref: '#/components/schemas/LegacyErrorResponse'
       description: Forbidden.
-    NotFound:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/LegacyErrorResponse'
-      description: Not found.
-    InternalError:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/LegacyErrorResponse'
-      description: Internal server error.
     BadRequest:
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/LegacyErrorResponse'
       description: Bad request.
+    RateLimited:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/PublicApiErrorResponse'
+      description: Rate limit or quota exceeded.
+    NotFound:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Not found.
+    Unauthorized:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Missing or invalid API key.
   securitySchemes:
     AndoApiKey:
       description: Workspace API key. Current accepted keys use the ando_sk_ prefix.

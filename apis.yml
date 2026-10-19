@@ -100,30 +100,6 @@ apis:
     url: asyncapi/ando-webhooks.yml
   - type: Conformance
     url: conformance/ando-conformance.yml
-- aid: ando:ando-clipboards-api
-  name: Ando Clipboards API
-  description: Clipboard detail routes.
-  humanURL: https://docs.ando.so/api-reference/overview
-  baseURL: https://api.ando.so/v1
-  tags:
-  - Clipboards
-  properties:
-  - type: OpenAPI
-    url: openapi/ando-clipboards-api-openapi.yml
-  - type: Authentication
-    url: authentication/ando-authentication.yml
-  - type: Conventions
-    url: conventions/ando-conventions.yml
-  - type: Idempotency
-    url: conventions/ando-conventions.yml
-  - type: ErrorCatalog
-    url: errors/ando-problem-types.yml
-  - type: DataModel
-    url: data-model/ando-data-model.yml
-  - type: Webhooks
-    url: asyncapi/ando-webhooks.yml
-  - type: Conformance
-    url: conformance/ando-conformance.yml
 - aid: ando:ando-members-api
   name: Ando Members API
   description: Workspace member detail routes. Existing v1 paths keep member compatibility spellings.
@@ -224,18 +200,18 @@ apis:
     url: asyncapi/ando-webhooks.yml
   - type: Conformance
     url: conformance/ando-conformance.yml
-- aid: ando:ando-tasks-api
-  name: Ando Tasks API
-  description: Task routes.
+- aid: ando:ando-webhooks-api
+  name: Ando Webhooks API
+  description: Outbound webhook endpoint and delivery routes.
   humanURL: https://docs.ando.so/api-reference/overview
   baseURL: https://api.ando.so/v1
   tags:
-  - Task
+  - Webhook
   tags_raw:
-  - Tasks
+  - Webhooks
   properties:
   - type: OpenAPI
-    url: openapi/ando-tasks-api-openapi.yml
+    url: openapi/ando-webhooks-api-openapi.yml
   - type: Authentication
     url: authentication/ando-authentication.yml
   - type: Conventions
@@ -250,18 +226,138 @@ apis:
     url: asyncapi/ando-webhooks.yml
   - type: Conformance
     url: conformance/ando-conformance.yml
-- aid: ando:ando-webhooks-api
-  name: Ando Webhooks API
-  description: Outbound webhook endpoint and delivery routes.
+- aid: ando:ando-agents-api
+  name: Ando Agents API
+  description: Workspace agent lifecycle routes.
   humanURL: https://docs.ando.so/api-reference/overview
   baseURL: https://api.ando.so/v1
   tags:
-  - Webhook
-  tags_raw:
-  - Webhooks
+  - Agents
   properties:
   - type: OpenAPI
-    url: openapi/ando-webhooks-api-openapi.yml
+    url: openapi/ando-agents-api-openapi.yml
+  - type: Authentication
+    url: authentication/ando-authentication.yml
+  - type: Conventions
+    url: conventions/ando-conventions.yml
+  - type: Idempotency
+    url: conventions/ando-conventions.yml
+  - type: ErrorCatalog
+    url: errors/ando-problem-types.yml
+  - type: DataModel
+    url: data-model/ando-data-model.yml
+  - type: Webhooks
+    url: asyncapi/ando-webhooks.yml
+  - type: Conformance
+    url: conformance/ando-conformance.yml
+- aid: ando:ando-api-keys-api
+  name: Ando API Keys API
+  description: Programmatic API key issuance and lifecycle routes.
+  humanURL: https://docs.ando.so/api-reference/overview
+  baseURL: https://api.ando.so/v1
+  tags:
+  - API Keys
+  properties:
+  - type: OpenAPI
+    url: openapi/ando-api-keys-api-openapi.yml
+  - type: Authentication
+    url: authentication/ando-authentication.yml
+  - type: Conventions
+    url: conventions/ando-conventions.yml
+  - type: Idempotency
+    url: conventions/ando-conventions.yml
+  - type: ErrorCatalog
+    url: errors/ando-problem-types.yml
+  - type: DataModel
+    url: data-model/ando-data-model.yml
+  - type: Webhooks
+    url: asyncapi/ando-webhooks.yml
+  - type: Conformance
+    url: conformance/ando-conformance.yml
+- aid: ando:ando-conversations-api
+  name: Ando Conversations API
+  description: Membership-scoped conversation routes.
+  humanURL: https://docs.ando.so/api-reference/overview
+  baseURL: https://api.ando.so/v1
+  tags:
+  - Conversations
+  properties:
+  - type: OpenAPI
+    url: openapi/ando-conversations-api-openapi.yml
+  - type: Authentication
+    url: authentication/ando-authentication.yml
+  - type: Conventions
+    url: conventions/ando-conventions.yml
+  - type: Idempotency
+    url: conventions/ando-conventions.yml
+  - type: ErrorCatalog
+    url: errors/ando-problem-types.yml
+  - type: DataModel
+    url: data-model/ando-data-model.yml
+  - type: Webhooks
+    url: asyncapi/ando-webhooks.yml
+  - type: Conformance
+    url: conformance/ando-conformance.yml
+- aid: ando:ando-files-api
+  name: Ando Files API
+  description: File upload lifecycle routes for public API message attachments.
+  humanURL: https://docs.ando.so/api-reference/overview
+  baseURL: https://api.ando.so/v1
+  tags:
+  - Files
+  properties:
+  - type: OpenAPI
+    url: openapi/ando-files-api-openapi.yml
+  - type: Authentication
+    url: authentication/ando-authentication.yml
+  - type: Conventions
+    url: conventions/ando-conventions.yml
+  - type: Idempotency
+    url: conventions/ando-conventions.yml
+  - type: ErrorCatalog
+    url: errors/ando-problem-types.yml
+  - type: DataModel
+    url: data-model/ando-data-model.yml
+  - type: Webhooks
+    url: asyncapi/ando-webhooks.yml
+  - type: Conformance
+    url: conformance/ando-conformance.yml
+- aid: ando:ando-imports-api
+  name: Ando Imports API
+  description: >-
+    Move another chat tool's history into a workspace with original authors and timestamps. Requires an
+    owner or admin API key with the imports:write scope.
+  humanURL: https://docs.ando.so/api-reference/overview
+  baseURL: https://api.ando.so/v1
+  tags:
+  - Imports
+  properties:
+  - type: OpenAPI
+    url: openapi/ando-imports-api-openapi.yml
+  - type: Authentication
+    url: authentication/ando-authentication.yml
+  - type: Conventions
+    url: conventions/ando-conventions.yml
+  - type: Idempotency
+    url: conventions/ando-conventions.yml
+  - type: ErrorCatalog
+    url: errors/ando-problem-types.yml
+  - type: DataModel
+    url: data-model/ando-data-model.yml
+  - type: Webhooks
+    url: asyncapi/ando-webhooks.yml
+  - type: Conformance
+    url: conformance/ando-conformance.yml
+- aid: ando:ando-webhook-sources-api
+  name: Ando Webhook sources API
+  description: The Webhook sources API from Ando — 2 operation(s) for webhook sources.
+  humanURL: https://docs.ando.so/api-reference/overview
+  baseURL: https://api.ando.so/v1
+  tags:
+  - Webhook sources
+  properties:
+  - type: OpenAPI
+    url: openapi/ando-webhook-sources-api-openapi.yml
   - type: Authentication
     url: authentication/ando-authentication.yml
   - type: Conventions

@@ -1,0 +1,873 @@
+openapi: 3.2.0
+info:
+  description: Generated from Ando's accepted public API v1 contract metadata. Current routes preserve legacy /api/v1 response envelopes while converging on the public https://api.ando.so/v1 shape.
+  title: Ando Public Conversations API
+  version: v1
+servers:
+- description: Canonical public API host.
+  url: https://api.ando.so/v1
+tags:
+- description: Membership-scoped conversation routes.
+  name: Conversations
+paths:
+  /conversations:
+    get:
+      description: Lists active conversations the authenticated workspace member belongs to. The cursor follows membership order and remains valid as memberships change.
+      operationId: listConversations
+      parameters:
+      - description: Maximum number of conversations to return.
+        in: query
+        name: limit
+        schema:
+          description: Maximum number of conversations to return.
+          type: integer
+          maximum: 100
+          minimum: 1
+      - description: Opaque cursor returned by data.page_info.next_cursor. Reuse it unchanged with the same query and filters.
+        in: query
+        name: cursor
+        schema:
+          description: Opaque cursor returned by data.page_info.next_cursor. Reuse it unchanged with the same query and filters.
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                conversations:
+                  summary: Membership-scoped conversations.
+                  value:
+                    data:
+                      items:
+                      - id: conv_01jzn7e61x3a7v9h2r7t2m3q4p
+                        name: Launch planning
+                        type: 0
+                        description: Launch coordination.
+                        human_members_count: 8
+                        agent_members_count: 2
+                      page_info:
+                        has_next_page: true
+                        next_cursor: opaque-conversation-membership-cursor
+                    items:
+                    - id: conv_01jzn7e61x3a7v9h2r7t2m3q4p
+                      name: Launch planning
+                      type: 0
+                      description: Launch coordination.
+                      human_members_count: 8
+                      agent_members_count: 2
+              schema:
+                $ref: '#/components/schemas/ListConversationsResponse'
+          description: Membership-scoped conversations.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      security:
+      - AndoApiKey: []
+      - BearerApiKey: []
+      summary: List conversations
+      tags:
+      - Conversations
+      x-ando-compatibility-mode: standard_public
+      x-ando-migration-target: standard_public
+      x-ando-rate-limit-policy: declared
+      x-ando-route-id: api.api_v1_conversations.get
+      x-ando-canonical-host: api.ando.so
+      x-ando-documentation-owner: api_platform
+      x-ando-principal-kind: workspace_api_key
+      x-ando-public-api-route-class: public_data
+      x-ando-public-path: /v1/conversations
+      x-ando-runtime-owner: convex_product
+      x-ando-status-probe-owner: public_api_messaging
+      x-ando-rollback-runtime: convex_http
+      x-ando-selected-runtime: convex_http
+      x-ando-target-runtime: convex_http
+    post:
+      description: 'Creates a channel in the authenticated workspace. Same operation as the MCP create_channel tool: channels are public unless access_control_type is "private", the caller always joins, and a name already used by an active channel returns 409 channel_name_conflict.'
+      operationId: createConversation
+      requestBody:
+        content:
+          application/json:
+            examples:
+              channel:
+                summary: Create a public channel with one invited member.
+                value:
+                  name: errors
+                  access_control_type: public
+                  member_ids:
+                  - 11111111-1111-4111-8111-111111111111
+            schema:
+              $ref: '#/components/schemas/CreateConversationBody'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                channel:
+                  summary: Created channel.
+                  value:
+                    data:
+                      access_control_type: public
+                      conversation_id: 22222222-2222-4222-8222-222222222222
+                      member_ids:
+                      - 33333333-3333-4333-8333-333333333333
+                      - 11111111-1111-4111-8111-111111111111
+                      name: errors
+              schema:
+                $ref: '#/components/schemas/CreateConversationResponse'
+          description: Created channel.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      security:
+      - AndoApiKey: []
+      - BearerApiKey: []
+      summary: Create a channel
+      tags:
+      - Conversations
+      x-ando-compatibility-mode: standard_public
+      x-ando-migration-target: standard_public
+      x-ando-rate-limit-policy: declared
+      x-ando-route-id: api.api_v1_conversations.post
+      x-ando-canonical-host: api.ando.so
+      x-ando-documentation-owner: api_platform
+      x-ando-principal-kind: workspace_api_key
+      x-ando-public-api-route-class: durable_ingress
+      x-ando-public-path: /v1/conversations
+      x-ando-runtime-owner: convex_product
+      x-ando-status-probe-owner: public_api_messaging
+      x-ando-rollback-runtime: convex_http
+      x-ando-selected-runtime: convex_http
+      x-ando-target-runtime: convex_http
+  /conversations/{conversationId}:
+    get:
+      description: Returns an active conversation when the authenticated workspace member currently belongs to it. Missing and inaccessible conversations both return not found.
+      operationId: getConversation
+      parameters:
+      - description: Conversation identifier.
+        in: path
+        name: conversationId
+        required: true
+        schema:
+          description: Conversation identifier.
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                conversation:
+                  summary: Conversation details.
+                  value:
+                    data:
+                      id: conv_01jzn7e61x3a7v9h2r7t2m3q4p
+                      name: Launch planning
+                      type: 0
+                      description: Launch coordination.
+                      human_members_count: 8
+                      agent_members_count: 2
+              schema:
+                $ref: '#/components/schemas/ConversationResultResponse'
+          description: Conversation details.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      security:
+      - AndoApiKey: []
+      - BearerApiKey: []
+      summary: Get a conversation
+      tags:
+      - Conversations
+      x-ando-compatibility-mode: standard_public
+      x-ando-migration-target: standard_public
+      x-ando-rate-limit-policy: declared
+      x-ando-route-id: api.api_v1_conversations_by_conversationid.get
+      x-ando-canonical-host: api.ando.so
+      x-ando-documentation-owner: api_platform
+      x-ando-principal-kind: workspace_api_key
+      x-ando-public-api-route-class: public_data
+      x-ando-public-path: /v1/conversations/:conversationId
+      x-ando-runtime-owner: convex_product
+      x-ando-status-probe-owner: public_api_messaging
+      x-ando-rollback-runtime: convex_http
+      x-ando-selected-runtime: convex_http
+      x-ando-target-runtime: convex_http
+  /conversations/{conversationId}/context:
+    get:
+      description: Returns bounded conversation context for a current member, with display-only member records and no internal buffers or memory fields. Missing and inaccessible conversations return not found.
+      operationId: getConversationContext
+      parameters:
+      - description: Conversation identifier.
+        in: path
+        name: conversationId
+        required: true
+        schema:
+          description: Conversation identifier.
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublicConversationContextResponse'
+          description: Authorized conversation context.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      security:
+      - AndoApiKey: []
+      - BearerApiKey: []
+      summary: Get conversation context
+      tags:
+      - Conversations
+      x-ando-compatibility-mode: standard_public
+      x-ando-migration-target: standard_public
+      x-ando-rate-limit-policy: declared
+      x-ando-route-id: api.api_v1_conversations_by_conversationid_context.get
+      x-ando-canonical-host: api.ando.so
+      x-ando-documentation-owner: api_platform
+      x-ando-principal-kind: workspace_api_key
+      x-ando-public-api-route-class: public_data
+      x-ando-public-path: /v1/conversations/:conversationId/context
+      x-ando-runtime-owner: convex_product
+      x-ando-status-probe-owner: public_api_messaging
+      x-ando-rollback-runtime: convex_http
+      x-ando-selected-runtime: convex_http
+      x-ando-target-runtime: convex_http
+components:
+  schemas:
+    LegacyErrorResponse:
+      additionalProperties: false
+      description: Current compatibility error envelope used by legacy /api/v1 routes.
+      properties:
+        error:
+          description: Error message.
+          type: string
+        error_code:
+          description: Optional machine-readable error code.
+          type:
+          - string
+          - 'null'
+        type:
+          description: 'Error class, one per HTTP status family. rate_limit_error, api_error, overloaded_error and timeout_error are worth retrying; the others need a different request. Retry a write only with the same Idempotency-Key: an api_error can mean it committed.'
+          enum:
+          - invalid_request_error
+          - authentication_error
+          - permission_error
+          - not_found_error
+          - conflict_error
+          - request_too_large
+          - rate_limit_error
+          - api_error
+          - overloaded_error
+          - timeout_error
+          type: string
+        request_id:
+          description: The request id, also sent as the x-request-id header. Quote it when reporting a problem.
+          type: string
+        missing_scopes:
+          description: Missing scopes.
+          items:
+            description: Scope.
+            type: string
+          type: array
+      required:
+      - error
+      type: object
+    CreateConversationResponse:
+      additionalProperties: false
+      description: Created channel response.
+      properties:
+        data:
+          $ref: '#/components/schemas/CreateConversationResult'
+      required:
+      - data
+      type: object
+    PublicConversationContextResult:
+      additionalProperties: false
+      description: Bounded conversation context for an authorized current member. Internal buffers and memory fields are excluded.
+      properties:
+        id:
+          description: id.
+          type: string
+        name:
+          description: name.
+          type: string
+        workspace_id:
+          description: workspace id.
+          type: string
+        description:
+          description: description.
+          type:
+          - string
+          - 'null'
+        everyone_member_group_id:
+          description: everyone member group id.
+          type:
+          - string
+          - 'null'
+        summary_text:
+          description: summary text.
+          type:
+          - string
+          - 'null'
+        creator_member_id:
+          description: creator member id.
+          type:
+          - string
+          - 'null'
+        slack_channel_id:
+          description: slack channel id.
+          type:
+          - string
+          - 'null'
+        last_message_preview:
+          description: last message preview.
+          type:
+          - string
+          - 'null'
+        last_message_author_id:
+          description: last message author id.
+          type:
+          - string
+          - 'null'
+        last_message_id:
+          description: last message id.
+          type:
+          - string
+          - 'null'
+        canonical_name:
+          description: canonical name.
+          type:
+          - string
+          - 'null'
+        local_alias:
+          description: local alias.
+          type:
+          - string
+          - 'null'
+        human_members_count:
+          description: human members count.
+          type: integer
+          minimum: 0
+        agent_members_count:
+          description: agent members count.
+          type: integer
+          minimum: 0
+        created_at:
+          description: created at.
+          type: string
+          example: '2026-05-14T08:00:00.000Z'
+          format: date-time
+        updated_at:
+          description: updated at.
+          type: string
+          example: '2026-05-14T08:00:00.000Z'
+          format: date-time
+        archived_at:
+          description: archived at.
+          type:
+          - string
+          - 'null'
+          example: '2026-05-14T08:00:00.000Z'
+          format: date-time
+        last_message_at:
+          description: last message at.
+          type:
+          - string
+          - 'null'
+          example: '2026-05-14T08:00:00.000Z'
+          format: date-time
+        last_summary_at:
+          description: last summary at.
+          type:
+          - string
+          - 'null'
+          example: '2026-05-14T08:00:00.000Z'
+          format: date-time
+        preview_member_ids:
+          description: Preview workspace membership identifiers.
+          items:
+            description: Workspace membership identifier.
+            type: string
+            example: 01jzn7e61x3a7v9h2r7t2m3q4p
+          type: array
+        preview_members:
+          description: Preview member displays.
+          items:
+            $ref: '#/components/schemas/PublicConversationContextMember'
+          type: array
+        creator_member:
+          allOf:
+          - $ref: '#/components/schemas/PublicConversationContextMember'
+        type:
+          type: integer
+          enum:
+          - 0
+          - 1
+          - 2
+        origin:
+          type: integer
+          enum:
+          - 0
+          - 1
+          - 2
+        access_control_type:
+          type: integer
+          enum:
+          - 0
+          - 1
+        sync_enabled:
+          description: Whether Slack synchronization is enabled.
+          type: boolean
+        is_hidden:
+          type:
+          - boolean
+          - 'null'
+      required:
+      - id
+      - name
+      - workspace_id
+      - description
+      - everyone_member_group_id
+      - summary_text
+      - creator_member_id
+      - slack_channel_id
+      - human_members_count
+      - agent_members_count
+      - created_at
+      - updated_at
+      - archived_at
+      - last_message_at
+      - last_summary_at
+      - preview_member_ids
+      - preview_members
+      - creator_member
+      - type
+      - origin
+      - access_control_type
+      - sync_enabled
+      type: object
+    ConversationResult:
+      additionalProperties: false
+      description: Public conversation projection.
+      properties:
+        agent_members_count:
+          description: Number of agent workspace members.
+          type: integer
+          minimum: 0
+        created_at:
+          description: Conversation creation timestamp.
+          type: string
+          example: '2026-05-14T08:00:00.000Z'
+          format: date-time
+        creator_member_id:
+          description: Workspace membership ID of the conversation creator, when known.
+          type:
+          - string
+          - 'null'
+        description:
+          description: Conversation description.
+          type:
+          - string
+          - 'null'
+        human_members_count:
+          description: Number of human workspace members.
+          type: integer
+          minimum: 0
+        id:
+          description: Conversation identifier.
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+        name:
+          description: Conversation name.
+          type:
+          - string
+          - 'null'
+        type:
+          description: 'Conversation type: 0 channel, 1 direct message.'
+          enum:
+          - 0
+          - 1
+          type: integer
+        is_bridge:
+          description: 'Whether the conversation is a Bridge: a channel shared with another organization through Ando Connect, or a Slack Connect mirror. Present on membership-backed reads.'
+          type: boolean
+        bridge_kind:
+          description: Which kind of Bridge, or null when the conversation is not one. Only ando_connect channels follow Ando Connect membership rules.
+          enum:
+          - ando_connect
+          - slack_connect
+          type:
+          - string
+          - 'null'
+      required:
+      - id
+      - name
+      - type
+      - description
+      - human_members_count
+      - agent_members_count
+      - created_at
+      - creator_member_id
+      type: object
+    CreateConversationResult:
+      additionalProperties: false
+      description: Created channel projection.
+      properties:
+        access_control_type:
+          description: Channel visibility.
+          enum:
+          - public
+          - private
+          type: string
+        conversation_id:
+          description: Conversation identifier.
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+        member_ids:
+          description: Workspace member ids of the initial channel members, including the caller.
+          items:
+            description: Workspace member identifier.
+            type: string
+            example: 01jzn7e61x3a7v9h2r7t2m3q4p
+          type: array
+        name:
+          description: Channel name.
+          type:
+          - string
+          - 'null'
+      required:
+      - access_control_type
+      - conversation_id
+      - member_ids
+      - name
+      type: object
+    PublicApiPageInfo:
+      additionalProperties: false
+      description: Target public API pagination metadata with snake_case field names.
+      properties:
+        end_cursor:
+          description: Cursor for the last item.
+          type:
+          - string
+          - 'null'
+        has_next_page:
+          description: Whether another page exists after this page.
+          type: boolean
+        has_previous_page:
+          description: Whether another page exists before this page.
+          type: boolean
+        next_cursor:
+          description: Cursor for the next page.
+          type:
+          - string
+          - 'null'
+        previous_cursor:
+          description: Cursor for the previous page.
+          type:
+          - string
+          - 'null'
+        start_cursor:
+          description: Cursor for the first item.
+          type:
+          - string
+          - 'null'
+      required:
+      - has_next_page
+      type: object
+    PublicConversationContextResponse:
+      additionalProperties: false
+      description: Authorized conversation context response.
+      properties:
+        data:
+          $ref: '#/components/schemas/PublicConversationContextResult'
+      required:
+      - data
+      type: object
+    PublicApiErrorResponse:
+      additionalProperties: false
+      description: Target public API error envelope.
+      properties:
+        error:
+          additionalProperties: false
+          description: Error details.
+          properties:
+            code:
+              description: Machine-readable error code.
+              type: string
+            message:
+              description: Human-readable error message.
+              type: string
+            request_id:
+              description: Request identifier.
+              type:
+              - string
+              - 'null'
+          required:
+          - code
+          - message
+          type: object
+      required:
+      - error
+      type: object
+    PublicConversationContextMember:
+      additionalProperties: false
+      description: Public member display fields without private profile data.
+      properties:
+        id:
+          description: Workspace membership identifier.
+          type: string
+          example: 01jzn7e61x3a7v9h2r7t2m3q4p
+        display_name:
+          description: display name.
+          type:
+          - string
+          - 'null'
+        profile_image_url:
+          description: profile image url.
+          type:
+          - string
+          - 'null'
+        avatar_asset_key:
+          description: avatar asset key.
+          type:
+          - string
+          - 'null'
+        handle:
+          description: handle.
+          type:
+          - string
+          - 'null'
+        avatar_width:
+          type:
+          - number
+          - 'null'
+          minimum: 0
+        avatar_height:
+          type:
+          - number
+          - 'null'
+          minimum: 0
+        avatar_source_kind:
+          type:
+          - integer
+          - 'null'
+          enum:
+          - 1
+          - 2
+          - 3
+        member_type:
+          type: integer
+          enum:
+          - 0
+          - 1
+        archived_at:
+          description: Member archival timestamp.
+          type:
+          - string
+          - 'null'
+          example: '2026-05-14T08:00:00.000Z'
+          format: date-time
+        projection_kind:
+          type: string
+          enum:
+          - display
+        is_workspace_agent:
+          description: Workspace agent identity.
+          type: boolean
+        is_connected_app:
+          description: Connected app identity.
+          type: boolean
+        is_guest:
+          description: Guest identity.
+          type: boolean
+        connected_app_key:
+          description: Connected app preset key.
+          type: string
+        claim_status:
+          type:
+          - string
+          - 'null'
+          enum:
+          - claimed
+          - unclaimed
+        source_kind:
+          type:
+          - string
+          - 'null'
+          enum:
+          - ando
+          - slack_import
+          - slack_sync
+      required:
+      - id
+      - display_name
+      - profile_image_url
+      - avatar_asset_key
+      - avatar_width
+      - avatar_height
+      - avatar_source_kind
+      - member_type
+      - archived_at
+      - projection_kind
+      type: object
+    ConversationResultResponse:
+      additionalProperties: false
+      description: Membership-gated conversation detail response.
+      properties:
+        data:
+          $ref: '#/components/schemas/ConversationResult'
+      required:
+      - data
+      type: object
+    CreateConversationBody:
+      additionalProperties: false
+      description: Channel creation request. Same operation as the MCP create_channel tool.
+      properties:
+        access_control_type:
+          description: Channel visibility. Defaults to "public".
+          enum:
+          - public
+          - private
+          type: string
+        member_ids:
+          description: Workspace member ids to include as initial channel members. The caller is always included.
+          items:
+            description: Workspace member identifier.
+            type: string
+            example: 01jzn7e61x3a7v9h2r7t2m3q4p
+          type: array
+        name:
+          description: The channel name.
+          type: string
+      required:
+      - name
+      type: object
+    ListConversationsResponse:
+      additionalProperties: false
+      description: Membership-scoped conversation list. Results are returned in data.items; top-level items is a compatibility alias.
+      properties:
+        data:
+          additionalProperties: false
+          description: Standard paginated public response data.
+          properties:
+            items:
+              description: Conversations the authenticated workspace member belongs to.
+              items:
+                $ref: '#/components/schemas/ConversationResult'
+              type: array
+            page_info:
+              $ref: '#/components/schemas/PublicApiPageInfo'
+          required:
+          - items
+          - page_info
+          type: object
+        items:
+          description: Compatibility alias for data.items. New clients should read data.items.
+          items:
+            $ref: '#/components/schemas/ConversationResult'
+          type: array
+          deprecated: true
+      required:
+      - data
+      - items
+      type: object
+  responses:
+    InternalError:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Internal server error.
+    Conflict:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Conflict.
+    Forbidden:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Forbidden.
+    BadRequest:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Bad request.
+    RateLimited:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/PublicApiErrorResponse'
+      description: Rate limit or quota exceeded.
+    NotFound:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Not found.
+    Unauthorized:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LegacyErrorResponse'
+      description: Missing or invalid API key.
+  securitySchemes:
+    AndoApiKey:
+      description: Workspace API key. Current accepted keys use the ando_sk_ prefix.
+      in: header
+      name: x-api-key
+      type: apiKey
+    BearerApiKey:
+      bearerFormat: ando_sk
+      description: Compatibility transport for workspace API keys.
+      scheme: bearer
+      type: http
