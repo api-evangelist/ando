@@ -256,6 +256,8 @@ apis:
   humanURL: https://docs.ando.so/api-reference/overview
   baseURL: https://api.ando.so/v1
   tags:
+  - APIKeys
+  tags_raw:
   - API Keys
   properties:
   - type: OpenAPI
@@ -304,6 +306,8 @@ apis:
   humanURL: https://docs.ando.so/api-reference/overview
   baseURL: https://api.ando.so/v1
   tags:
+  - File
+  tags_raw:
   - Files
   properties:
   - type: OpenAPI
@@ -330,6 +334,8 @@ apis:
   humanURL: https://docs.ando.so/api-reference/overview
   baseURL: https://api.ando.so/v1
   tags:
+  - Import
+  tags_raw:
   - Imports
   properties:
   - type: OpenAPI
